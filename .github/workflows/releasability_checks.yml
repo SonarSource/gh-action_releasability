@@ -1,0 +1,42 @@
+name: Manually execute releasability checks
+
+on:
+  workflow_dispatch:
+    inputs:
+      organization:
+        description: "GitHub organization"
+        required: true
+        default: "SonarSource"
+        type: choice
+        options:
+            - SonarSource
+      repository:
+        description: "GitHub repository"
+        required: true
+      branch:
+          description: "Branch"
+          default: "master"
+          required: true
+      version:
+        description: "The version to check"
+        required: true
+
+jobs:
+    trigger_releasability_checks:
+        runs-on: ubuntu-latest
+
+        steps:
+          - name: Dump inputs
+            run: |
+                echo "Organization ${{ github.event.inputs.organization }}"
+                echo "Repository ${{ github.event.inputs.repository }}"
+                echo "Branch ${{ github.event.inputs.branch }}"
+                echo "Version ${{ github.event.inputs.version }}"
+
+          - name: Trigger releasability checks
+            uses: SonarSource/gh-action_releasability@BUILD-4613-Provide-a-way-to-trigger-releasability-checks-before-creating-a-release
+            with:
+              organization: ${{ github.event.inputs.organization }}
+              repository:  ${{ github.event.inputs.repository }}
+              branch: ${{ github.event.inputs.branch }}
+              version: ${{ github.event.inputs.version }}
