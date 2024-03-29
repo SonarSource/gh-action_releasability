@@ -1,6 +1,6 @@
 from typing import List
 
-from release.releasability.releasability_check_result import ReleasabilityCheckResult
+from releasability.releasability_check_result import ReleasabilityCheckResult
 
 
 class ReleasabilityChecksReport:

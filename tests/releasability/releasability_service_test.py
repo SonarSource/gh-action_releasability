@@ -2,11 +2,8 @@ import ast
 import copy
 import unittest
 from unittest import mock
-
 from unittest.mock import patch, MagicMock
-
-from release.steps.ReleaseRequest import ReleaseRequest
-from release.releasability.releasability import Releasability, CouldNotRetrieveReleasabilityCheckResultsException
+from releasability.releasability_service import ReleasabilityService, CouldNotRetrieveReleasabilityCheckResultsException
 
 
 class ReleasabilityTest(unittest.TestCase):
@@ -21,8 +18,7 @@ class ReleasabilityTest(unittest.TestCase):
             build_number = 42
             branch_name = "feat/some"
 
-            release_request = ReleaseRequest(organization, project_name, version, build_number, branch_name, sha)
-            releasability = Releasability(release_request)
+            releasability = ReleasabilityService()
 
             uuid = "42f23-3232-3232-32232"
 
@@ -51,16 +47,16 @@ class ReleasabilityTest(unittest.TestCase):
 
         with patch('boto3.Session', return_value=session):
             organization = "sonar"
-            project_name = "sonar-dummy"
-            version = "5.4.3"
+            repository = "sonar-dummy"
+            version = "5.4.3.42"
             sha = "434343443efdcaaa123232"
-            build_number = 42
             branch_name = "feat/some"
 
-            release_request = ReleaseRequest(organization, project_name, version, build_number, branch_name, sha)
-            releasability = Releasability(release_request)
+            releasability = ReleasabilityService()
 
-            releasability.start_releasability_checks()
+            releasability.start_releasability_checks(
+                organization, repository, branch_name, version, sha
+            )
 
             assert mocked_sns_client.publish.call_count == 1
             sns_query_content = ast.literal_eval(mocked_sns_client.publish.call_args[1]['Message'])
@@ -74,16 +70,16 @@ class ReleasabilityTest(unittest.TestCase):
 
         with patch('boto3.Session', return_value=session):
             organization = "sonar"
-            project_name = "sonar-dummy"
-            version = "5.4.3"
+            repository = "sonar-dummy"
+            version = "5.4.3.4321"
             sha = "434343443efdcaaa123232"
-            build_number = 42
             branch_name = "feat/some"
 
-            release_request = ReleaseRequest(organization, project_name, version, build_number, branch_name, sha)
-            releasability = Releasability(release_request)
+            releasability = ReleasabilityService()
 
-            correlation_id = releasability.start_releasability_checks()
+            correlation_id = releasability.start_releasability_checks(
+                organization, repository, branch_name, version, sha
+            )
 
             assert correlation_id is not None
 
@@ -93,7 +89,7 @@ class ReleasabilityTest(unittest.TestCase):
         queue_name = "great-project/great"
         arn = f"arn:aws:sqs:{region}:{account_number}:{queue_name}"
 
-        sqs_url = Releasability._arn_to_sqs_url(arn)
+        sqs_url = ReleasabilityService._arn_to_sqs_url(arn)
 
         self.assertEqual(sqs_url, f"https://sqs.{region}.amazonaws.com/{account_number}/{queue_name}")
 
@@ -103,7 +99,7 @@ class ReleasabilityTest(unittest.TestCase):
         queue_name = "great-project/great"
         arn = f"arn:aws:invalid:{region}:{account_number}:{queue_name}"
 
-        self.assertRaises(ValueError, lambda: Releasability._arn_to_sqs_url(arn))
+        self.assertRaises(ValueError, lambda: ReleasabilityService._arn_to_sqs_url(arn))
 
     @mock.patch('boto3.Session.client')
     def test_fetch_check_results_should_return_4_messages_given_the_provided_response_contains_4(self, mock_client):
@@ -151,15 +147,7 @@ class ReleasabilityTest(unittest.TestCase):
         mock_sqs_client = mock_client.return_value
         mock_sqs_client.receive_message.return_value = mock_receive_message_response
 
-        organization = "sonar"
-        project_name = "sonar-dummy"
-        version = "5.4.3"
-        sha = "434343443efdcaaa123232"
-        build_number = 42
-        branch_name = "feat/some"
-        release_request = ReleaseRequest(organization, project_name, version, build_number, branch_name, sha)
-
-        releasability = Releasability(release_request)
+        releasability = ReleasabilityService()
 
         messages = releasability._fetch_check_results()
 
@@ -212,15 +200,7 @@ class ReleasabilityTest(unittest.TestCase):
         mock_sqs_client = mock_client.return_value
         mock_sqs_client.receive_message.return_value = mock_receive_message_response
 
-        organization = "sonar"
-        project_name = "sonar-dummy"
-        version = "5.4.3"
-        sha = "434343443efdcaaa123232"
-        build_number = 42
-        branch_name = "feat/some"
-        release_request = ReleaseRequest(organization, project_name, version, build_number, branch_name, sha)
-
-        releasability = Releasability(release_request)
+        releasability = ReleasabilityService()
 
         correlation_id = "b8e28245-3568-4257-970d-dcf47bd49ce5"
 
@@ -237,15 +217,8 @@ class ReleasabilityTest(unittest.TestCase):
 
     @mock.patch('boto3.Session.client')
     def test_get_check_results_should_return_a_list_of_the_same_size_as_the_one_received_from_filtered_check_results(self, mock_session):
-        organization = "sonar"
-        project_name = "sonar-dummy"
-        version = "5.4.3"
-        sha = "434343443efdcaaa123232"
-        build_number = 42
-        branch_name = "feat/some"
-        release_request = ReleaseRequest(organization, project_name, version, build_number, branch_name, sha)
 
-        releasability = Releasability(release_request)
+        releasability = ReleasabilityService()
 
         correlation_id = "ffff-0000-ffff-0000"
         filtered_check_results = [
@@ -264,10 +237,10 @@ class ReleasabilityTest(unittest.TestCase):
         def mock_fetch_filtered_check_results(filters):
             return filtered_check_results
 
-        def mock_get_checks_count():
-            return len(filtered_check_results)
+        def mock_get_checks() -> list:
+            return ["Jira", "some_check"]
 
-        releasability._get_checks_count = mock_get_checks_count
+        releasability._get_checks = mock_get_checks
 
         releasability._fetch_filtered_check_results = mock_fetch_filtered_check_results
 
@@ -277,17 +250,10 @@ class ReleasabilityTest(unittest.TestCase):
 
     @mock.patch('boto3.Session.client')
     def test_get_check_results_should_raise_an_exception_given_not_enough_check_result_were_retrieved(self, mock_session):
-        organization = "sonar"
-        project_name = "sonar-dummy"
-        version = "5.4.3"
-        sha = "434343443efdcaaa123232"
-        build_number = 42
-        branch_name = "feat/some"
-        release_request = ReleaseRequest(organization, project_name, version, build_number, branch_name, sha)
 
-        Releasability.FETCH_CHECK_RESULT_TIMEOUT_SECONDS = 2
+        ReleasabilityService.FETCH_CHECK_RESULT_TIMEOUT_SECONDS = 2
 
-        releasability = Releasability(release_request)
+        releasability = ReleasabilityService()
 
         correlation_id = "ffff-0000-ffff-0000"
         filtered_check_results = [
@@ -315,49 +281,16 @@ class ReleasabilityTest(unittest.TestCase):
         with self.assertRaises(CouldNotRetrieveReleasabilityCheckResultsException):
             releasability._get_check_results(correlation_id)
 
-    @mock.patch('boto3.Session.client')
-    def test_get_check_names(self, mock_client):
-        sns_response = {
-            "Subscriptions": [
-                {
-                    "SubscriptionArn": "arn:aws:sns:eu-west-1:597611216173:ReleasabilityTriggerTopic:8826ce92-6ebf-4c8c-96dc-832be94218db",
-                    "Owner": "597611216173",
-                    "Protocol": "lambda",
-                    "Endpoint": "arn:aws:lambda:eu-west-1:597611216173:function:CheckWhiteSource",
-                    "TopicArn": "arn:aws:sns:eu-west-1:597611216173:ReleasabilityTriggerTopic",
-                },
-                {
-                    "SubscriptionArn": "arn:aws:sns:eu-west-1:597611216173:ReleasabilityTriggerTopic:53a1e6c7-a967-40b6-8d4d-61f8b50f0314",
-                    "Owner": "597611216173",
-                    "Protocol": "lambda",
-                    "Endpoint": "arn:aws:lambda:eu-west-1:597611216173:function:CheckQualityGate",
-                    "TopicArn": "arn:aws:sns:eu-west-1:597611216173:ReleasabilityTriggerTopic",
-                },
-                {
-                    "SubscriptionArn": "arn:aws:sns:eu-west-1:597611216173:ReleasabilityTriggerTopic:439f2173-bcdb-4da6-acbe-121600093d8f",
-                    "Owner": "597611216173",
-                    "Protocol": "lambda",
-                    "Endpoint": "arn:aws:lambda:eu-west-1:597611216173:function:CheckDependencies",
-                    "TopicArn": "arn:aws:sns:eu-west-1:597611216173:ReleasabilityTriggerTopic",
-                },
-            ],
-            "ResponseMetadata": {
-                "RequestId": "2a7cdef4-75de-5568-81bb-80831b58a9f5",
-                "HTTPStatusCode": 200,
-                "HTTPHeaders": {
-                    "x-amzn-requestid": "2a7cdef4-75de-5568-81bb-80831b58a9f5",
-                    "date": "Fri, 22 Mar 2024 11:32:22 GMT",
-                    "content-type": "text/xml",
-                    "content-length": "4194",
-                    "connection": "keep-alive",
-                },
-                "RetryAttempts": 0,
-            },
-        }
-        mock_sns_client = mock_client.return_value
-        mock_sns_client.list_subscriptions_by_topic.return_value = sns_response
-        release_request = MagicMock()
-        releasability = Releasability(release_request)
+    def test_get_check_names_should_return_some_checks(self):
+
+        releasability = ReleasabilityService()
 
         check_names = releasability._get_checks()
-        self.assertEqual(check_names, ["CheckWhiteSource", "CheckQualityGate", "CheckDependencies"])
+
+        self.assertGreater(len(check_names), 0)
+
+    def test_check_input_parameters_should_raise_an_exception_given_version_is_not_compliant_with_org_format(self):
+
+        with self.assertRaises(ValueError):
+            invalid_version = "4.3.2"  # version without build number
+            ReleasabilityService.check_input_parameters(invalid_version)

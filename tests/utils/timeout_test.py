@@ -1,7 +1,7 @@
 import time
 import unittest
 
-from release.utils.timeout import has_exceeded_timeout
+from utils.timeout import has_exceeded_timeout
 
 
 class TimeoutTest(unittest.TestCase):

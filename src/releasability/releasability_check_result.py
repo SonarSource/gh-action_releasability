@@ -8,7 +8,8 @@ class ReleasabilityCheckResult:
 
     CHECK_PASSED = 'PASSED'
     CHECK_NOT_RELEVANT = 'NOT_RELEVANT'
-    CHECK_FAILED = 'ERROR'
+    CHECK_ERROR = 'ERROR'
+    CHECK_FAILED = 'FAILED'
 
     name: str
     state: str
@@ -38,6 +39,8 @@ class ReleasabilityCheckResult:
                 return self.CHECK_OPTIONAL_PREFIX
             case self.CHECK_FAILED:
                 return self.FAILURE_PREFIX
+            case self.CHECK_ERROR:
+                return self.FAILURE_PREFIX
             case _:
                 return self.UNKNOWN_PREFIX
 
@@ -47,5 +50,9 @@ class ReleasabilityCheckResult:
                 return True
             case self.CHECK_NOT_RELEVANT:
                 return True
+            case self.CHECK_FAILED:
+                return False
+            case self.CHECK_ERROR:
+                return False
             case _:
                 return False

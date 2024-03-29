@@ -6,11 +6,67 @@ inputs:
     description: Optional, do not fail the gh-action in case of pre-commit check failure
     required: false
     default: "false"
+  organization:
+    description: GitHub organization name
+    required: true
+  repository:
+    description: GitHub repository name
+    required: true
+  branch:
+    description: Branch name
+    required: true
+  version:
+    description: The version to check
+    required: true
+  commit-sha:
+    description: The GitHub commit SHA to use
+    required: true
 outputs:
   status:
-    description: Provide the exit code returned by pre-commit run command
+    description: Provide the exit code returned by the releasability checks
+    value: ${{ steps.checks.outputs.status }}
   logs:
-    description: Logs from the pre-commit run command
+    description: Logs from releasability checks
+    value: ${{ steps.checks.outputs.logs }}
 runs:
-  using: "docker"
-  image: "Dockerfile"
+    using: "composite"
+    steps:
+      - id: setup_python
+        name: Setup python
+        uses: actions/setup-python@0a5c61591373683505ea898e09a3ea4f39ef2b9c # v5.0.0
+        with:
+          python-version: '3.10'
+      -   name: Install requirements
+          run: |
+              python -m pip install --upgrade pip
+              pip install pipenv
+              pipenv requirements > requirements.txt
+              pip install --quiet -r requirements.txt
+          shell: bash
+      -   name: Configure AWS Credentials
+          uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+          with:
+              aws-region: eu-central-1
+              role-to-assume: "arn:aws:iam::064493320159:role/ReleasbilityChecksCICDRole"
+      -   name: Trigger releasability checks
+          id: checks
+          shell: bash
+          run: python3 src/main.py
+          env:
+              INPUT_ORGANIZATION: ${{ inputs.organization }}
+              INPUT_REPOSITORY: ${{ inputs.repository }}
+              INPUT_BRANCH: ${{ inputs.branch }}
+              INPUT_VERSION: ${{ inputs.version }}
+              INPUT_COMMIT_SHA: ${{ inputs.commit-sha}}
+              PYTHONUNBUFFERED: "1" # that way logs are printed live
+      - name: Print execution
+        run: |
+          echo "${{ steps.checks.outputs.logs }}"
+          echo "Exit code: ${{ steps.checks.outputs.status }}"
+        shell: bash
+      - name: Check status and fail if necessary
+        if: ${{ inputs.ignore-failure == 'false' && steps.checks.outputs.status != 0 }}
+        run: |
+          echo "::error:: Releasability checks reported some errors."
+          exit 1
+        shell: bash

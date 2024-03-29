@@ -21,4 +21,4 @@ parametrized = "*"
 python_version = "3.10"
 
 [scripts]
-releasability_check = "python release/releasability_check.py"
+releasability_check = "python main/main.py"
