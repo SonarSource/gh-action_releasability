@@ -2,26 +2,15 @@ name: "gh-action_releasability"
 description: "gh-action client for ops-releasability checks"
 author: "RE Team"
 inputs:
-  publish_to_binaries:
-    description: "Flag to disable the publication to binaries"
-    default: 'true'
+  ignore-failure:
+    description: Optional, do not fail the gh-action in case of pre-commit check failure
     required: false
-  slack_channel:
-    description: "Channel to post notifications"
-    required: false
-  dry_run:
-    description: "Don't actually do anything, report what would have been done."
-    default: 'false'
-    required: false
+    default: "false"
 outputs:
-  releasability:
-    description: "Output to detect if releasability was successful"
-  promote:
-    description: "Output to detect if promote was executed"
-  publish_to_binaries:
-    description: "Output to detect if publish_to_binaries was executed"
-  release:
-    description: "Output to detect if release was revoked"
+  status:
+    description: Provide the exit code returned by pre-commit run command
+  logs:
+    description: Logs from the pre-commit run command
 runs:
   using: "docker"
   image: "Dockerfile"

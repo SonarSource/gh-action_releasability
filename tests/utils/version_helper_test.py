@@ -17,4 +17,3 @@ class VersionHelperTest(unittest.TestCase):
         actual_version = VersionHelper.as_standardized_version(release_request)
 
         assert actual_version == expected_version
-
