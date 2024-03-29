@@ -1,0 +1,8 @@
+.vscode
+__pycache__
+.idea/
+*.iml
+src/.coverage
+src/build/
+out/
+coverage.xml

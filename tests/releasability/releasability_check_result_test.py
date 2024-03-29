@@ -1,6 +1,6 @@
 import unittest
 
-from release.releasability.releasability_check_result import ReleasabilityCheckResult
+from releasability.releasability_check_result import ReleasabilityCheckResult
 
 
 class ReleasabilityCheckResultTest(unittest.TestCase):

@@ -1,250 +1,102 @@
-import os
-import sys
-import tempfile
 import unittest
-from unittest.mock import patch, mock_open, ANY, call
+from unittest.mock import patch
 
-import pytest
-from parameterized import parameterized
-
-from release.exceptions.invalid_input_parameters_exception import InvalidInputParametersException
-from release.main import main, set_output, check_params, MANDATORY_ENV_VARIABLES
-from release.releasability.releasability import Releasability
-from release.steps.ReleaseRequest import ReleaseRequest
-from release.utils.artifactory import Artifactory
-from release.utils.burgr import Burgr
-from release.utils.github import GitHub
-
-
-def test_set_output():
-    with tempfile.NamedTemporaryFile(suffix="", prefix=os.path.basename(__file__)) as temp_file:
-        os.environ['GITHUB_OUTPUT'] = temp_file.name
-
-        set_output('function', 'output')
-
-        assert temp_file.read().decode("utf-8").strip() == "function=output"
+import main
+from main import do_releasability_checks
+from releasability.releasability_check_result import ReleasabilityCheckResult
+from releasability.releasability_checks_report import ReleasabilityChecksReport
+from releasability.releasability_service import ReleasabilityService
+from utils.github_action_helper import GithubActionHelper
 
 
 class MainTest(unittest.TestCase):
 
-    @patch.dict(os.environ, {'GITHUB_EVENT_NAME': 'release'}, clear=True)
-    @patch('release.main.check_params')
-    @patch('release.utils.github.json.load')
-    @patch.object(Burgr, 'start_releasability_checks', side_effect=Exception('exception'))
-    @patch.object(Releasability, '_get_aws_account_id')
-    @patch.object(Releasability, 'start_releasability_checks')
-    @patch.object(Releasability, 'get_releasability_report')
-    @patch('release.main.notify_slack')
-    @patch.object(GitHub, 'revoke_release')
-    @patch.object(sys, 'exit')
-    def test_releasability_failure_burgr(self,
-                                   sys_exit,
-                                   github_revoke_release,
-                                   notify_slack,
-                                   _get_aws_account_id,
-                                   check_params,
-                                   burgr_start_releasability_checks,
-                                   releasability_start_releasability_checks,
-                                   releasability_get_releasability_status,
-                                   github_event):
-        with patch('release.utils.github.open', mock_open()) as open_mock:
-            release_request = ReleaseRequest('org', 'project', 'version', 'buildnumber', 'branch', 'sha')
-            with patch.object(GitHub, 'get_release_request', return_value=release_request) as github_release_request:
-                with pytest.raises(Exception):
-                    main()
-                    _get_aws_account_id.assert_called_once()
-                    check_params.assert_called_once()
-                    open_mock.assert_called_once()
-                    github_event.assert_called_once()
-                    github_release_request.assert_called_once()
-                    burgr_start_releasability_checks.assert_called_once()
-                    releasability_start_releasability_checks.assert_called_once()
-                    releasability_get_releasability_status.assert_called_once()
-                    notify_slack.assert_called_once_with('"Released project:version failed')
-                    github_revoke_release.assert_called_once()
+    def setUp(self) -> None:
+        main.WAIT_TIME_AFTER_TRIGGER_RELEASABILITY_CHECKS_IN_SECONDS = 0
 
-    @patch.dict(os.environ, {'GITHUB_EVENT_NAME': 'release'}, clear=True)
-    @patch('release.main.check_params')
-    @patch('release.utils.github.json.load')
-    @patch.object(Releasability, '_get_aws_account_id')
-    @patch.object(Burgr, 'start_releasability_checks')
-    @patch.object(Releasability, 'start_releasability_checks', side_effect=Exception('exception'))
-    @patch.object(Releasability, 'get_releasability_report', side_effect=Exception('exception'))
-    @patch('release.main.notify_slack')
-    @patch.object(GitHub, 'revoke_release')
-    @patch.object(sys, 'exit')
-    def test_releasability_failure(self,
-                                   sys_exit,
-                                   github_revoke_release,
-                                   notify_slack,
-                                   _get_aws_account_id,
-                                   check_params,
-                                   burgr_start_releasability_checks,
-                                   releasability_start_releasability_checks,
-                                   releasability_get_releasability_checks,
-                                   github_event):
-        with patch('release.utils.github.open', mock_open()) as open_mock:
-            release_request = ReleaseRequest('org', 'project', 'version', 'buildnumber', 'branch', 'sha')
-            with patch.object(GitHub, 'get_release_request', return_value=release_request) as github_release_request:
-                with pytest.raises(Exception):
-                    main()
-                    _get_aws_account_id.assert_called_once()
-                    check_params.assert_called_once()
-                    open_mock.assert_called_once()
-                    github_event.assert_called_once()
-                    github_release_request.assert_called_once()
-                    burgr_start_releasability_checks.assert_called_once()
-                    releasability_start_releasability_checks.assert_called_once()
-                    releasability_get_releasability_checks.assert_called_once()
-                    notify_slack.assert_called_once_with('"Released project:version failed')
-                    github_revoke_release.assert_called_once()
+    def test_do_releasability_checks_should_define_output_logs_given_it_performed_well(self):
+        correlation_id = "fake-correlation-id"
 
-    @patch.dict(os.environ, {
-        'GITHUB_EVENT_NAME': 'release',
-        'ARTIFACTORY_ACCESS_TOKEN': 'mockAccessTokenValue',
-    }, clear=True)
-    @patch('release.utils.github.json.load')
-    @patch.object(Releasability, '_get_aws_account_id')
-    @patch.object(Burgr, 'start_releasability_checks')
-    @patch.object(Releasability, 'start_releasability_checks')
-    @patch.object(Releasability, 'get_releasability_report')
-    @patch.object(Artifactory, 'receive_build_info')
-    @patch.object(Artifactory, 'promote')
-    @patch.object(GitHub, 'is_publish_to_binaries', return_value=True)
-    @patch.object(GitHub, 'revoke_release')
-    @patch.object(Burgr, 'notify')
-    @patch('release.main.notify_slack')
-    @patch('release.main.set_output')
-    @patch('release.main.check_params')
-    @patch.object(sys, 'exit')
-    def test_main_happy_path(self,
-                             sys_exit,
-                             check_params,
-                             set_output,
-                             notify_slack,
-                             burgr_notify,
-                             github_revoke_release,
-                             github_is_publish_to_binaries,
-                             artifactory_promote,
-                             artifactory_receive_build_info,
-                             releasability_get_releasability_status,
-                             releasability_start_releasability_checks,
-                            _get_aws_account_id,
-                             burgr_start_releasability_checks,
-                             github_event):
-        with patch('release.utils.github.open', mock_open()) as open_mock:
-            release_request = ReleaseRequest('org', 'project', 'version', 'buildnumber', 'branch', 'sha')
-            with patch.object(GitHub, 'get_release_request', return_value=release_request) as github_release_request:
-                main()
-                _get_aws_account_id.assert_called_once()
-                check_params.assert_called_once()
-                open_mock.assert_called_once()
-                github_event.assert_called_once()
-                github_release_request.assert_called_once()
-                burgr_start_releasability_checks.assert_called_once()
-                releasability_start_releasability_checks.assert_called_once()
-                releasability_get_releasability_status.assert_called_once()
-                artifactory_receive_build_info.assert_called_once_with(release_request)
-                artifactory_promote.assert_called_once_with(release_request, ANY)
-                github_is_publish_to_binaries.assert_called_once()
-                burgr_notify.assert_called_once_with('passed')
-                notify_slack.assert_called_once_with('Successfully released project:version')
-                assert set_output.call_count == 2
-                set_output.assert_has_calls([call('promote', 'done'), call('publish_to_binaries', 'done')])
+        with patch.object(ReleasabilityService, '__init__', return_value=None):
+            with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=correlation_id):
+                report = ReleasabilityChecksReport([
+                    ReleasabilityCheckResult("check name", ReleasabilityCheckResult.CHECK_PASSED, "it works"),
+                ])
+                with patch.object(ReleasabilityService, 'get_releasability_report', return_value=report):
+                    organization = "some-org"
+                    repository = "some-repo"
+                    branch = "some-branch"
+                    version = "4.3.2.1"
+                    commit_sha = "ef1232ad12321"
 
-    @patch.dict(os.environ, {
-        'GITHUB_EVENT_NAME': 'release',
-        'ARTIFACTORY_ACCESS_TOKEN': 'mockArtifactoryAccessToken'
-    }, clear=True)
-    @patch.object(Releasability, '_get_aws_account_id')
-    @patch('release.main.check_params')
-    @patch('release.utils.github.json.load')
-    @patch.object(Releasability, 'get_releasability_report')
-    @patch.object(Releasability, 'start_releasability_checks')
-    @patch.object(Burgr, 'start_releasability_checks')
-    @patch.object(Artifactory, 'receive_build_info')
-    @patch.object(Artifactory, 'promote', side_effect=Exception('exception'))
-    @patch('release.main.notify_slack')
-    @patch('release.main.abort_release')
-    def test_promotion_failure(self,
-                               abort_release,
-                               notify_slack,
-                               _get_aws_account_id,
-                               check_params,
-                               artifactory_promote,
-                               artifactory_receive_build_info,
-                               burgr_start_releasability_checks,
-                               releasability_start_releasability_checks,
-                               releasability_get_releasability_status,
-                               github_event):
-        with patch('release.utils.github.open', mock_open()) as open_mock:
-            release_request = ReleaseRequest('org', 'project', 'version', 'buildnumber', 'branch', 'sha')
-            with patch.object(GitHub, 'get_release_request', return_value=release_request) as github_release_request:
-                with pytest.raises(Exception):
-                    main()
-                    _get_aws_account_id.assert_called_once()
-                    check_params.assert_called_once()
-                    open_mock.assert_called_once()
-                    github_event.assert_called_once()
-                    github_release_request.assert_called_once()
-                    burgr_start_releasability_checks.assert_called_once()
-                    releasability_start_releasability_checks.assert_called_once()
-                    releasability_get_releasability_status.assert_called_once()
-                    artifactory_receive_build_info.assert_called_once_with(release_request)
-                    artifactory_promote.assert_called_once_with(release_request, ANY)
-                    notify_slack.assert_called_once_with('"Released project:version failed')
-                    abort_release(ANY, ANY, ANY, release_request)
+                    with patch.object(GithubActionHelper,'set_output_logs') as mock_set_output_logs:
+                        with patch.object(GithubActionHelper, 'set_output_status') as mock_set_output_status:
 
-    @parameterized.expand([
-        "BURGRX_USER", "BURGRX_PASSWORD", "ARTIFACTORY_ACCESS_TOKEN"
-    ])
-    def test_check_params_should_raise_an_exception_given_a_mandatory_env_variable_is_not_provided(self, parameter_not_provided):
-        for variable_name in MANDATORY_ENV_VARIABLES:
-            os.environ[variable_name] = "some value"
-        del os.environ[parameter_not_provided]
+                            do_releasability_checks(organization, repository, branch, version, commit_sha)
 
-        with self.assertRaises(InvalidInputParametersException):
-            check_params()
+                            mock_set_output_logs.assert_called_once_with("✅ check name  - it works")
 
-    def test_check_params_should_raise_an_exception_given_slack_channel_is_provided_and_slack_token_is_not(self):
+    def test_do_releasability_checks_should_define_output_logs_given_it_did_not_perform_well(self):
+        correlation_id = "fake-correlation-id"
 
-        for variable_name in MANDATORY_ENV_VARIABLES:
-            os.environ[variable_name] = "some value"
+        with patch.object(ReleasabilityService, '__init__', return_value=None):
+            with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=correlation_id):
+                report = ReleasabilityChecksReport([
+                    ReleasabilityCheckResult("check name", ReleasabilityCheckResult.CHECK_FAILED, "it failed"),
+                ])
+                with patch.object(ReleasabilityService, 'get_releasability_report', return_value=report):
+                    organization = "some-org"
+                    repository = "some-repo"
+                    branch = "some-branch"
+                    version = "4.3.2.1"
+                    commit_sha = "ef1232ad12321"
 
-        os.environ["INPUT_SLACK_CHANNEL"] = "some channel"
+                    with patch.object(GithubActionHelper,'set_output_logs') as mock_set_output_logs:
+                        with patch.object(GithubActionHelper, 'set_output_status') as mock_set_output_status:
 
-        # ensure slack api token is not provided:
-        os.environ["SLACK_API_TOKEN"] = ""
-        del os.environ["SLACK_API_TOKEN"]
+                            do_releasability_checks(organization, repository, branch, version, commit_sha)
 
-        with self.assertRaises(InvalidInputParametersException):
-            check_params()
+                            mock_set_output_logs.assert_called_once_with("❌ check name  - it failed")
+    def test_do_releasability_checks_should_define_output_status_as_success_given_it_performed_well(self):
+        correlation_id = "fake-correlation-id"
 
-    def test_check_params_should_raise_an_exception_given_publish_to_binaries_is_true_and_binaries_aws_is_undefined(self):
+        with patch.object(ReleasabilityService, '__init__', return_value=None):
+            with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=correlation_id):
+                report = ReleasabilityChecksReport([
+                    ReleasabilityCheckResult("check name", ReleasabilityCheckResult.CHECK_PASSED, "it works"),
+                ])
+                with patch.object(ReleasabilityService, 'get_releasability_report', return_value=report):
+                    organization = "some-org"
+                    repository = "some-repo"
+                    branch = "some-branch"
+                    version = "4.3.2.1"
+                    commit_sha = "ef1232ad12321"
 
-        for variable_name in MANDATORY_ENV_VARIABLES:
-            os.environ[variable_name] = "some value"
+                    with patch.object(GithubActionHelper,'set_output_logs') as mock_set_output_logs:
+                        with patch.object(GithubActionHelper, 'set_output_status') as mock_set_output_status:
 
-        os.environ["INPUT_PUBLISH_TO_BINARIES"] = "true"
+                            do_releasability_checks(organization, repository, branch, version, commit_sha)
 
-        # ensure binaries_aws_deploy is not provided:
-        os.environ["BINARIES_AWS_DEPLOY"] = ""
-        del os.environ["BINARIES_AWS_DEPLOY"]
+                            mock_set_output_status.assert_called_once_with("0")
 
-        with self.assertRaises(InvalidInputParametersException):
-            check_params()
+    def test_do_releasability_checks_should_define_output_status_as_error_given_it_did_not_perform_well(self):
+        correlation_id = "fake-correlation-id"
 
-    def test_check_params_should_not_raise_an_exception_given_valid_inputs(self):
-        for variable_name in MANDATORY_ENV_VARIABLES:
-            os.environ[variable_name] = "some value"
+        with patch.object(ReleasabilityService, '__init__', return_value=None):
+            with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=correlation_id):
+                report = ReleasabilityChecksReport([
+                    ReleasabilityCheckResult("check name", ReleasabilityCheckResult.CHECK_FAILED, "it didn't work"),
+                ])
+                with patch.object(ReleasabilityService, 'get_releasability_report', return_value=report):
+                    organization = "some-org"
+                    repository = "some-repo"
+                    branch = "some-branch"
+                    version = "4.3.2.1"
+                    commit_sha = "ef1232ad12321"
 
-        os.environ["INPUT_SLACK_CHANNEL"] = "some channel"
-        os.environ["SLACK_API_TOKEN"] = "some channel"
+                    with patch.object(GithubActionHelper,'set_output_logs') as mock_set_output_logs:
+                        with patch.object(GithubActionHelper, 'set_output_status') as mock_set_output_status:
 
-        os.environ["INPUT_PUBLISH_TO_BINARIES"] = "true"
-        os.environ["BINARIES_AWS_DEPLOY"] = "bin"
+                            do_releasability_checks(organization, repository, branch, version, commit_sha)
 
-        try:
-            check_params()
-        except InvalidInputParametersException:
-            self.fail("check_params() raised an Exception")
+                            mock_set_output_status.assert_called_once_with("1")

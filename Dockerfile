@@ -11,4 +11,4 @@ COPY --from=build-env /app /app
 
 ENV PYTHONPATH=/app
 ENTRYPOINT ["/usr/local/bin/python"]
-CMD ["/app/release/main.py"]
+CMD ["/app/src/main.py"]

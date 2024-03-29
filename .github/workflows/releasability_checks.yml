@@ -38,7 +38,7 @@ jobs:
                 echo "Commit SHA ${{ github.event.inputs.commit-sha }}"
 
           - name: Trigger releasability checks
-            uses: SonarSource/gh-action_releasability@BUILD-4613-Provide-a-way-to-trigger-releasability-checks-before-creating-a-release
+            uses: SonarSource/gh-action_releasability@master
             with:
               organization: ${{ github.event.inputs.organization }}
               repository:  ${{ github.event.inputs.repository }}
