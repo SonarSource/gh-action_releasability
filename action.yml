@@ -1,6 +1,6 @@
-name: "SonarSource LT/SQ release"
-description: "Release SonarSource LT & SQ projects"
-author: "Thomas Vérin & Malena Ebert"
+name: "gh-action_releasability"
+description: "gh-action client for ops-releasability checks"
+author: "RE Team"
 inputs:
   publish_to_binaries:
     description: "Flag to disable the publication to binaries"
