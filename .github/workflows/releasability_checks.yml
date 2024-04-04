@@ -20,6 +20,9 @@ on:
       version:
         description: "The version to check"
         required: true
+      commit-sha:
+        description: "Commit SHA"
+        required: true
 
 jobs:
     trigger_releasability_checks:
@@ -32,6 +35,7 @@ jobs:
                 echo "Repository ${{ github.event.inputs.repository }}"
                 echo "Branch ${{ github.event.inputs.branch }}"
                 echo "Version ${{ github.event.inputs.version }}"
+                echo "Commit SHA ${{ github.event.inputs.commit-sha }}"
 
           - name: Trigger releasability checks
             uses: SonarSource/gh-action_releasability@BUILD-4613-Provide-a-way-to-trigger-releasability-checks-before-creating-a-release
@@ -40,3 +44,4 @@ jobs:
               repository:  ${{ github.event.inputs.repository }}
               branch: ${{ github.event.inputs.branch }}
               version: ${{ github.event.inputs.version }}
+              commit-sha: ${{ github.event.inputs.commit-sha }}
