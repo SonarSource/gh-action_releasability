@@ -1,11 +1,9 @@
 import copy
-import uuid
+import json
 import time
-from typing import Set
+import uuid
 
 import boto3
-import json
-from boto3 import Session
 
 from releasability.releasability_check_result import ReleasabilityCheckResult
 from releasability.releasability_checks_report import ReleasabilityChecksReport
@@ -23,10 +21,10 @@ class CouldNotRetrieveReleasabilityCheckResultsException(ReleasabilityException)
 
 
 class ReleasabilityService:
+    FETCH_CHECK_RESULT_TIMEOUT_SECONDS = 60 * 10
     SQS_MAX_POLLED_MESSAGES_AT_A_TIME = 10
     SQS_POLL_WAIT_TIME = 20
-    FETCH_CHECK_RESULT_TIMEOUT_SECONDS = 60 * 10
-    FETCH_SLEEP_TIME_SECONDS = 0
+    SQS_VISIBILITY_TIMEOUT = 0  # Allows other consumers to read messages
 
     ARN_SNS = 'arn:aws:sns'
     ARN_SQS = 'arn:aws:sqs'
@@ -40,12 +38,12 @@ class ReleasabilityService:
         "QualityGate",
         "ParentPOM",
         "GitHub",
-        "CheckManifestValues"
+        "CheckManifestValues",
     }
 
     ACK_TYPE = "ACK"
 
-    session: Session
+    session: boto3.Session
 
     def __init__(self):
         self.session = boto3.Session(region_name=releasability_aws_region)
@@ -76,7 +74,7 @@ class ReleasabilityService:
             branch_name=branch,
             version=standardized_version,
             revision=commit_sha,
-            build_number=build_number
+            build_number=build_number,
         )
 
         response = self.session.client("sns").publish(
@@ -89,17 +87,21 @@ class ReleasabilityService:
     @staticmethod
     def check_input_parameters(version: str):
         if not VersionHelper.is_valid_sonar_version(version):
-            raise ValueError(f'The provided version {version}  does not match the standardized format '
-                             f'used commonly across the organization: <MAJOR>.<MINOR>.<PATCH>.<BUILD NUMBER>')
+            raise ValueError(
+                f"The provided version {version}  does not match the standardized format "
+                f"used commonly across the organization: <MAJOR>.<MINOR>.<PATCH>.<BUILD NUMBER>"
+            )
 
-    def _build_sns_request(self,
-                           correlation_id: str,
-                           organization: str,
-                           project_name: str,
-                           branch_name: str,
-                           revision: str,
-                           version: str,
-                           build_number: int):
+    def _build_sns_request(
+        self,
+        correlation_id: str,
+        organization: str,
+        project_name: str,
+        branch_name: str,
+        revision: str,
+        version: str,
+        build_number: int,
+    ):
 
         sns_request = {
             'uuid': correlation_id,
@@ -108,7 +110,7 @@ class ReleasabilityService:
             'version': version,
             'vcsRevision': revision,
             'artifactoryBuildNumber': build_number,
-            'branchName': branch_name
+            'branchName': branch_name,
         }
         return sns_request
 
@@ -131,16 +133,13 @@ class ReleasabilityService:
         return ReleasabilityChecksReport(check_results)
 
     def _get_check_results(self, correlation_id: str):
-        filters = self._build_filters(correlation_id)
-
         checks_awaiting_result = copy.deepcopy(self._get_checks())
         received_check_results = list[ReleasabilityCheckResult]()
 
         now = time.time()
-        while (len(checks_awaiting_result) > 0
-               and not has_exceeded_timeout(now, ReleasabilityService.FETCH_CHECK_RESULT_TIMEOUT_SECONDS)):
+        while len(checks_awaiting_result) > 0 and not has_exceeded_timeout(now, ReleasabilityService.FETCH_CHECK_RESULT_TIMEOUT_SECONDS):
             print("fetch SQS messages ...")
-            filtered_messages = self._fetch_filtered_check_results(filters)
+            filtered_messages = self._fetch_filtered_check_results(correlation_id)
             for message_payload in filtered_messages:
                 check_name = message_payload["checkName"]
 
@@ -150,12 +149,10 @@ class ReleasabilityService:
                         ReleasabilityCheckResult(
                             message_payload["checkName"],
                             message_payload["type"],
-                            message_payload["message"] if "message" in message_payload else None
+                            message_payload["message"] if "message" in message_payload else None,
                         )
                     )
                     checks_awaiting_result.remove(check_name)
-
-            time.sleep(ReleasabilityService.FETCH_SLEEP_TIME_SECONDS)
 
         if len(checks_awaiting_result) == 0:
             return received_check_results
@@ -163,21 +160,29 @@ class ReleasabilityService:
             raise CouldNotRetrieveReleasabilityCheckResultsException(
                 f'Received {len(received_check_results)}/{self._get_checks_count()} check result(s) messages within '
                 f'allowed time ({ReleasabilityService.FETCH_CHECK_RESULT_TIMEOUT_SECONDS} seconds) '
-                f'(no results received for check(s): {",".join(checks_awaiting_result)})')
+                f'(no results received for check(s): {",".join(checks_awaiting_result)})'
+            )
 
     @staticmethod
-    def _build_filters(correlation_id: str) -> []:
-        def match_correlation_id(msg):
-            return msg['requestUUID'] == correlation_id
+    def match_correlation_id(msg, correlation_id):
+        return msg['requestUUID'] == correlation_id
 
-        def not_an_ack_message(msg):
-            return msg['type'] != ReleasabilityService.ACK_TYPE
+    @staticmethod
+    def not_an_ack_message(msg):
+        return msg['type'] != ReleasabilityService.ACK_TYPE
 
-        return [lambda x: match_correlation_id(x), lambda x: not_an_ack_message(x)]
-
-    def _fetch_filtered_check_results(self, filters: []) -> list:
+    def _fetch_filtered_check_results(self, correlation_id) -> list:
         unfiltered_messages = self._fetch_check_results()
-        return list(filter(lambda msg: all(f(msg) for f in filters), unfiltered_messages))
+        current_messages = list(filter(lambda msg: self.match_correlation_id(msg, correlation_id), unfiltered_messages))
+        self._delete_messages(current_messages)
+        relevant_messages = list(filter(self.not_an_ack_message, current_messages))
+        return relevant_messages
+
+    def _delete_messages(self, messages: list):
+        sqs_client = self.session.client('sqs')
+        sqs_queue_url = self._arn_to_sqs_url(self.RESULT_QUEUE_ARN)
+        for message in messages:
+            sqs_client.delete_message(QueueUrl=sqs_queue_url, ReceiptHandle=message['ReceiptHandle'])
 
     def _fetch_check_results(self) -> list:
 
@@ -188,6 +193,7 @@ class ReleasabilityService:
             QueueUrl=sqs_queue_url,
             MaxNumberOfMessages=ReleasabilityService.SQS_MAX_POLLED_MESSAGES_AT_A_TIME,
             WaitTimeSeconds=ReleasabilityService.SQS_POLL_WAIT_TIME,
+            VisibilityTimeout=ReleasabilityService.SQS_VISIBILITY_TIMEOUT,
         )
 
         result = []
@@ -196,6 +202,7 @@ class ReleasabilityService:
             for json_message in sqs_queue_messages['Messages']:
                 body = json.loads(json_message['Body'])
                 content = json.loads(body['Message'])
+                content['ReceiptHandle'] = json_message['ReceiptHandle']
                 result.append(content)
         return result
 

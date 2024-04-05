@@ -204,14 +204,7 @@ class ReleasabilityTest(unittest.TestCase):
 
         correlation_id = "b8e28245-3568-4257-970d-dcf47bd49ce5"
 
-        def match_correlation_id(msg):
-            return msg['requestUUID'] == correlation_id
-
-        def not_an_ack_message(msg):
-            return msg['type'] != 'ACK'
-
-        filters = [lambda x: match_correlation_id(x), lambda x: not_an_ack_message(x)]
-        filtered_messages = releasability._fetch_filtered_check_results(filters)
+        filtered_messages = releasability._fetch_filtered_check_results(correlation_id)
 
         self.assertEqual(len(filtered_messages), 2)
 
