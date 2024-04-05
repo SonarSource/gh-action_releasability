@@ -1,11 +1,8 @@
 import os
 import sys
-import time
 
 from releasability.releasability_service import ReleasabilityService
 from utils.github_action_helper import GithubActionHelper
-
-WAIT_TIME_AFTER_TRIGGER_RELEASABILITY_CHECKS_IN_SECONDS = 20
 
 
 def do_releasability_checks(organization: str, repository: str, branch: str, version: str, commit_sha: str):
@@ -18,9 +15,6 @@ def do_releasability_checks(organization: str, repository: str, branch: str, ver
             version,
             commit_sha
         )
-
-        time.sleep(WAIT_TIME_AFTER_TRIGGER_RELEASABILITY_CHECKS_IN_SECONDS)  # no need to fetch directly it takes anyway some
-        # time for the checks to perform
 
         report = releasability.get_releasability_report(correlation_id)
         GithubActionHelper.set_output_logs(str(report))
