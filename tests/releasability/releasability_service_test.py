@@ -48,7 +48,7 @@ class ReleasabilityTest(unittest.TestCase):
         with patch('boto3.Session', return_value=session):
             organization = "sonar"
             repository = "sonar-dummy"
-            version = "5.4.3.42"
+            version = "5.4.3.542"
             sha = "434343443efdcaaa123232"
             branch_name = "feat/some"
 
