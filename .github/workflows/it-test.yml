@@ -16,12 +16,12 @@ jobs:
         id: test-data
         uses: ./
         with:
-         organization: "SonarSource"
-         repository: "sonar-dummy"
-         branch: "master"
-         version: "4242.42.42.43"
-         commit-sha: "e01f0f6545c31755d6ca128c5a3a14f6bf"
-         ignore-failure: true
+          organization: "SonarSource"
+          repository: "sonar-dummy"
+          branch: "master"
+          version: "4242.42.42.43"
+          commit-sha: "e01f0f6545c31755d6ca128c5a3a14f6bf"
+          ignore-failure: true
       - uses: nick-fields/assert-action@aa0067e01f0f6545c31755d6ca128c5a3a14f6bf # v2
         name: Then outputs.status value must be 1 as there is no way this version exists within Jira
         with:
@@ -38,12 +38,12 @@ jobs:
         id: test-data
         uses: ./
         with:
-         organization: "SonarSource"
-         repository: "sonar-dummy"
-         branch: "master"
-         version: "4242.42.42.43"
-         commit-sha: "e01f0f6545c31755d6ca128c5a3a14f6bf"
-         ignore-failure: true
+          organization: "SonarSource"
+          repository: "sonar-dummy"
+          branch: "master"
+          version: "4242.42.42.43"
+          commit-sha: "e01f0f6545c31755d6ca128c5a3a14f6bf"
+          ignore-failure: true
       - uses: nick-fields/assert-action@aa0067e01f0f6545c31755d6ca128c5a3a14f6bf # v2
         name: Then outputs.logs value must contains a Jira failing check
         with:

@@ -9,14 +9,14 @@ on:
         default: "SonarSource"
         type: choice
         options:
-            - SonarSource
+          - SonarSource
       repository:
         description: "GitHub repository"
         required: true
       branch:
-          description: "Branch"
-          default: "master"
-          required: true
+        description: "Branch"
+        default: "master"
+        required: true
       version:
         description: "The version to check"
         required: true
@@ -25,23 +25,23 @@ on:
         required: true
 
 jobs:
-    trigger_releasability_checks:
-        runs-on: ubuntu-latest
+  trigger_releasability_checks:
+    runs-on: ubuntu-latest
 
-        steps:
-          - name: Dump inputs
-            run: |
-                echo "Organization ${{ github.event.inputs.organization }}"
-                echo "Repository ${{ github.event.inputs.repository }}"
-                echo "Branch ${{ github.event.inputs.branch }}"
-                echo "Version ${{ github.event.inputs.version }}"
-                echo "Commit SHA ${{ github.event.inputs.commit-sha }}"
+    steps:
+      - name: Dump inputs
+        run: |
+          echo "Organization ${{ github.event.inputs.organization }}"
+          echo "Repository ${{ github.event.inputs.repository }}"
+          echo "Branch ${{ github.event.inputs.branch }}"
+          echo "Version ${{ github.event.inputs.version }}"
+          echo "Commit SHA ${{ github.event.inputs.commit-sha }}"
 
-          - name: Trigger releasability checks
-            uses: SonarSource/gh-action_releasability@master
-            with:
-              organization: ${{ github.event.inputs.organization }}
-              repository:  ${{ github.event.inputs.repository }}
-              branch: ${{ github.event.inputs.branch }}
-              version: ${{ github.event.inputs.version }}
-              commit-sha: ${{ github.event.inputs.commit-sha }}
+      - name: Trigger releasability checks
+        uses: SonarSource/gh-action_releasability@master
+        with:
+          organization: ${{ github.event.inputs.organization }}
+          repository: ${{ github.event.inputs.repository }}
+          branch: ${{ github.event.inputs.branch }}
+          version: ${{ github.event.inputs.version }}
+          commit-sha: ${{ github.event.inputs.commit-sha }}

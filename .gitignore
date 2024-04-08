@@ -6,3 +6,4 @@ src/.coverage
 src/build/
 out/
 coverage.xml
+.coverage
