@@ -27,16 +27,9 @@ on:
 jobs:
   trigger_releasability_checks:
     runs-on: ubuntu-latest
-
+    permissions:
+      id-token: write
     steps:
-      - name: Dump inputs
-        run: |
-          echo "Organization ${{ github.event.inputs.organization }}"
-          echo "Repository ${{ github.event.inputs.repository }}"
-          echo "Branch ${{ github.event.inputs.branch }}"
-          echo "Version ${{ github.event.inputs.version }}"
-          echo "Commit SHA ${{ github.event.inputs.commit-sha }}"
-
       - name: Trigger releasability checks
         uses: SonarSource/gh-action_releasability@master
         with:
