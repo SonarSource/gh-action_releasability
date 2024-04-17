@@ -61,8 +61,6 @@ class ReleasabilityService:
     def start_releasability_checks(self, organization: str, repository: str, branch: str, version: str, commit_sha: str):
         self.check_input_parameters(version)
 
-        build_number = VersionHelper.extract_build_number(version)
-
         print(f"Starting releasability check: {organization}/{repository}#{version}@{commit_sha}")
 
         correlation_id = str(uuid.uuid4())
@@ -73,7 +71,6 @@ class ReleasabilityService:
             branch_name=branch,
             version=version,
             revision=commit_sha,
-            build_number=build_number,
         )
 
         response = self.session.client("sns").publish(
@@ -99,8 +96,9 @@ class ReleasabilityService:
         branch_name: str,
         revision: str,
         version: str,
-        build_number: int,
     ):
+
+        build_number = VersionHelper.extract_build_number(version)
 
         sns_request = {
             'uuid': correlation_id,
