@@ -137,7 +137,6 @@ class ReleasabilityService:
 
         now = time.time()
         while len(checks_awaiting_result) > 0 and not has_exceeded_timeout(now, ReleasabilityService.FETCH_CHECK_RESULT_TIMEOUT_SECONDS):
-            print("fetch SQS messages ...")
             filtered_messages = self._fetch_filtered_check_results(correlation_id)
             for message_payload in filtered_messages:
                 check_name = message_payload["checkName"]

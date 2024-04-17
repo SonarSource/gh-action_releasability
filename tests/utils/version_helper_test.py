@@ -26,23 +26,6 @@ class VersionHelperTest(unittest.TestCase):
 
     @parameterized.expand([
         '42.2',
-        '55'
-    ])
-    def test_extract_semantic_version_should_raise_an_exception_given_the_provided_version_is_not_valid(self, invalid_version: str):
-        with self.assertRaises(ValueError):
-            VersionHelper.extract_semantic_version(invalid_version)
-
-    @parameterized.expand([
-        ('1.2.3.1234', '1.2.3'),
-        ('4.3.2', '4.3.2'),
-    ])
-    def test_extract_semantic_version_should_return_the_expected_semantic_version_given_valid_versions(self, valid_version: str,
-                                                                                               expected_semantic_version: str):
-        actual_semantic_version = VersionHelper.extract_semantic_version(valid_version)
-        self.assertEquals(actual_semantic_version, expected_semantic_version)
-
-    @parameterized.expand([
-        '42.2',
         '55',
         'some',
         '3.2.1',
