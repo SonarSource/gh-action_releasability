@@ -1,4 +1,4 @@
-name: Manually execute releasability checks
+name: Execute releasability checks
 
 on:
   workflow_dispatch:
