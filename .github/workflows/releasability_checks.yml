@@ -30,8 +30,9 @@ jobs:
     permissions:
       id-token: write
     steps:
+      - uses: actions/checkout@v4.1.1
       - name: Trigger releasability checks
-        uses: SonarSource/gh-action_releasability@master
+        uses: ./
         with:
           organization: ${{ github.event.inputs.organization }}
           repository: ${{ github.event.inputs.repository }}
