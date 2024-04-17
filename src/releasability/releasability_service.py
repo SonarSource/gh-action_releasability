@@ -61,7 +61,6 @@ class ReleasabilityService:
     def start_releasability_checks(self, organization: str, repository: str, branch: str, version: str, commit_sha: str):
         self.check_input_parameters(version)
 
-        standardized_version = VersionHelper.extract_semantic_version(version)
         build_number = VersionHelper.extract_build_number(version)
 
         print(f"Starting releasability check: {organization}/{repository}#{version}@{commit_sha}")
@@ -72,7 +71,7 @@ class ReleasabilityService:
             organization=organization,
             project_name=repository,
             branch_name=branch,
-            version=standardized_version,
+            version=version,
             revision=commit_sha,
             build_number=build_number,
         )
