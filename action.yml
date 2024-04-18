@@ -46,11 +46,11 @@ runs:
         pip install pipenv
         pipenv install
       shell: bash
-      working-directory: ${{ github.action_path}}
+      working-directory: ${{ github.action_path }}
     - name: Trigger releasability checks
       id: checks
       shell: bash
-      working-directory: ${{ github.action_path}}
+      working-directory: ${{ github.action_path }}
       run: pipenv run releasability
       env:
         INPUT_ORGANIZATION: ${{ inputs.organization }}
