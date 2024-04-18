@@ -61,9 +61,6 @@ class ReleasabilityService:
     def start_releasability_checks(self, organization: str, repository: str, branch: str, version: str, commit_sha: str):
         self.check_input_parameters(version)
 
-        standardized_version = VersionHelper.extract_semantic_version(version)
-        build_number = VersionHelper.extract_build_number(version)
-
         print(f"Starting releasability check: {organization}/{repository}#{version}@{commit_sha}")
 
         correlation_id = str(uuid.uuid4())
@@ -72,9 +69,8 @@ class ReleasabilityService:
             organization=organization,
             project_name=repository,
             branch_name=branch,
-            version=standardized_version,
+            version=version,
             revision=commit_sha,
-            build_number=build_number,
         )
 
         response = self.session.client("sns").publish(
@@ -100,8 +96,9 @@ class ReleasabilityService:
         branch_name: str,
         revision: str,
         version: str,
-        build_number: int,
     ):
+
+        build_number = VersionHelper.extract_build_number(version)
 
         sns_request = {
             'uuid': correlation_id,
@@ -138,7 +135,6 @@ class ReleasabilityService:
 
         now = time.time()
         while len(checks_awaiting_result) > 0 and not has_exceeded_timeout(now, ReleasabilityService.FETCH_CHECK_RESULT_TIMEOUT_SECONDS):
-            print("fetch SQS messages ...")
             filtered_messages = self._fetch_filtered_check_results(correlation_id)
             for message_payload in filtered_messages:
                 check_name = message_payload["checkName"]

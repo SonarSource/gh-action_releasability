@@ -13,9 +13,8 @@ class ReleasabilityTest(unittest.TestCase):
         with patch('boto3.Session', return_value=session):
             organization = "sonar"
             project_name = "sonar-dummy"
-            version = "5.4.3"
+            version = "5.4.3.1234"
             sha = "434343443efdcaaa123232"
-            build_number = 42
             branch_name = "feat/some"
 
             releasability = ReleasabilityService()
@@ -29,7 +28,6 @@ class ReleasabilityTest(unittest.TestCase):
                 branch_name=branch_name,
                 version=version,
                 revision=sha,
-                build_number=build_number
             )
 
             assert request['uuid'] == uuid
@@ -37,7 +35,7 @@ class ReleasabilityTest(unittest.TestCase):
             assert request['repoSlug'] == "sonar/sonar-dummy"
             assert request['version'] == version
             assert request['vcsRevision'] == sha
-            assert request['artifactoryBuildNumber'] == build_number
+            assert request['artifactoryBuildNumber'] == 1234
             assert request['branchName'] == branch_name
 
     def test_start_releasability_checks_should_invoke_publish(self):
