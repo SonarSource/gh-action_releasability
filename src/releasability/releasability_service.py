@@ -82,10 +82,11 @@ class ReleasabilityService:
 
     @staticmethod
     def check_input_parameters(version: str):
-        if not VersionHelper.is_valid_sonar_version(version):
+        if not VersionHelper.is_valid_version(version):
             raise ValueError(
                 f"The provided version {version}  does not match the standardized format "
-                f"used commonly across the organization: <MAJOR>.<MINOR>.<PATCH>.<BUILD NUMBER>"
+                f"used commonly across the organization: <MAJOR>.<MINOR>.<PATCH>.<BUILD NUMBER> "
+                f"or the alternative format: <MAJOR>.<MINOR>.<PATCH>+<BUILD NUMBER>"
             )
 
     def _build_sns_request(
