@@ -1,4 +1,8 @@
+import re
+
+
 class VersionHelper:
+    VERSION_NUMBER_PLUS_SIGN_REGEX = r"^(\d+)\.(\d+)\.(\d+)\+(\d+)$"
 
     @staticmethod
     def extract_build_number(version) -> int:
@@ -27,7 +31,7 @@ class VersionHelper:
         # This is an explicit requirement for project SLVSCODE
         # see https://sonarsource.atlassian.net/browse/BUILD-4915 for more details
 
-        if "+" not in version:
+        if not re.match(VersionHelper.VERSION_NUMBER_PLUS_SIGN_REGEX, version):
             return False
 
         return VersionHelper.is_valid_sonar_version(VersionHelper._sanitize_version(version))

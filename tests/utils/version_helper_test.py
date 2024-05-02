@@ -58,6 +58,7 @@ class VersionHelperTest(unittest.TestCase):
         '3.2.1',
         '3.2.1-4323',
         '3.2.1#4323',
+        '4+3.2.1000',
     ])
     def test_is_valid_plus_signed_version_should_return_false_given_invalid_versions(self, invalid_version):
         valid = VersionHelper.is_valid_plus_signed_version(invalid_version)
