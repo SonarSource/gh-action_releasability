@@ -29,6 +29,7 @@ class ReleasabilityService:
     ARN_SNS = 'arn:aws:sns'
     ARN_SQS = 'arn:aws:sqs'
 
+    # Make sure to update the outputs in action.yml if this list changes
     EXPECTED_RELEASABILITY_CHECK_NAMES = {
         "CheckDependencies",
         "QA",

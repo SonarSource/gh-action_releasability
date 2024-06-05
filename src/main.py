@@ -19,6 +19,10 @@ def do_releasability_checks(organization: str, repository: str, branch: str, ver
         report = releasability.get_releasability_report(correlation_id)
         GithubActionHelper.set_output_logs(str(report))
 
+        for check in report.get_checks():
+            name = f'releasability{check.name}'
+            GithubActionHelper.set_output(name, check.state)
+
         if report.contains_error():
             print("::error::Releasability checks failed")
             GithubActionHelper.set_output_status("1")
