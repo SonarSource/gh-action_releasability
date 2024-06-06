@@ -28,6 +28,33 @@ outputs:
   logs:
     description: Logs from releasability checks
     value: ${{ steps.checks.outputs.logs }}
+  releasabilityCheckDependencies:
+    description: Result from releasability check CheckDependencies
+    value: ${{ steps.checks.outputs.releasabilityCheckDependencies }}
+  releasabilityQA:
+    description: Result from releasability check QA
+    value: ${{ steps.checks.outputs.releasabilityQA }}
+  releasabilityJira:
+    description: Result from releasability check Jira
+    value: ${{ steps.checks.outputs.releasabilityJira }}
+  releasabilityWhiteSource:
+    description: Result from releasability check WhiteSource
+    value: ${{ steps.checks.outputs.releasabilityWhiteSource }}
+  releasabilityCheckPeacheeLanguagesStatistics:
+    description: Result from releasability check CheckPeacheeLanguagesStatistics
+    value: ${{ steps.checks.outputs.releasabilityCheckPeacheeLanguagesStatistics }}
+  releasabilityQualityGate:
+    description: Result from releasability check QualityGate
+    value: ${{ steps.checks.outputs.releasabilityQualityGate }}
+  releasabilityParentPOM:
+    description: Result from releasability check ParentPOM
+    value: ${{ steps.checks.outputs.releasabilityParentPOM }}
+  releasabilityGitHub:
+    description: Result from releasability check GitHub
+    value: ${{ steps.checks.outputs.releasabilityGitHub }}
+  releasabilityCheckManifestValues:
+    description: Result from releasability check CheckManifestValues
+    value: ${{ steps.checks.outputs.releasabilityCheckManifestValues }}
 runs:
   using: "composite"
   steps:
