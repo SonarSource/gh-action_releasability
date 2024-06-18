@@ -38,63 +38,23 @@ class VersionHelperTest(unittest.TestCase):
         '55',
         'some',
         '3.2.1',
-    ])
-    def test_is_valid_sonar_version_should_return_false_given_invalid_versions(self, invalid_version):
-        valid = VersionHelper.is_valid_sonar_version(invalid_version)
-        self.assertFalse(valid)
-
-    @parameterized.expand([
-        '3.2.1.12345',
-    ])
-    def test_is_valid_sonar_version_should_return_true_given_valid_versions(self, valid_version):
-        valid = VersionHelper.is_valid_sonar_version(valid_version)
-        self.assertTrue(valid)
-
-    @parameterized.expand([
-        '42.2',
-        '55',
-        'some',
-        '3.2.1.43243',
-        '3.2.1',
+        '3+2+2',
         '3.2.1-4323',
         '3.2.1#4323',
         '4+3.2.1000',
+        'proj--3.2.1+1234',
+        'proj-3.2.1-MX+1234',
     ])
-    def test_is_valid_plus_signed_version_should_return_false_given_invalid_versions(self, invalid_version):
-        valid = VersionHelper.is_valid_plus_signed_version(invalid_version)
-        self.assertFalse(valid)
-
-    @parameterized.expand([
-        '3.2.1+12345',
-    ])
-    def test_is_valid_plus_signed_version_should_return_true_given_valid_versions(self, valid_version):
-        valid = VersionHelper.is_valid_plus_signed_version(valid_version)
-        self.assertTrue(valid)
-
-    @parameterized.expand([
-        '42.2',
-        '55',
-        'some',
-        '3.2.1',
-        '3+2+2',
-    ])
-    def test_is_valid_version_should_return_false_given_invalid_versions(self, invalid_version):
-        valid = VersionHelper.is_valid_version(invalid_version)
-        self.assertFalse(valid)
+    def test_is_valid_sonar_version_should_raise_exception_given_invalid_versions(self, invalid_version):
+        with self.assertRaises(ValueError):
+            VersionHelper.validate_version(invalid_version)
 
     @parameterized.expand([
         '3.2.1.12345',
+        'proj-3.2.1.12345',
+        '3.2.1-M99.12345',
         '3.2.1+12345',
+        'proj-3.2.1-M99.12345',
     ])
-    def test_is_valid_version_should_return_true_given_valid_versions(self, valid_version):
-        valid = VersionHelper.is_valid_version(valid_version)
-        self.assertTrue(valid)
-
-    @parameterized.expand([
-        ('1.2.3+1234', '1.2.3.1234'),
-        ('1.2.1.5433', '1.2.1.5433'),
-    ])
-    def test_sanitize_version_should_transform_special_version_format_to_standardized_one(self, input_version: str,
-                                                                                                 expected_sanitized_version: str):
-        actual_sanitized_version = VersionHelper._sanitize_version(input_version)
-        self.assertEquals(actual_sanitized_version, expected_sanitized_version)
+    def test_is_valid_sonar_version_should_raise_no_exception_given_valid_versions(self, valid_version):
+        VersionHelper.validate_version(valid_version)

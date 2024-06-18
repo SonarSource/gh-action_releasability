@@ -2,44 +2,50 @@ import re
 
 
 class VersionHelper:
-    VERSION_NUMBER_PLUS_SIGN_REGEX = r"^(\d+)\.(\d+)\.(\d+)\+(\d+)$"
+    VERSION_REGEX = (
+        r'^'                  # Start of the string
+        r'(?:[a-zA-Z]+-)?'    # Optional ProjectName- prefix in a non-capturing group
+        r'\d+\.\d+\.\d+'      # Major.Minor.Patch version
+        r'(?:-M\d+)?'         # Optional -Mx suffix in a non-capturing group
+        r'[.+]'               # Separator, either . or +
+        r'(\d+)$'             # Build number in a captured group
+    )
 
     @staticmethod
-    def extract_build_number(version) -> int:
-        if not VersionHelper.is_valid_version(version):
-            raise ValueError(f'The provided version {version}  does not match the standardized format '
-                             f'used commonly across the organization: <MAJOR>.<MINOR>.<PATCH>.<BUILD NUMBER>')
+    def validate_version(version: str) -> None:
+        """
+        Validates the version string against the expected format.
 
-        parts = VersionHelper._sanitize_version(version).split('.')
-        if len(parts) != 4:
-            raise ValueError(f'The split version {version} must contains 4 parts')
-        return int(parts[3])
+        Parameters:
+        - version (str): The version string to validate.
 
-    @staticmethod
-    def is_valid_sonar_version(version: str) -> bool:
-        if "." not in version:
-            return False
-        parts = version.split('.')
-        if len(parts) != 4:
-            return False
-
-        return True
-
-    @staticmethod
-    def is_valid_plus_signed_version(version: str) -> bool:
-
-        # This is an explicit requirement for project SLVSCODE
-        # see https://sonarsource.atlassian.net/browse/BUILD-4915 for more details
-
-        if not re.match(VersionHelper.VERSION_NUMBER_PLUS_SIGN_REGEX, version):
-            return False
-
-        return VersionHelper.is_valid_sonar_version(VersionHelper._sanitize_version(version))
+        Raises:
+        - ValueError: If the version does not match the expected format.
+        """
+        if not re.match(VersionHelper.VERSION_REGEX, version):
+            raise ValueError(
+                'The tag must follow this pattern: [ProjectName-]Major.Minor.Patch[-Mx][.+]BuildNumber\n'
+                'Where:\n'
+                '- "ProjectName-" is an optional prefix (any sequence of letters followed by a dash).\n'
+                '- "Major.Minor.Patch" is the version number (three numbers separated by dots).\n'
+                '- "-Mx" is an optional suffix (a dash followed by "M" and a number).\n'
+                '- "[.+]" is a separator, either a dot or a plus sign.\n'
+                '- "BuildNumber" is the build number (a number at the end of the string).'
+            )
 
     @staticmethod
-    def is_valid_version(version: str) -> bool:
-        return VersionHelper.is_valid_sonar_version(version) or VersionHelper.is_valid_plus_signed_version(version)
+    def extract_build_number(version: str) -> int:
+        """
+        Extracts the build number from a validated version string.
 
-    @staticmethod
-    def _sanitize_version(version: str) -> str:
-        return version.replace("+", ".")
+        Parameters:
+        - version (str): The version string from which to extract the build number.
+
+        Returns:
+        - int: The extracted build number.
+        """
+        VersionHelper.validate_version(version)
+        match = re.match(VersionHelper.VERSION_REGEX, version)
+        # Extract the build number (the first capturing group in the regex)
+        build_number = match.group(1)
+        return int(build_number)

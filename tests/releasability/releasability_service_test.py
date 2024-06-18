@@ -279,9 +279,3 @@ class ReleasabilityTest(unittest.TestCase):
         check_names = releasability._get_checks()
 
         self.assertGreater(len(check_names), 0)
-
-    def test_check_input_parameters_should_raise_an_exception_given_version_is_not_compliant_with_org_format(self):
-
-        with self.assertRaises(ValueError):
-            invalid_version = "4.3.2"  # version without build number
-            ReleasabilityService.check_input_parameters(invalid_version)

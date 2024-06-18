@@ -60,7 +60,7 @@ class ReleasabilityService:
         self.RESULT_QUEUE_ARN = f"{ReleasabilityService.ARN_SQS}:{aws_region}:{aws_account_id}:ReleasabilityResultQueue"
 
     def start_releasability_checks(self, organization: str, repository: str, branch: str, version: str, commit_sha: str):
-        self.check_input_parameters(version)
+        VersionHelper.validate_version(version)
 
         print(f"Starting releasability check: {organization}/{repository}#{version}@{commit_sha}")
 
@@ -80,15 +80,6 @@ class ReleasabilityService:
         )
         print(f"Issued SNS message {response['MessageId']}; the request identifier is {correlation_id}")
         return correlation_id
-
-    @staticmethod
-    def check_input_parameters(version: str):
-        if not VersionHelper.is_valid_version(version):
-            raise ValueError(
-                f"The provided version {version}  does not match the standardized format "
-                f"used commonly across the organization: <MAJOR>.<MINOR>.<PATCH>.<BUILD NUMBER> "
-                f"or the alternative format: <MAJOR>.<MINOR>.<PATCH>+<BUILD NUMBER>"
-            )
 
     def _build_sns_request(
         self,
