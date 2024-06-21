@@ -1,0 +1,88 @@
+# yamllint disable rule:line-length
+---
+name: Releasability status
+description: Run releasability checks and update commit status
+runs:
+  using: "composite"
+  steps:
+    - id: setup_python
+      name: Setup python
+      uses: actions/setup-python@82c7e631bb3cdc910f68e0081d67478d79c6982d # v5.1.0
+      with:
+        python-version: "3.10"
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+      with:
+        aws-region: eu-central-1
+        role-to-assume: "arn:aws:iam::064493320159:role/ReleasbilityChecksCICDRole"
+    - name: Install requirements
+      run: |
+        pip install pipenv
+        pipenv install
+      shell: bash
+      working-directory: ${{ github.action_path }}
+    - uses: octokit/request-action@v2.x
+      id: get_commit_status
+      with:
+        route: 'GET /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/commits/${{ github.sha }}/status'
+      env:
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+
+    # Find latest promoted version from the commit status
+    - id: find_version
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      env:
+        OUTPUTS: "${{ steps.get_commit_status.outputs.data }}"
+      run: |
+        ./find_version.sh ${{ github.ref_name }}
+
+    - name: Trigger releasability checks
+      id: checks
+      shell: bash
+      working-directory: ${{ github.action_path }}/../
+      run: pipenv run releasability
+      env:
+        INPUT_ORGANIZATION: ${{ github.repository_owner }}
+        INPUT_REPOSITORY: ${{ github.event.repository.name }}
+        INPUT_BRANCH: ${{ github.ref_name }}
+        INPUT_VERSION: ${{ steps.find_version.outputs.version }}
+        INPUT_COMMIT_SHA: ${{ github.sha }}
+        PYTHONUNBUFFERED: "1" # that way logs are printed live
+
+    - name: Print execution
+      run: |
+        echo "${{ steps.checks.outputs.logs }}"
+        echo "Exit code: ${{ steps.checks.outputs.status }}"
+      shell: bash
+
+    - name: Check status and fail if necessary
+      if: ${{ steps.checks.outputs.status != 0 }}
+      run: |
+        echo "::error:: Releasability checks reported some errors."
+        exit 1
+      shell: bash
+
+    - uses: octokit/request-action@v2.x
+      name: Update Commit status to success
+      with:
+        route: 'POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }}'
+        state: "success"
+        target_url: "https://github.com/SonarSource/sonar-dummy/actions/runs/${{ github.run_id }}"
+        description: "✈ ${{ steps.find_version.outputs.version }} passed releasability checks"
+        context: "Releasability"
+      env:
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+
+    # Adding as a separate step so that we can enhance the description to include name of failed checks
+    - uses: octokit/request-action@v2.x
+      if: failure()
+      name: Update Commit status to failure
+      with:
+        route: 'POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }}'
+        state: "failure"
+        target_url: "https://github.com/SonarSource/sonar-dummy/actions/runs/${{ github.run_id }}"
+        description: "✈ ${{ steps.find_version.outputs.version }} failed releasability checks"
+        context: "Releasability"
+      env:
+        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}

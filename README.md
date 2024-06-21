@@ -15,6 +15,43 @@ Trigger manually:
 
 ![Form](doc/assets/releasability_checks_workflow_dispatch.png)
 
+### Show current releasability status in default branch
+
+To show releasability status of the latest promoted version from the default branch,
+
+```yaml
+name: Releasability status
+'on':
+  check_suite:
+    types:
+      - completed
+jobs:
+  update_releasability_status:
+    runs-on: ubuntu-latest
+    name: Releasability status
+    permissions:
+      id-token: write
+      statuses: write
+      contents: read
+    if: >-
+      (contains(fromJSON('["main", "master"]'),
+      github.event.check_suite.head_branch) ||
+      startsWith(github.event.check_suite.head_branch, 'dogfood-') ||
+      startsWith(github.event.check_suite.head_branch, 'branch-')) &&
+      github.event.check_suite.conclusion == 'success' &&
+      github.event.check_suite.app.slug == 'cirrus-ci'
+    steps:
+      - uses: >-
+          SonarSource/gh-action_releasability/releasability-status@1.0.4 <---
+          replace with latest tag
+        env:
+          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+```
+
+This will run the releasability checks once the cirrus tasks are completed and update the commit status as below.
+
+![Releasability status](doc/assets/releasability_status.png)
+
 ### Use as a step in another workflow
 
 Within an existing GitHub workflow:
