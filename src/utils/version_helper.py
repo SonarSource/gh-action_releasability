@@ -4,10 +4,10 @@ import re
 class VersionHelper:
     VERSION_REGEX = (
         r'^'                  # Start of the string
-        r'(?:[a-zA-Z]+-)?'    # Optional ProjectName- prefix in a non-capturing group
+        r'(?:[a-zA-Z]+-)?'    # Optional ProjectName- prefix in a non-capturing group (see https://sonarsource.atlassian.net/browse/BUILD-5293)
         r'\d+\.\d+\.\d+'      # Major.Minor.Patch version
         r'(?:-M\d+)?'         # Optional -Mx suffix in a non-capturing group
-        r'[.+]'               # Separator, either . or +
+        r'[.+]'               # Separator, either . or + (see https://sonarsource.atlassian.net/browse/BUILD-4915)
         r'(\d+)$'             # Build number in a captured group
     )
 
