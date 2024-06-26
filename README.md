@@ -42,8 +42,7 @@ jobs:
       github.event.check_suite.app.slug == 'cirrus-ci'
     steps:
       - uses: >-
-          SonarSource/gh-action_releasability/releasability-status@1.0.4 <---
-          replace with latest tag
+          SonarSource/gh-action_releasability/releasability-status@1.0.4 <--- replace with latest tag
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 ```
@@ -51,6 +50,9 @@ jobs:
 This will run the releasability checks once the cirrus tasks are completed and update the commit status as below.
 
 ![Releasability status](doc/assets/releasability_status.png)
+
+> [!WARNING]
+> Releasability status checks will not work if you have Merge queue enabled on the repository
 
 ### Use as a step in another workflow
 
