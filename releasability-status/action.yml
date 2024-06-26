@@ -68,7 +68,7 @@ runs:
       with:
         route: 'POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }}'
         state: "success"
-        target_url: "https://github.com/SonarSource/sonar-dummy/actions/runs/${{ github.run_id }}"
+        target_url: "https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"
         description: "✈ ${{ steps.find_version.outputs.version }} passed releasability checks"
         context: "Releasability"
       env:
@@ -81,7 +81,7 @@ runs:
       with:
         route: 'POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }}'
         state: "failure"
-        target_url: "https://github.com/SonarSource/sonar-dummy/actions/runs/${{ github.run_id }}"
+        target_url: "https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"
         description: "✈ ${{ steps.find_version.outputs.version }} failed releasability checks"
         context: "Releasability"
       env:
