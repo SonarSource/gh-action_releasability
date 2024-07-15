@@ -3,7 +3,7 @@ description: "gh-action client for ops-releasability checks"
 author: "RE Team"
 inputs:
   ignore-failure:
-    description: Optional, do not fail the gh-action in case of pre-commit check failure
+    description: Optional, do not fail the gh-action in case of failure in releasability checks
     required: false
     default: "false"
   organization:
