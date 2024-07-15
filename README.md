@@ -42,7 +42,7 @@ jobs:
       github.event.check_suite.app.slug == 'cirrus-ci'
     steps:
       - uses: >-
-          SonarSource/gh-action_releasability/releasability-status@1.0.4 <--- replace with latest tag
+          SonarSource/gh-action_releasability/releasability-status@v1
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 ```
@@ -62,7 +62,7 @@ Within an existing GitHub workflow:
 
 ...
     steps:
-      - uses: SonarSource/gh-action_releasability@0.0.1 <--- replace with last tag
+      - uses: SonarSource/gh-action_releasability@v1
         id: releasability-checks
         with:
           organization:
@@ -94,9 +94,21 @@ permissions:
 
 This project is using [Semantic Versioning](https://semver.org/).
 
-The `master` branch shall not be referenced by end-users,
-please use tags instead and [Renovate](https://docs.renovatebot.com/) or
-[Dependabot](https://docs.github.com/en/code-security/dependabot) to stay up to date.
+The `master` branch shall not be referenced by end-users.
+
+If you use [Renovate](https://docs.renovatebot.com/) or [Dependabot](https://docs.github.com/en/code-security/dependabot),
+use the latest released tag.
+
+Alternatively, use the `v*` branches which will kept up-to-date with latest released tag
+
+## Releasing
+
+Create a new release on [Github](https://github.com/SonarSource/gh-action_releasability/releases)
+following semantic versioning.
+
+To update the v-branch,
+run the [Update v-branch workflow](https://github.com/SonarSource/gh-action_releasability/actions/workflows/update-v-branch.yml).
+The workflow will update the v-branch to the specified tag.
 
 ## Contribute
 
