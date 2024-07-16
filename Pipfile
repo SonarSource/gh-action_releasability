@@ -14,6 +14,7 @@ slack_sdk = "*"
 boto3 = "*"
 dryable = "*"
 parameterized = "*"
+github-action-utils = "*"
 
 [requires]
 python_version = "3.10"
