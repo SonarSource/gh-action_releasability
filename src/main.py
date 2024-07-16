@@ -3,6 +3,7 @@ import sys
 
 from releasability.releasability_service import ReleasabilityService
 from utils.github_action_helper import GithubActionHelper
+from github_action_utils import error, notice, set_output
 
 
 def do_releasability_checks(organization: str, repository: str, branch: str, version: str, commit_sha: str):
@@ -21,17 +22,17 @@ def do_releasability_checks(organization: str, repository: str, branch: str, ver
 
         for check in report.get_checks():
             name = f'releasability{check.name}'
-            GithubActionHelper.set_output(name, check.state)
+            set_output(name, check.state)
 
         if report.contains_error():
-            print("::error::Releasability checks failed")
+            error(f"Releasability checks of {version} failed")
             GithubActionHelper.set_output_status("1")
         else:
-            print("::notice::Releasability checks passed successfully")
+            notice(f"Releasability checks of {version} passed successfully")
             GithubActionHelper.set_output_status("0")
 
     except Exception as ex:
-        print(f"::error:: {ex}")
+        error(f"{ex}")
         GithubActionHelper.set_output_status("1")
         sys.exit(1)
 
