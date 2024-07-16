@@ -11,7 +11,7 @@ runs:
       with:
         python-version: "3.10"
         cache: "pipenv"
-        cache-dependency-path: "${{ github.action_path }}/../Pipfile.lock"
+        cache-dependency-path: "${{ github.action_path }}/Pipfile.lock"
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
       with:
