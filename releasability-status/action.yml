@@ -2,6 +2,11 @@
 ---
 name: Releasability status
 description: Run releasability checks and update commit status
+inputs:
+  optional_checks:
+    description: 'Comma separated list of checks to ignore in case of failure'
+    required: false
+    default: ''
 runs:
   using: "composite"
   steps:
@@ -10,17 +15,17 @@ runs:
       uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
       with:
         python-version: "3.10"
+
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
       with:
         aws-region: eu-central-1
         role-to-assume: "arn:aws:iam::064493320159:role/ReleasbilityChecksCICDRole"
+
     - name: Install requirements
-      run: |
-        pip install pipenv
-        pipenv install
+      run: pip install pipenv
       shell: bash
-      working-directory: ${{ github.action_path }}
+
     - uses: octokit/request-action@872c5c97b3c85c23516a572f02b31401ef82415d # v2.3.1
       id: get_commit_status
       with:
@@ -41,7 +46,9 @@ runs:
       id: checks
       shell: bash
       working-directory: ${{ github.action_path }}/../
-      run: pipenv run releasability
+      run: |
+        pipenv install
+        pipenv run releasability
       env:
         INPUT_ORGANIZATION: ${{ github.repository_owner }}
         INPUT_REPOSITORY: ${{ github.event.repository.name }}
@@ -50,17 +57,24 @@ runs:
         INPUT_COMMIT_SHA: ${{ github.sha }}
         PYTHONUNBUFFERED: "1" # that way logs are printed live
 
-    - name: Print execution
+    - name: Parse Releasability check output
+      id: parse-releasability
+      if: always()
+      shell: bash
+      working-directory: ${{ github.action_path }}
+      env:
+        INPUT_VERSION: ${{ steps.find_version.outputs.version }}
+        RELEASABILITY_CHECK_RESULT: ${{ toJSON(steps.checks.outputs) }}
+        OPTIONAL_CHECKS: ${{ inputs.optional_checks }}
+      run: |
+        pipenv install
+        pipenv run releasability-status
+
+    - name: Print results
       run: |
         echo "${{ steps.checks.outputs.logs }}"
-        echo "Exit code: ${{ steps.checks.outputs.status }}"
-      shell: bash
-
-    - name: Check status and fail if necessary
-      if: ${{ steps.checks.outputs.status != 0 }}
-      run: |
-        echo "::error:: Releasability checks reported some errors."
-        exit 1
+        echo "Exit code: ${{ steps.parse-releasability.outputs.status }}"
+        echo "Message: ${{ steps.parse-releasability.outputs.message }}"
       shell: bash
 
     - uses: octokit/request-action@872c5c97b3c85c23516a572f02b31401ef82415d # v2.3.1
@@ -69,20 +83,7 @@ runs:
         route: 'POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }}'
       env:
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
-        INPUT_STATE: "success"
+        INPUT_STATE: "${{ steps.parse-releasability.outputs.state }}"
         INPUT_TARGET_URL: "https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"
-        INPUT_DESCRIPTION: "✈ ${{ steps.find_version.outputs.version }} passed releasability checks"
-        INPUT_CONTEXT: "Releasability"
-
-    # Adding as a separate step so that we can enhance the description to include name of failed checks
-    - uses: octokit/request-action@872c5c97b3c85c23516a572f02b31401ef82415d # v2.3.1
-      if: failure()
-      name: Update Commit status to failure
-      with:
-        route: 'POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }}'
-      env:
-        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
-        INPUT_STATE: "failure"
-        INPUT_TARGET_URL: "https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"
-        INPUT_DESCRIPTION: "✈ ${{ steps.find_version.outputs.version }} failed releasability checks"
+        INPUT_DESCRIPTION: "${{ steps.parse-releasability.outputs.message }}"
         INPUT_CONTEXT: "Releasability"
