@@ -21,7 +21,7 @@ runs:
         pipenv install
       shell: bash
       working-directory: ${{ github.action_path }}
-    - uses: octokit/request-action@v2.x
+    - uses: octokit/request-action@872c5c97b3c85c23516a572f02b31401ef82415d # v2.3.1
       id: get_commit_status
       with:
         route: 'GET /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/commits/${{ github.sha }}/status'
@@ -63,26 +63,26 @@ runs:
         exit 1
       shell: bash
 
-    - uses: octokit/request-action@v2.x
+    - uses: octokit/request-action@872c5c97b3c85c23516a572f02b31401ef82415d # v2.3.1
       name: Update Commit status to success
       with:
         route: 'POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }}'
-        state: "success"
-        target_url: "https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"
-        description: "✈ ${{ steps.find_version.outputs.version }} passed releasability checks"
-        context: "Releasability"
       env:
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        INPUT_STATE: "success"
+        INPUT_TARGET_URL: "https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"
+        INPUT_DESCRIPTION: "✈ ${{ steps.find_version.outputs.version }} passed releasability checks"
+        INPUT_CONTEXT: "Releasability"
 
     # Adding as a separate step so that we can enhance the description to include name of failed checks
-    - uses: octokit/request-action@v2.x
+    - uses: octokit/request-action@872c5c97b3c85c23516a572f02b31401ef82415d # v2.3.1
       if: failure()
       name: Update Commit status to failure
       with:
         route: 'POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }}'
-        state: "failure"
-        target_url: "https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"
-        description: "✈ ${{ steps.find_version.outputs.version }} failed releasability checks"
-        context: "Releasability"
       env:
         GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
+        INPUT_STATE: "failure"
+        INPUT_TARGET_URL: "https://github.com/${{ github.repository_owner }}/${{ github.event.repository.name }}/actions/runs/${{ github.run_id }}"
+        INPUT_DESCRIPTION: "✈ ${{ steps.find_version.outputs.version }} failed releasability checks"
+        INPUT_CONTEXT: "Releasability"
