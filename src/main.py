@@ -25,10 +25,10 @@ def do_releasability_checks(organization: str, repository: str, branch: str, ver
             set_output(name, check.state)
 
         if report.contains_error():
-            error("Releasability checks failed")
+            error(f"Releasability checks of {version} failed")
             GithubActionHelper.set_output_status("1")
         else:
-            notice("Releasability checks passed successfully")
+            notice(f"Releasability checks of {version} passed successfully")
             GithubActionHelper.set_output_status("0")
 
     except Exception as ex:
