@@ -11,6 +11,10 @@ runs:
         echo "GH_ACTION_RELEASABILITY_ROOT_DIR=$PWD" >> $GITHUB_ENV
       shell: bash
       working-directory: ${{ github.action_path }}
+    - name: List action content
+      run: |
+        ls ${{ env.GH_ACTION_RELEASABILITY_ROOT_DIR }}
+      shell: bash
     - id: setup_python
       name: Setup python
       uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
