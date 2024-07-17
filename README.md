@@ -15,6 +15,8 @@ Trigger manually:
 
 ![Form](doc/assets/releasability_checks_workflow_dispatch.png)
 
+List of [parameters](#options)
+
 ### Show current releasability status in default branch
 
 To show releasability status of the latest promoted version from the default branch,
@@ -42,7 +44,9 @@ jobs:
       github.event.check_suite.app.slug == 'cirrus-ci'
     steps:
       - uses: >-
-          SonarSource/gh-action_releasability/releasability-status@v1
+          SonarSource/gh-action_releasability/releasability-status@v2
+        with:
+          optional_checks: "Jira"
         env:
           GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 ```
@@ -51,10 +55,32 @@ This will run the releasability checks once the cirrus tasks are completed and u
 
 ![Releasability status](doc/assets/releasability_status.png)
 
+The parameter `optional_checks` is optional. You can provide a comma separated list of checks to be treated as
+optional while doing releasability checks. Failure in any of these checks will not mark the commit status as red,
+but provide the details in commit status description.
+
+This will be helpful in case you have a few checks which are expected to fail until the day of the Release.
+Eg: Jira check will fail until the release, since there will be working-in-progress tickets throughout the sprint.
+If you add this parameter, make sure to check the description for failed optional checks before triggering an actual release.
+
+![Releasability optional checks](doc/assets/releasability_optional.png)
+
+### List of checks
+
+* CheckDependencies
+* QA
+* Jira
+* WhiteSource
+* CheckPeacheeLanguagesStatistics
+* QualityGate
+* ParentPOM
+* GitHub
+* CheckManifestValues
+
 > [!WARNING]
 > Releasability status checks will not work if you have Merge queue enabled on the repository
 
-### Use as a step in another workflow
+## Use as a step in another workflow
 
 Within an existing GitHub workflow:
 
@@ -62,7 +88,7 @@ Within an existing GitHub workflow:
 
 ...
     steps:
-      - uses: SonarSource/gh-action_releasability@v1
+      - uses: SonarSource/gh-action_releasability@v2
         id: releasability-checks
         with:
           organization:
@@ -79,7 +105,7 @@ permissions:
   id-token: write
 ```
 
-## Options
+### Options
 
 | Option name      | Description                                                                                             | Default |
 |------------------|---------------------------------------------------------------------------------------------------------|---------|
