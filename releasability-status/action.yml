@@ -8,7 +8,7 @@ runs:
     - name: Define action root dir
       run: |
         cd ..
-        echo "GH_ACTION_RELEASABILITY_ROOT_DIR=$( echo $PWD )" >> $GITHUB_ENV
+        echo "GH_ACTION_RELEASABILITY_ROOT_DIR=$PWD" >> $GITHUB_ENV
       shell: bash
       working-directory: ${{ github.action_path }}
     - id: setup_python
