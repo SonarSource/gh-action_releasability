@@ -5,13 +5,19 @@ description: Run releasability checks and update commit status
 runs:
   using: "composite"
   steps:
+    - name: Define action root dir
+      run: |
+        cd ..
+        echo "GH_ACTION_RELEASABILITY_ROOT_DIR=$PWD" >> $GITHUB_ENV
+      shell: bash
+      working-directory: ${{ github.action_path }}
     - id: setup_python
       name: Setup python
       uses: actions/setup-python@39cd14951b08e74b54015e9e001cdefcf80e669f # v5.1.1
       with:
         python-version: "3.10"
         cache: "pipenv"
-        cache-dependency-path: "${{ github.action_path }}../Pipfile.lock"
+        cache-dependency-path: "${{ GH_ACTION_RELEASABILITY_ROOT_DIR }}/Pipfile.lock"
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
       with:
