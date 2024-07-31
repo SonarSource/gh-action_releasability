@@ -23,6 +23,15 @@ on:
       commit-sha:
         description: "Commit SHA"
         required: true
+      releasabily-env:
+        description: "For development purposes, the environment to use. Defaults to production."
+        required: false
+        default: prod
+        type: choice
+        options:
+          - prod
+          - staging
+          - dev
 
 jobs:
   trigger_releasability_checks:
@@ -39,3 +48,4 @@ jobs:
           branch: ${{ github.event.inputs.branch }}
           version: ${{ github.event.inputs.version }}
           commit-sha: ${{ github.event.inputs.commit-sha }}
+          releasabily-env: ${{ github.event.inputs.releasabily-env }}

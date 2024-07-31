@@ -24,31 +24,31 @@ To show releasability status of the latest promoted version from the default bra
 ```yaml
 name: Releasability status
 'on':
-  check_suite:
-    types:
-      - completed
+    check_suite:
+        types:
+            - completed
 jobs:
-  update_releasability_status:
-    runs-on: ubuntu-latest
-    name: Releasability status
-    permissions:
-      id-token: write
-      statuses: write
-      contents: read
-    if: >-
-      (contains(fromJSON('["main", "master"]'),
-      github.event.check_suite.head_branch) ||
-      startsWith(github.event.check_suite.head_branch, 'dogfood-') ||
-      startsWith(github.event.check_suite.head_branch, 'branch-')) &&
-      github.event.check_suite.conclusion == 'success' &&
-      github.event.check_suite.app.slug == 'cirrus-ci'
-    steps:
-      - uses: >-
-          SonarSource/gh-action_releasability/releasability-status@v2
-        with:
-          optional_checks: "Jira"
-        env:
-          GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
+    update_releasability_status:
+        runs-on: ubuntu-latest
+        name: Releasability status
+        permissions:
+            id-token: write
+            statuses: write
+            contents: read
+        if: >-
+            (contains(fromJSON('["main", "master"]'),
+            github.event.check_suite.head_branch) ||
+            startsWith(github.event.check_suite.head_branch, 'dogfood-') ||
+            startsWith(github.event.check_suite.head_branch, 'branch-')) &&
+            github.event.check_suite.conclusion == 'success' &&
+            github.event.check_suite.app.slug == 'cirrus-ci'
+        steps:
+            -   uses: >-
+                    SonarSource/gh-action_releasability/releasability-status@v2
+                with:
+                    optional_checks: "Jira"
+                env:
+                    GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 ```
 
 This will run the releasability checks once the Cirrus tasks are completed and update the commit status as below.
@@ -67,7 +67,8 @@ If you add this parameter, make sure to check the description for failed optiona
 
 ### List of checks
 
-Please refer to the [End-User documentation](https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3309240895/End-user+Documentation+-+Releasability)
+Please refer to
+the [End-User documentation](https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3309240895/End-user+Documentation+-+Releasability)
 for a list of checks and their description.
 
 > [!WARNING]
@@ -80,36 +81,39 @@ Within an existing GitHub workflow:
 ```yaml
 
 ...
-    steps:
-      - uses: SonarSource/gh-action_releasability@v2
+steps:
+    -   uses: SonarSource/gh-action_releasability@v2
         id: releasability-checks
         with:
-          organization:
-          repository:
-          branch:
-          version:
-          commit-sha:
+            organization:
+            repository:
+            branch:
+            version:
+            commit-sha:
 ```
 
 The following permission is required:
 
 ```yaml
 permissions:
-  id-token: write
+    id-token: write
 ```
 
 ### Options
 
-| Option name      | Description                                                                                             | Default |
-|------------------|---------------------------------------------------------------------------------------------------------|---------|
-| `organization`   | Used to specify the GitHub organization used (i.e: SonarSource)                                         | -       |
-| `repository`     | Used to specify the GitHub repository name                                                              | -       |
-| `branch`         | Used to specify the GitHub repository branch name                                                       | -       |
-| `version`        | Used to specify the version to check (Using Sonar org format: `x.x.x.x` `major.minor.patch.build_number`) | -       |
-| `commit-sha`     | Used to specify the GitHub commit sha to use                                                            | -       |
-| `ignore-failure` | Used to not fail the gh-action in case of releasability check failure                                   | `false` |
+| Option name       | Description                                                                     | Default |
+|-------------------|---------------------------------------------------------------------------------|---------|
+| `organization`    | The GitHub organization used (i.e: SonarSource)                                 | -       |
+| `repository`      | The GitHub repository name                                                      | -       |
+| `branch`          | The GitHub repository branch name                                               | -       |
+| `version`         | The version to check (`[prefix-]major.minor.patch.build_number`)                | -       |
+| `commit-sha`      | The GitHub commit SHA                                                           | -       |
+| `ignore-failure`  | Whether to fail or not the GitHub action in case of Releasability check failure | `false` |
+| `releasabily-env` | For development purposes, the environment to use (`prod`, `staging`, or `dev`)  | `prod`  |
 
-## Versioning
+## Development
+
+### Versioning
 
 This project is using [Semantic Versioning](https://semver.org/).
 
@@ -120,15 +124,19 @@ use the latest released tag.
 
 Alternatively, use the `v*` branches which will kept up-to-date with latest released tag
 
-## Releasing
+### Releasing
 
-Create a new release on [Github](https://github.com/SonarSource/gh-action_releasability/releases)
+Create a new release on [GitHub](https://github.com/SonarSource/gh-action_releasability/releases)
 following semantic versioning.
 
 To update the v-branch,
 run the [Update v-branch workflow](https://github.com/SonarSource/gh-action_releasability/actions/workflows/update-v-branch.yml).
 The workflow will update the v-branch to the specified tag.
 
-## Contribute
+### Contribute
 
 Contributions are welcome, please have a look at [DEV.md](./DEV.md)
+
+### Testing
+
+Use the `releasabily-env` option to test the action with a different AWS account (staging or development).

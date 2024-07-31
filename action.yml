@@ -21,6 +21,10 @@ inputs:
   commit-sha:
     description: The GitHub commit SHA to use
     required: true
+  releasabily-env:
+    description: For development purposes, the environment to use (prod, staging or dev). Defaults to production.
+    required: false
+    default: prod
 outputs:
   status:
     description: Provide the exit code returned by the releasability checks
@@ -55,6 +59,7 @@ outputs:
   releasabilityCheckManifestValues:
     description: Result from releasability check CheckManifestValues
     value: ${{ steps.checks.outputs.releasabilityCheckManifestValues }}
+
 runs:
   using: "composite"
   steps:
@@ -65,9 +70,13 @@ runs:
         python-version: "3.10"
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@e3dd6a429d7300a6a4c196c26e071d42e0343502 # v4.0.2
+      env:
+        prod: "064493320159"
+        staging: "308147251410"
+        dev: "597611216173"
       with:
         aws-region: eu-central-1
-        role-to-assume: "arn:aws:iam::064493320159:role/ReleasbilityChecksCICDRole"
+        role-to-assume: "arn:aws:iam::${{ env[inputs.releasabily-env] }}:role/ReleasbilityChecksCICDRole"
     - name: Install requirements
       run: |
         pip install pipenv
