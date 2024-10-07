@@ -6,7 +6,8 @@ class VersionHelper:
         r'^(?:[a-zA-Z]+-)?'   # Optional ProjectName- prefix (required by sonar-scanner-azdo; see https://sonarsource.atlassian.net/browse/BUILD-5293)
         r'\d+\.\d+\.\d+'      # Major.Minor.Patch version
         r'(?:-M\d+)?'         # Optional -Mx suffix
-        r'[.+]'               # Separator (+ is required by sonarlint-vscode; see https://sonarsource.atlassian.net/browse/BUILD-4915)
+        r'[.+-]'              # Separator (+ is required by sonarlint-vscode; see https://sonarsource.atlassian.net/browse/BUILD-4915)
+                              # Separator (- is required by npmjs projects; npm version command do not support x.x.x.xxxx format)
         r'(\d+)$'             # Build number in a captured group
     )
 
