@@ -29,7 +29,7 @@ class VersionHelper:
                 '- "ProjectName-" is an optional prefix (any sequence of letters followed by a dash).\n'
                 '- "Major.Minor.Patch" is the version number (three numbers separated by dots).\n'
                 '- "-Mx" is an optional suffix (a dash followed by "M" and a number).\n'
-                '- "[.+]" is a separator, either a dot or a plus sign.\n'
+                '- "[.-+]" is a separator, either a dot, a minus or a plus sign.\n'
                 '- "BuildNumber" is the build number (a number at the end of the string).'
             )
 
