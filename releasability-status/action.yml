@@ -26,21 +26,12 @@ runs:
       run: pip install pipenv
       shell: bash
 
-    - uses: octokit/request-action@dad4362715b7fb2ddedf9772c8670824af564f0d # v2.4.0
-      id: get_commit_status
-      with:
-        route: 'GET /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/commits/${{ github.sha }}/status'
-      env:
-        GITHUB_TOKEN: ${{ env.GITHUB_TOKEN }}
-
     # Find latest promoted version from the commit status
     - id: find_version
       shell: bash
       working-directory: ${{ github.action_path }}
-      env:
-        OUTPUTS: "${{ steps.get_commit_status.outputs.data }}"
       run: |
-        ./find_version.sh ${{ github.ref_name }}
+        ./find_version.sh
 
     - name: Trigger releasability checks
       id: checks
