@@ -5,8 +5,8 @@
 
 set -xeuo pipefail
 
-description=$(gh api "/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/statuses" \
-    --jq '.[] | select(.state == "success" and .context == ("repox-'"$GITHUB_REF_NAME"'")) | .description')
+description=$(gh api "/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/status" \
+    --jq '.statuses[] | select(.state == "success" and .context == ("repox-'"$GITHUB_REF_NAME"'")).description')
 version=$(echo "$description" | cut -d\' -f 2)
 if [ -z "${version}" ]; then
   echo "Unable to find promoted version"
