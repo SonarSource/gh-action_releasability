@@ -8,7 +8,7 @@ on:
 jobs:
   build:
     name: Build
-    runs-on: ubuntu-24.04
+    runs-on: ubuntu-24.04-large
     permissions:
       id-token: write
       contents: read
@@ -38,7 +38,7 @@ jobs:
           make test
           sed -i "s|<source>${GITHUB_WORKSPACE}|<source>/github/workspace|g" "${GITHUB_WORKSPACE}/build/coverage.xml"
       - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@02ef91109b2d589e757aefcfb2854c2783fd7b19 # v4.0.0
+        uses: SonarSource/sonarcloud-github-action@ffc3010689be73b8e5ae0c57ce35968afd7909e8 # v5.0.0
         env:
           SONAR_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).sonarcloud_token }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Needed to get PR information, if any
