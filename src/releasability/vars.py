@@ -1,1 +1,1 @@
-releasability_aws_region = "eu-west-1"
+releasability_aws_region = "eu-central-1"
