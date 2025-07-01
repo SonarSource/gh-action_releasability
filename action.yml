@@ -87,7 +87,41 @@ runs:
       id: checks
       shell: bash
       working-directory: ${{ github.action_path }}
-      run: pipenv run releasability
+      run: |
+        # Validate inputs before using them
+        if [[ ! "${{ inputs.organization }}" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$ ]]; then
+          echo "::error::Invalid organization name format"
+          exit 1
+        fi
+        if [[ ! "${{ inputs.repository }}" =~ ^[a-zA-Z0-9][a-zA-Z0-9._\s-]*[a-zA-Z0-9]$ ]] || [[ "${{ inputs.repository }}" =~ \.git$ ]]; then
+          echo "::error::Invalid repository name format. Repository names must:"
+          echo "  - Start with an alphanumeric character"
+          echo "  - End with an alphanumeric character"
+          echo "  - Can contain alphanumeric characters, dots, underscores, spaces, and hyphens"
+          echo "  - Cannot end with .git"
+          exit 1
+        fi
+        if [[ ! "${{ inputs.branch }}" =~ ^[a-zA-Z0-9][a-zA-Z0-9/_.-]*$ ]]; then
+          echo "::error::Invalid branch name format. Branch names must:"
+          echo "  - Start with an alphanumeric character"
+          echo "  - Can contain alphanumeric characters, forward slashes, dots, and hyphens"
+          echo "  - Examples: master, feat/tom/build-1234, release/1.0.0"
+          exit 1
+        fi
+        if [[ ! "${{ inputs.version }}" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
+          echo "::error::Invalid version format. Version must be dot-separated numbers (e.g., 1.0.0, 4242.42.42.43, 1.0.0.1234)"
+          exit 1
+        fi
+        if [[ ! "${{ inputs.commit-sha }}" =~ ^[a-fA-F0-9]{7,40}$ ]]; then
+          echo "::error::Invalid commit SHA format. Must be a valid Git commit hash (7-40 hexadecimal characters)"
+          exit 1
+        fi
+        if [[ ! "${{ inputs.releasabily-env }}" =~ ^(prod|staging|dev)$ ]]; then
+          echo "::error::Invalid environment specified"
+          exit 1
+        fi
+
+        pipenv run releasability
       env:
         INPUT_ORGANIZATION: ${{ inputs.organization }}
         INPUT_REPOSITORY: ${{ inputs.repository }}

@@ -31,6 +31,12 @@ runs:
       shell: bash
       working-directory: ${{ github.action_path }}
       run: |
+        # Validate optional_checks input
+        if [[ ! "${{ inputs.optional_checks }}" =~ ^[a-zA-Z0-9, ]*$ ]]; then
+          echo "::error::Invalid optional_checks format. Must contain only alphanumeric characters, commas, and spaces."
+          exit 1
+        fi
+
         ./find_version.sh
 
     - name: Trigger releasability checks
@@ -38,7 +44,7 @@ runs:
       shell: bash
       working-directory: ${{ github.action_path }}/../
       run: |
-        pipenv install
+        pipenv install --deploy
         pipenv run releasability
       env:
         INPUT_ORGANIZATION: ${{ github.repository_owner }}
