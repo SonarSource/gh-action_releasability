@@ -108,8 +108,9 @@ runs:
           echo "  - Examples: master, feat/tom/build-1234, release/1.0.0"
           exit 1
         fi
-        if [[ ! "${{ inputs.version }}" =~ ^[0-9]+(\.[0-9]+)*$ ]]; then
-          echo "::error::Invalid version format. Version must be dot-separated numbers (e.g., 1.0.0, 4242.42.42.43, 1.0.0.1234)"
+        if [[ ! "${{ inputs.version }}" =~ ^([a-zA-Z0-9]+-)?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?(\.[0-9]+)?$ ]]; then
+          echo "::error::Invalid version format. Version must follow pattern: [ProjectName-]Major.Minor.Patch[-Mx][.+]BuildNumber"
+          echo "  Examples: sqs-2025.4.0.111749, 10.1.1.1234, project-1.0.0-beta.123"
           exit 1
         fi
         if [[ ! "${{ inputs.commit-sha }}" =~ ^[a-fA-F0-9]{7,40}$ ]]; then
