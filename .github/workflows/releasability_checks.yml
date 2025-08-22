@@ -35,7 +35,7 @@ on:
 
 jobs:
   trigger_releasability_checks:
-    runs-on: ubuntu-24.04-large
+    runs-on: github-ubuntu-latest-s
     permissions:
       id-token: write
     steps:
