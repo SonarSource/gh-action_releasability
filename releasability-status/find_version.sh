@@ -13,4 +13,12 @@ if [ -z "${version}" ]; then
   echo "status=skipped" >> "$GITHUB_OUTPUT"
   exit 0
 fi
+
+# Validate version format to prevent environment variable injection
+if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+  echo "Error: Invalid version format detected: $version"
+  echo "Expected format: X.Y.Z (e.g., 1.20.30)"
+  exit 1
+fi
+
 echo "version=$version" >> "$GITHUB_OUTPUT"

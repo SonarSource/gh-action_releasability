@@ -68,10 +68,17 @@ runs:
         pipenv run releasability-status
 
     - name: Print results
+      env:
+        LOGS_OUTPUT: ${{ steps.checks.outputs.logs }}
+        EXIT_CODE: ${{ steps.parse-releasability.outputs.status }}
+        MESSAGE_OUTPUT: ${{ steps.parse-releasability.outputs.message }}
       run: |
-        echo "${{ steps.checks.outputs.logs }}"
-        echo "Exit code: ${{ steps.parse-releasability.outputs.status }}"
-        echo "Message: ${{ steps.parse-releasability.outputs.message }}"
+        echo "Releasability Check Results:"
+        echo "=========================="
+        echo "$LOGS_OUTPUT"
+        echo "Exit code: $EXIT_CODE"
+        echo "Message: $MESSAGE_OUTPUT"
+        echo "=========================="
       shell: bash
 
     - uses: octokit/request-action@dad4362715b7fb2ddedf9772c8670824af564f0d # v2.4.0

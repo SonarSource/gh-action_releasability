@@ -21,5 +21,17 @@ jobs:
         run: |
           git config user.name sonartech
           git config user.email sonartech@sonarsource.com
+      - name: Validate tag input
+        env:
+          TAG_INPUT: ${{ inputs.tag }}
+        run: |
+          # Validate tag format (vX.Y.Z)
+          if [[ ! "$TAG_INPUT" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid tag format. Expected format: vX.Y.Z (e.g., v1.20.30)"
+            exit 1
+          fi
+          echo "Tag validation passed: $TAG_INPUT"
       - name: update v* branch
-        run: scripts/updatevbranch.sh ${{ inputs.tag }}
+        env:
+          TAG_INPUT: ${{ inputs.tag }}
+        run: scripts/updatevbranch.sh "$TAG_INPUT"
