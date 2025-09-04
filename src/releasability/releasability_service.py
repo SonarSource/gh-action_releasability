@@ -33,7 +33,6 @@ class ReleasabilityService:
     EXPECTED_RELEASABILITY_CHECK_NAMES = {
         "CheckDependencies",
         "QA",
-        "Jira",
         "WhiteSource",
         "CheckPeacheeLanguagesStatistics",
         "QualityGate",
