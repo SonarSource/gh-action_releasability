@@ -21,6 +21,97 @@ List of [parameters](#options)
 
 To show releasability status of the latest promoted version from the default branch,
 
+#### Usage with GitHub Actions pipelines
+
+##### Option 1: Add as a step in your existing build job
+
+```yaml
+name: Build
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  build:
+    name: Build
+    runs-on: sonar-xs
+    permissions:
+      id-token: write
+      contents: read
+      statuses: write
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955  # v4.3.0
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
+        with:
+          version: 2025.7.12
+      - uses: SonarSource/ci-github-actions/build-maven@master
+        with:
+          deploy-pull-request: true
+          working-directory: ./private
+      # Add releasability status check after successful build
+      - uses: SonarSource/gh-action_releasability/releasability-status@v2
+        if: >-
+          github.ref_name == github.event.repository.default_branch ||
+          startsWith(github.ref_name, 'dogfood-') ||
+          startsWith(github.ref_name, 'branch-')
+        with:
+          optional_checks: "Jira"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+```
+
+##### Option 2: Create a separate job with dependency
+
+```yaml
+name: Build
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    name: Build
+    runs-on: sonar-xs
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955  # v4.3.0
+      - uses: jdx/mise-action@c37c93293d6b742fc901e1406b8f764f6fb19dac # v2.4.4
+        with:
+          version: 2025.7.12
+      - uses: SonarSource/ci-github-actions/build-maven@master
+        with:
+          deploy-pull-request: true
+          working-directory: ./private
+
+  releasability-status:
+    name: Releasability status
+    runs-on: sonar-xs
+    needs: build  # Wait for build to complete successfully
+    permissions:
+      id-token: write
+      statuses: write
+      contents: read
+    if: >-
+      github.ref_name == github.event.repository.default_branch ||
+      startsWith(github.ref_name, 'dogfood-') ||
+      startsWith(github.ref_name, 'branch-')
+    steps:
+      - uses: SonarSource/gh-action_releasability/releasability-status@v2
+        with:
+          optional_checks: "Jira"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+```
+
+#### Legacy: Usage with CirrusCI pipelines
+
+> **Note**: This example is for projects still using CirrusCI. For GitHub Actions pipelines, use the examples above.
+
 ```yaml
 name: Releasability status
 'on':
@@ -51,7 +142,7 @@ jobs:
                     GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 ```
 
-This will run the releasability checks once the Cirrus tasks are completed and update the commit status as below.
+This will run the releasability checks once your build pipeline completes and update the commit status as below.
 
 ![Releasability status](doc/assets/releasability_status.png)
 
