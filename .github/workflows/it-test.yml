@@ -49,7 +49,7 @@ jobs:
       - uses: nick-fields/assert-action@aa0067e01f0f6545c31755d6ca128c5a3a14f6bf # v2
         name: Then outputs.logs value must contains a Jira failing check
         with:
-          expected: "❌ Jira  - version not found in Jira"
+          expected: "Jira  - version 4242.42.42 not found in Jira under key TP"
           actual: ${{ steps.test-data.outputs.logs }}
           comparison: contains
 
