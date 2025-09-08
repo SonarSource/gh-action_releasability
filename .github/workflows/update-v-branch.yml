@@ -25,9 +25,9 @@ jobs:
         env:
           TAG_INPUT: ${{ inputs.tag }}
         run: |
-          # Validate tag format (vX.Y.Z)
-          if [[ ! "$TAG_INPUT" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Invalid tag format. Expected format: vX.Y.Z (e.g., v1.20.30)"
+          # Validate tag format (X.Y.Z)
+          if [[ ! "$TAG_INPUT" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid tag format. Expected format: X.Y.Z (e.g., 2.2.1)"
             exit 1
           fi
           echo "Tag validation passed: $TAG_INPUT"
