@@ -15,9 +15,9 @@ if [ -z "${version}" ]; then
 fi
 
 # Validate version format to prevent environment variable injection
-if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
   echo "Error: Invalid version format detected: $version"
-  echo "Expected format: X.Y.Z (e.g., 1.20.30)"
+  echo "Expected format: X.Y.Z or X.Y.Z.BUILD (e.g., 1.20.30, 3.11.0.6786)"
   exit 1
 fi
 
