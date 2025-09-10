@@ -29,7 +29,7 @@ Create a dedicated `releasability.yml` workflow that triggers after your build w
 
 ###### .github/workflows/build.yml
 
-The workflow must include name: Build because the releasability workflow references this workflow's completion as a trigger.
+The workflow must include `name: Build` because the releasability workflow references this workflow's name in the trigger.
 
 ###### .github/workflows/releasability.yml
 
@@ -40,7 +40,7 @@ The workflow must include name: Build because the releasability workflow referen
 name: Releasability Status
 on:
   workflow_run:
-    workflows: ["Build"]  # Name must match the build workflow
+    workflows: ["Build"]  # Name must match the name of the build workflow
     types: [completed]
     branches:
       - master
@@ -79,25 +79,12 @@ on:
       - branch-*
 
 jobs:
-  build-linux:
-    name: Build Linux
-    runs-on: sonar-xs # Use any runner
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      # Build job steps
-      ...
+  build:
+    # build job configuration
 
   promote:
-    name: Promote
-    runs-on: sonar-xs # Use any runner
-    permissions:
-      id-token: write
-      contents: read
-    steps:
-      # Promote job steps
-      ...
+    needs: build
+    # promote job configuration
 
   releasability-status:
     name: Releasability status
@@ -165,7 +152,7 @@ name: Releasability status
         types: [completed]
 jobs:
     update_releasability_status:
-        runs-on: github-ubuntu-latest-s # Use any runner
+        runs-on: sonar-xs # Use any runner
         name: Releasability status
         permissions:
             id-token: write
