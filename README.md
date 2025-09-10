@@ -21,15 +21,138 @@ List of [parameters](#options)
 
 To show releasability status of the latest promoted version from the default branch,
 
+#### Usage with GitHub Actions pipelines
+
+##### Option 1: Create a separate workflow file (recommended)
+
+Create a dedicated `releasability.yml` workflow that triggers after your build workflow completes:
+
+###### .github/workflows/build.yml
+
+The workflow must include `name: Build` because the releasability workflow references this workflow's name in the trigger.
+
+###### .github/workflows/releasability.yml
+
+> [!IMPORTANT]
+> This event will only trigger a workflow run if the workflow file exists on the default branch.
+
+```yaml
+name: Releasability Status
+on:
+  workflow_run:
+    workflows: ["Build"]  # Name must match the name of the build workflow
+    types: [completed]
+    branches:
+      - master
+      - dogfood-*
+      - branch-*
+
+jobs:
+  releasability-status:
+    name: Releasability status
+    runs-on: sonar-xs # Use any runner
+    permissions:
+      id-token: write
+      statuses: write
+      contents: read
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - uses: SonarSource/gh-action_releasability/releasability-status@v2
+        with:
+          optional_checks: "Jira"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+```
+
+This approach provides complete separation of concerns - your build workflow focuses on
+building and testing, while the releasability workflow handles release readiness checks.
+
+##### Option 2: Create a separate job with dependency
+
+```yaml
+name: Build
+on:
+  push:
+    branches:
+      - master
+      - dogfood-*
+      - branch-*
+
+jobs:
+  build:
+    # build job configuration
+
+  promote:
+    needs: build
+    # promote job configuration
+
+  releasability-status:
+    name: Releasability status
+    runs-on: sonar-xs # Use any runner
+    permissions:
+      id-token: write
+      statuses: write
+      contents: read
+    needs: promote  # Wait for promote to complete successfully
+    if: >-
+      github.ref_name == github.event.repository.default_branch ||
+      startsWith(github.ref_name, 'dogfood-') ||
+      startsWith(github.ref_name, 'branch-')
+    steps:
+      - uses: SonarSource/gh-action_releasability/releasability-status@v2
+        with:
+          optional_checks: "Jira"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+```
+
+##### Option 3: Add as a step in your existing build job
+
+```yaml
+name: Build
+on:
+  push:
+    branches:
+      - master
+      - dogfood-*
+      - branch-*
+  pull_request:
+
+jobs:
+  build:
+    name: Build
+    runs-on: sonar-xs # Use any runner
+    permissions:
+      id-token: write
+      contents: read
+      statuses: write
+    steps:
+      # Build and promote job steps
+      ...
+      # Add releasability status check after build steps
+      - uses: SonarSource/gh-action_releasability/releasability-status@v2
+        if: >-
+          github.ref_name == github.event.repository.default_branch ||
+          startsWith(github.ref_name, 'dogfood-') ||
+          startsWith(github.ref_name, 'branch-')
+        with:
+          optional_checks: "Jira"
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+```
+
+#### Legacy: Usage with CirrusCI pipelines
+
+> **Note**: This example is for projects still using CirrusCI. For GitHub Actions pipelines, use the examples above.
+
 ```yaml
 name: Releasability status
 'on':
     check_suite:
-        types:
-            - completed
+        types: [completed]
 jobs:
     update_releasability_status:
-        runs-on: ubuntu-latest
+        runs-on: sonar-xs # Use any runner
         name: Releasability status
         permissions:
             id-token: write
@@ -51,7 +174,7 @@ jobs:
                     GITHUB_TOKEN: '${{ secrets.GITHUB_TOKEN }}'
 ```
 
-This will run the releasability checks once the Cirrus tasks are completed and update the commit status as below.
+This will run the releasability checks once your build pipeline completes and update the commit status as below.
 
 ![Releasability status](doc/assets/releasability_status.png)
 
