@@ -15,9 +15,11 @@ if [ -z "${version}" ]; then
 fi
 
 # Validate version format to prevent environment variable injection
-if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?$ ]]; then
+# Pattern: [ProjectName-]Major.Minor.Patch[-Mx][.+-]BuildNumber
+if [[ ! "$version" =~ ^([a-zA-Z]+-)?[0-9]+\.[0-9]+\.[0-9]+(-M[0-9]+)?[.+-][0-9]+$ ]]; then
   echo "Error: Invalid version format detected: $version"
-  echo "Expected format: X.Y.Z or X.Y.Z.BUILD (e.g., 1.20.30, 3.11.0.6786)"
+  echo "Expected format: [ProjectName-]Major.Minor.Patch[-Mx][.+-]BuildNumber"
+  echo "Examples: 1.2.3.456, sqs-2025.4.0.111749, project-1.0.0-M1+123, 4.31.0+78266"
   exit 1
 fi
 
