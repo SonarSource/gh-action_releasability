@@ -108,11 +108,7 @@ runs:
           echo "  - Examples: master, feat/tom/build-1234, release/1.0.0"
           exit 1
         fi
-        if [[ ! "${{ inputs.version }}" =~ ^([a-zA-Z0-9]+-)?[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9]+)?(\.[0-9]+)?$ ]]; then
-          echo "::error::Invalid version format. Version must follow pattern: [ProjectName-]Major.Minor.Patch[-Mx][.+]BuildNumber"
-          echo "  Examples: sqs-2025.4.0.111749, 10.1.1.1234, project-1.0.0-beta.123"
-          exit 1
-        fi
+        # inputs.version validation is done in the releasability check
         if [[ ! "${{ inputs.commit-sha }}" =~ ^[a-fA-F0-9]{7,40}$ ]]; then
           echo "::error::Invalid commit SHA format. Must be a valid Git commit hash (7-40 hexadecimal characters)"
           exit 1
