@@ -6,7 +6,31 @@
 
 Trigger [ops-releasability checks](https://github.com/SonarSource/ops-releasability) and collect results.
 
+## List of Checks
+
+Please refer to
+the [End-User documentation](https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3309240895/End-user+Documentation+-+Releasability)
+for a list of checks and their description.
+
+- CheckDependencies
+- QA
+- Jira
+- CheckPeacheeLanguagesStatistics
+- QualityGate
+- ParentPOM
+- GitHub
+- CheckManifestValues
+
+### Version 3 and Later
+
+The WhiteSource (Mend) check was removed as of version 3.0.0, in favor of Sonar Quality Gate with Dependency Risks enabled. This is
+available to all projects using CI GitHub Actions (<https://github.com/SonarSource/ci-github-actions/>), projects using Next, and projects
+using Unified Dogfooding.
+
 ## Usage
+
+> [!WARNING]
+> Releasability status checks will not work if you have Merge queue enabled on the repository
 
 ### Verify that all releasability checks pass before actually doing a new release
 
@@ -39,29 +63,29 @@ The workflow must include `name: Build` because the releasability workflow refer
 ```yaml
 name: Releasability Status
 on:
-  workflow_run:
-    workflows: ["Build"]  # Name must match the name of the build workflow
-    types: [completed]
-    branches:
-      - master
-      - dogfood-*
-      - branch-*
+    workflow_run:
+        workflows: [ "Build" ]  # Name must match the name of the build workflow
+        types: [ completed ]
+        branches:
+            - master
+            - dogfood-*
+            - branch-*
 
 jobs:
-  releasability-status:
-    name: Releasability status
-    runs-on: sonar-xs # Use any runner
-    permissions:
-      id-token: write
-      statuses: write
-      contents: read
-    if: github.event.workflow_run.conclusion == 'success'
-    steps:
-      - uses: SonarSource/gh-action_releasability/releasability-status@v2
-        with:
-          optional_checks: "Jira"
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+    releasability-status:
+        name: Releasability status
+        runs-on: sonar-xs # Use any runner
+        permissions:
+            id-token: write
+            statuses: write
+            contents: read
+        if: github.event.workflow_run.conclusion == 'success'
+        steps:
+            -   uses: SonarSource/gh-action_releasability/releasability-status@v2
+                with:
+                    optional_checks: "Jira"
+                env:
+                    GITHUB_TOKEN: ${{ github.token }}
 ```
 
 This approach provides complete separation of concerns - your build workflow focuses on
@@ -72,38 +96,38 @@ building and testing, while the releasability workflow handles release readiness
 ```yaml
 name: Build
 on:
-  push:
-    branches:
-      - master
-      - dogfood-*
-      - branch-*
+    push:
+        branches:
+            - master
+            - dogfood-*
+            - branch-*
 
 jobs:
-  build:
+    build:
     # build job configuration
 
-  promote:
-    needs: build
-    # promote job configuration
+    promote:
+        needs: build
+        # promote job configuration
 
-  releasability-status:
-    name: Releasability status
-    runs-on: sonar-xs # Use any runner
-    permissions:
-      id-token: write
-      statuses: write
-      contents: read
-    needs: promote  # Wait for promote to complete successfully
-    if: >-
-      github.ref_name == github.event.repository.default_branch ||
-      startsWith(github.ref_name, 'dogfood-') ||
-      startsWith(github.ref_name, 'branch-')
-    steps:
-      - uses: SonarSource/gh-action_releasability/releasability-status@v2
-        with:
-          optional_checks: "Jira"
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+    releasability-status:
+        name: Releasability status
+        runs-on: sonar-xs # Use any runner
+        permissions:
+            id-token: write
+            statuses: write
+            contents: read
+        needs: promote  # Wait for promote to complete successfully
+        if: >-
+            github.ref_name == github.event.repository.default_branch ||
+            startsWith(github.ref_name, 'dogfood-') ||
+            startsWith(github.ref_name, 'branch-')
+        steps:
+            -   uses: SonarSource/gh-action_releasability/releasability-status@v2
+                with:
+                    optional_checks: "Jira"
+                env:
+                    GITHUB_TOKEN: ${{ github.token }}
 ```
 
 ##### Option 3: Add as a step in your existing build job
@@ -111,45 +135,45 @@ jobs:
 ```yaml
 name: Build
 on:
-  push:
-    branches:
-      - master
-      - dogfood-*
-      - branch-*
-  pull_request:
+    push:
+        branches:
+            - master
+            - dogfood-*
+            - branch-*
+    pull_request:
 
 jobs:
-  build:
-    name: Build
-    runs-on: sonar-xs # Use any runner
-    permissions:
-      id-token: write
-      contents: read
-      statuses: write
-    steps:
-      # Build and promote job steps
-      ...
-      # Add releasability status check after build steps
-      - uses: SonarSource/gh-action_releasability/releasability-status@v2
-        if: >-
-          github.ref_name == github.event.repository.default_branch ||
-          startsWith(github.ref_name, 'dogfood-') ||
-          startsWith(github.ref_name, 'branch-')
-        with:
-          optional_checks: "Jira"
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+    build:
+        name: Build
+        runs-on: sonar-xs # Use any runner
+        permissions:
+            id-token: write
+            contents: read
+            statuses: write
+        steps:
+            # Build and promote job steps
+                ...
+                # Add releasability status check after build steps
+                - uses: SonarSource/gh-action_releasability/releasability-status@v2
+                if: >-
+                    github.ref_name == github.event.repository.default_branch ||
+                    startsWith(github.ref_name, 'dogfood-') ||
+                    startsWith(github.ref_name, 'branch-')
+                with:
+                    optional_checks: "Jira"
+                env:
+                    GITHUB_TOKEN: ${{ github.token }}
 ```
 
-#### Legacy: Usage with CirrusCI pipelines
+#### Legacy: Usage with Cirrus CI pipelines
 
-> **Note**: This example is for projects still using CirrusCI. For GitHub Actions pipelines, use the examples above.
+> **Note**: This example is for projects still using Cirrus CI. For GitHub Actions pipelines, use the examples above.
 
 ```yaml
 name: Releasability status
 'on':
     check_suite:
-        types: [completed]
+        types: [ completed ]
 jobs:
     update_releasability_status:
         runs-on: sonar-xs # Use any runner
@@ -188,16 +212,7 @@ If you add this parameter, make sure to check the description for failed optiona
 
 ![Releasability optional checks](doc/assets/releasability_optional.png)
 
-### List of checks
-
-Please refer to
-the [End-User documentation](https://xtranet-sonarsource.atlassian.net/wiki/spaces/Platform/pages/3309240895/End-user+Documentation+-+Releasability)
-for a list of checks and their description.
-
-> [!WARNING]
-> Releasability status checks will not work if you have Merge queue enabled on the repository
-
-## Use as a step in another workflow
+### Check Releasability Status From Another Repository
 
 Within an existing GitHub workflow:
 
