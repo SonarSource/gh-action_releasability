@@ -34,7 +34,6 @@ class ReleasabilityService:
         "CheckDependencies",
         "QA",
         "Jira",
-        "WhiteSource",
         "CheckPeacheeLanguagesStatistics",
         "QualityGate",
         "ParentPOM",

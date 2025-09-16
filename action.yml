@@ -41,9 +41,6 @@ outputs:
   releasabilityJira:
     description: Result from releasability check Jira
     value: ${{ steps.checks.outputs.releasabilityJira }}
-  releasabilityWhiteSource:
-    description: Result from releasability check WhiteSource
-    value: ${{ steps.checks.outputs.releasabilityWhiteSource }}
   releasabilityCheckPeacheeLanguagesStatistics:
     description: Result from releasability check CheckPeacheeLanguagesStatistics
     value: ${{ steps.checks.outputs.releasabilityCheckPeacheeLanguagesStatistics }}
