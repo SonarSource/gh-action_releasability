@@ -21,11 +21,11 @@ class MainTest(unittest.TestCase):
         with tempfile.NamedTemporaryFile(suffix="", prefix=os.path.basename(__file__)) as temp_file:
             os.environ['GITHUB_OUTPUT'] = temp_file.name
             with patch.object(ReleasabilityService, '__init__', return_value=None):
-                with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=correlation_id):
+                with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=(correlation_id, [])):
                     report = ReleasabilityChecksReport([
                         ReleasabilityCheckResult("check name", ReleasabilityCheckResult.CHECK_PASSED, "it works"),
                     ])
-                    with patch.object(ReleasabilityService, 'get_releasability_report', return_value=report):
+                    with patch.object(ReleasabilityService, 'get_combined_report', return_value=report):
                         organization = "some-org"
                         repository = "some-repo"
                         branch = "some-branch"
@@ -45,11 +45,11 @@ class MainTest(unittest.TestCase):
         with tempfile.NamedTemporaryFile(suffix="", prefix=os.path.basename(__file__)) as temp_file:
             os.environ['GITHUB_OUTPUT'] = temp_file.name
             with patch.object(ReleasabilityService, '__init__', return_value=None):
-                with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=correlation_id):
+                with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=(correlation_id, [])):
                     report = ReleasabilityChecksReport([
                         ReleasabilityCheckResult("check name", ReleasabilityCheckResult.CHECK_FAILED, "it failed"),
                     ])
-                    with patch.object(ReleasabilityService, 'get_releasability_report', return_value=report):
+                    with patch.object(ReleasabilityService, 'get_combined_report', return_value=report):
                         organization = "some-org"
                         repository = "some-repo"
                         branch = "some-branch"
@@ -66,11 +66,11 @@ class MainTest(unittest.TestCase):
         correlation_id = "fake-correlation-id"
 
         with patch.object(ReleasabilityService, '__init__', return_value=None):
-            with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=correlation_id):
+            with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=(correlation_id, [])):
                 report = ReleasabilityChecksReport([
                     ReleasabilityCheckResult("check name", ReleasabilityCheckResult.CHECK_PASSED, "it works"),
                 ])
-                with patch.object(ReleasabilityService, 'get_releasability_report', return_value=report):
+                with patch.object(ReleasabilityService, 'get_combined_report', return_value=report):
                     organization = "some-org"
                     repository = "some-repo"
                     branch = "some-branch"
@@ -88,11 +88,11 @@ class MainTest(unittest.TestCase):
         correlation_id = "fake-correlation-id"
 
         with patch.object(ReleasabilityService, '__init__', return_value=None):
-            with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=correlation_id):
+            with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=(correlation_id, [])):
                 report = ReleasabilityChecksReport([
                     ReleasabilityCheckResult("check name", ReleasabilityCheckResult.CHECK_FAILED, "it didn't work"),
                 ])
-                with patch.object(ReleasabilityService, 'get_releasability_report', return_value=report):
+                with patch.object(ReleasabilityService, 'get_combined_report', return_value=report):
                     organization = "some-org"
                     repository = "some-repo"
                     branch = "some-branch"
