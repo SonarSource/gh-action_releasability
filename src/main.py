@@ -9,7 +9,9 @@ from github_action_utils import error, notice, set_output
 def do_releasability_checks(organization: str, repository: str, branch: str, version: str, commit_sha: str):
     try:
         releasability = ReleasabilityService()
-        correlation_id = releasability.start_releasability_checks(
+
+        # Start both inline and lambda checks
+        correlation_id, inline_results = releasability.start_releasability_checks(
             organization,
             repository,
             branch,
@@ -17,7 +19,8 @@ def do_releasability_checks(organization: str, repository: str, branch: str, ver
             commit_sha
         )
 
-        report = releasability.get_releasability_report(correlation_id)
+        # Get combined report with both inline and lambda results
+        report = releasability.get_combined_report(correlation_id, inline_results)
         GithubActionHelper.set_output_logs(str(report))
 
         for check in report.get_checks():

@@ -56,6 +56,9 @@ outputs:
   releasabilityCheckManifestValues:
     description: Result from releasability check CheckManifestValues
     value: ${{ steps.checks.outputs.releasabilityCheckManifestValues }}
+  releasabilityCheckLicenses:
+    description: Result from releasability check CheckLicenses
+    value: ${{ steps.checks.outputs.releasabilityCheckLicenses }}
 
 runs:
   using: "composite"

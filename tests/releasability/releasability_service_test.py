@@ -8,7 +8,47 @@ from releasability.releasability_service import ReleasabilityService, CouldNotRe
 
 class ReleasabilityTest(unittest.TestCase):
 
-    def test_build_sns_request_should_assign_correctly_properties(self):
+    def _setup_aws_clients(self, mock_session, mock_sqs_client=None, mock_sns_client=None):
+        """
+        Helper method to set up AWS client mocks with proper side effects.
+
+        Args:
+            mock_session: The mocked boto3.Session
+            mock_sqs_client: Optional mocked SQS client
+            mock_sns_client: Optional mocked SNS client
+
+        Returns:
+            tuple: (mock_sts_client, mock_sqs_client, mock_sns_client)
+        """
+        # Mock the STS client for account ID
+        mock_sts_client = MagicMock()
+        mock_sts_client.get_caller_identity.return_value = {'Account': '123456789012'}
+
+        # Create default SQS client if not provided
+        if mock_sqs_client is None:
+            mock_sqs_client = MagicMock()
+
+        # Create default SNS client if not provided
+        if mock_sns_client is None:
+            mock_sns_client = MagicMock()
+
+        # Set up side effect to return appropriate client based on service
+        def client_side_effect(service):
+            if service == 'sts':
+                return mock_sts_client
+            elif service == 'sqs':
+                return mock_sqs_client
+            elif service == 'sns':
+                return mock_sns_client
+            else:
+                return MagicMock()
+
+        mock_session.return_value.client.side_effect = client_side_effect
+
+        return mock_sts_client, mock_sqs_client, mock_sns_client
+
+    @mock.patch('boto3.Session')
+    def test_build_sns_request_should_assign_correctly_properties(self, mock_session):
         session = MagicMock()
         with patch('boto3.Session', return_value=session):
             organization = "sonar"
@@ -38,7 +78,8 @@ class ReleasabilityTest(unittest.TestCase):
             assert request['artifactoryBuildNumber'] == 1234
             assert request['branchName'] == branch_name
 
-    def test_start_releasability_checks_should_invoke_publish(self):
+    @mock.patch('boto3.Session')
+    def test_start_releasability_checks_should_invoke_publish(self, mock_session):
         session = MagicMock()
         mocked_sns_client = MagicMock()
         session.client.return_value = mocked_sns_client
@@ -61,7 +102,8 @@ class ReleasabilityTest(unittest.TestCase):
             assert sns_query_content['responseToARN'] is not None
             assert sns_query_content['vcsRevision'] == sha
 
-    def test_start_releasability_checks_should_return_a_correlation_id_after_invokation(self):
+    @mock.patch('boto3.Session')
+    def test_start_releasability_checks_should_return_a_correlation_id_after_invokation(self, mock_session):
         session = MagicMock()
         mocked_sns_client = MagicMock()
         session.client.return_value = mocked_sns_client
@@ -99,8 +141,9 @@ class ReleasabilityTest(unittest.TestCase):
 
         self.assertRaises(ValueError, lambda: ReleasabilityService._arn_to_sqs_url(arn))
 
+    @mock.patch('boto3.Session')
     @mock.patch('boto3.Session.client')
-    def test_fetch_check_results_should_return_4_messages_given_the_provided_response_contains_4(self, mock_client):
+    def test_fetch_check_results_should_return_4_messages_given_the_provided_response_contains_4(self, mock_client, mock_session):
         mock_receive_message_response = {
             "Messages": [
                 {
@@ -142,8 +185,15 @@ class ReleasabilityTest(unittest.TestCase):
             },
         }
 
-        mock_sqs_client = mock_client.return_value
+        # Mock the session and its client method
+        mock_sqs_client = MagicMock()
         mock_sqs_client.receive_message.return_value = mock_receive_message_response
+        mock_session.return_value.client.return_value = mock_sqs_client
+
+        # Mock the STS client for account ID
+        mock_sts_client = MagicMock()
+        mock_sts_client.get_caller_identity.return_value = {'Account': '123456789012'}
+        mock_session.return_value.client.side_effect = lambda service: mock_sts_client if service == 'sts' else mock_sqs_client
 
         releasability = ReleasabilityService()
 
@@ -151,9 +201,9 @@ class ReleasabilityTest(unittest.TestCase):
 
         self.assertEqual(len(messages), 4)
 
-    @mock.patch('boto3.Session.client')
+    @mock.patch('boto3.Session')
     def test_fetch_filtered_check_results_should_return_2_messages_given_the_4_provided_contains_only_2_matching_criteria(self,
-                                                                                                                          mock_client):
+                                                                                                                          mock_session):
         mock_receive_message_response = {
             "Messages": [
                 {
@@ -195,8 +245,15 @@ class ReleasabilityTest(unittest.TestCase):
             },
         }
 
-        mock_sqs_client = mock_client.return_value
+        # Mock the session and its client method
+        mock_sqs_client = MagicMock()
         mock_sqs_client.receive_message.return_value = mock_receive_message_response
+        mock_session.return_value.client.return_value = mock_sqs_client
+
+        # Mock the STS client for account ID
+        mock_sts_client = MagicMock()
+        mock_sts_client.get_caller_identity.return_value = {'Account': '123456789012'}
+        mock_session.return_value.client.side_effect = lambda service: mock_sts_client if service == 'sts' else mock_sqs_client
 
         releasability = ReleasabilityService()
 
@@ -206,8 +263,9 @@ class ReleasabilityTest(unittest.TestCase):
 
         self.assertEqual(len(filtered_messages), 2)
 
-    @mock.patch('boto3.Session.client')
+    @mock.patch('boto3.Session')
     def test_get_check_results_should_return_a_list_of_the_same_size_as_the_one_received_from_filtered_check_results(self, mock_session):
+        self._setup_aws_clients(mock_session)
 
         releasability = ReleasabilityService()
 
@@ -239,8 +297,9 @@ class ReleasabilityTest(unittest.TestCase):
 
         self.assertEqual(len(results), len(filtered_check_results))
 
-    @mock.patch('boto3.Session.client')
+    @mock.patch('boto3.Session')
     def test_get_check_results_should_raise_an_exception_given_not_enough_check_result_were_retrieved(self, mock_session):
+        self._setup_aws_clients(mock_session)
 
         ReleasabilityService.FETCH_CHECK_RESULT_TIMEOUT_SECONDS = 2
 
@@ -272,7 +331,9 @@ class ReleasabilityTest(unittest.TestCase):
         with self.assertRaises(CouldNotRetrieveReleasabilityCheckResultsException):
             releasability._get_check_results(correlation_id)
 
-    def test_get_check_names_should_return_some_checks(self):
+    @mock.patch('boto3.Session')
+    def test_get_check_names_should_return_some_checks(self, mock_session):
+        self._setup_aws_clients(mock_session)
 
         releasability = ReleasabilityService()
 

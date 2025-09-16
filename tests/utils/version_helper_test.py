@@ -22,7 +22,7 @@ class VersionHelperTest(unittest.TestCase):
     def test_extract_build_number_should_return_the_expected_build_number_given_valid_versions(self, valid_version: str,
                                                                                                expected_build_number: int):
         actual_build_number = VersionHelper.extract_build_number(valid_version)
-        self.assertEquals(actual_build_number, expected_build_number)
+        self.assertEqual(actual_build_number, expected_build_number)
 
     @parameterized.expand([
         ('1.2.3+1234', 1234),
@@ -31,7 +31,7 @@ class VersionHelperTest(unittest.TestCase):
     def test_extract_build_number_should_return_the_expected_build_number_given_special_versions(self, valid_version: str,
                                                                                                  expected_build_number: int):
         actual_build_number = VersionHelper.extract_build_number(valid_version)
-        self.assertEquals(actual_build_number, expected_build_number)
+        self.assertEqual(actual_build_number, expected_build_number)
 
     @parameterized.expand([
         ('1.2.3-1234', 1234),
@@ -40,7 +40,7 @@ class VersionHelperTest(unittest.TestCase):
     def test_extract_build_number_should_return_the_expected_build_number_given_npm_friendly_versions(self, valid_version: str,
                                                                                                  expected_build_number: int):
         actual_build_number = VersionHelper.extract_build_number(valid_version)
-        self.assertEquals(actual_build_number, expected_build_number)
+        self.assertEqual(actual_build_number, expected_build_number)
 
     @parameterized.expand([
         '42.2',
