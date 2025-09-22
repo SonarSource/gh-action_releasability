@@ -37,7 +37,8 @@ class TestReleasabilityServiceHybrid(unittest.TestCase):
             (r for r in results if r.name == "CheckLicenses"), None
         )
         self.assertIsNotNone(check_licenses_result)
-        self.assertEqual(check_licenses_result.state, ReleasabilityCheckResult.CHECK_PASSED)
+        # CheckLicenses now returns CHECK_ERROR when ARTIFACTORY_TOKEN is not configured
+        self.assertEqual(check_licenses_result.state, ReleasabilityCheckResult.CHECK_ERROR)
 
         # Check that TestCheck result is present
         test_check_result = next(

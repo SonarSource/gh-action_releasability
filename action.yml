@@ -25,6 +25,13 @@ inputs:
     description: For development purposes, the environment to use (prod, staging or dev). Defaults to production.
     required: false
     default: prod
+  skip-lambda-checks:
+    description: Skip lambda tests for development/testing purposes
+    required: false
+    default: "false"
+  sonar-project-key:
+    description: SonarQube project key for SBOM download (e.g., org.sonarsource.javascript:javascript)
+    required: false
 outputs:
   status:
     description: Provide the exit code returned by the releasability checks
@@ -125,6 +132,8 @@ runs:
         INPUT_BRANCH: ${{ inputs.branch }}
         INPUT_VERSION: ${{ inputs.version }}
         INPUT_COMMIT_SHA: ${{ inputs.commit-sha}}
+        INPUT_SKIP_LAMBDA_TESTS: ${{ inputs.skip-lambda-checks }}
+        SONAR_PROJECT_KEY: ${{ inputs.sonar-project-key }}
         PYTHONUNBUFFERED: "1" # that way logs are printed live
     - name: Print execution
       run: |
