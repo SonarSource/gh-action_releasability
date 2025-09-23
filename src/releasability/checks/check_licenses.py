@@ -7,6 +7,7 @@ from ..inline_check import InlineCheck, CheckContext
 from ..releasability_check_result import ReleasabilityCheckResult
 from utils.artifactory import Artifactory
 from utils.sonarqube import SonarQube
+from utils.license_utils import LPSValidator
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,10 @@ class CheckLicenses(InlineCheck):
         else:
             self.sonarqube = None
             logger.warning("SONARQUBE_TOKEN not configured, SBOM download will fail")
+
+        # Initialize LPS validator
+        self.lps_validator = LPSValidator()
+        logger.info("LPS validator initialized")
 
     @property
     def name(self) -> str:
@@ -70,11 +75,21 @@ class CheckLicenses(InlineCheck):
             # Download SBOM from SonarQube
             sbom_data = self._download_sbom(context)
 
-            # Prepare and return success result
-            message = self._build_success_message(context, artifacts, sbom_data)
+            # Validate artifacts against LPS specification
+            logger.info("Validating artifacts against License Packaging Standard...")
+            validation_results = self.lps_validator.validate_artifacts(artifacts, sbom_data)
+
+            # Determine check result based on validation
+            if validation_results['lps_compliant']:
+                state = ReleasabilityCheckResult.CHECK_PASSED
+                message = self._build_lps_success_message(context, validation_results)
+            else:
+                state = ReleasabilityCheckResult.CHECK_FAILED
+                message = self._build_lps_failure_message(context, validation_results)
+
             return ReleasabilityCheckResult(
                 name=self.name,
-                state=ReleasabilityCheckResult.CHECK_PASSED,
+                state=state,
                 message=message
             )
 
@@ -145,3 +160,29 @@ class CheckLicenses(InlineCheck):
             state=ReleasabilityCheckResult.CHECK_FAILED,
             message=message
         )
+
+    def _build_lps_success_message(self, context: CheckContext, validation_results: dict) -> str:
+        """Build success message for LPS validation."""
+        artifacts_count = validation_results['artifacts_processed']
+        licenses_count = sum(len(licenses) for licenses in validation_results['licenses_extracted'].values())
+
+        message_parts = [f"LPS validation passed for {context.repository}"]
+        message_parts.append(f"processed {artifacts_count} artifacts")
+        message_parts.append(f"found {licenses_count} license files")
+
+        if validation_results['sbom_comparison']:
+            coverage = validation_results['sbom_comparison']['coverage_percentage']
+            message_parts.append(f"SBOM coverage: {coverage:.1f}%")
+
+        return " - ".join(message_parts)
+
+    def _build_lps_failure_message(self, context: CheckContext, validation_results: dict) -> str:
+        """Build failure message for LPS validation."""
+        message_parts = [f"LPS validation failed for {context.repository}"]
+
+        if validation_results['issues']:
+            message_parts.append(f"Issues: {'; '.join(validation_results['issues'][:3])}")
+            if len(validation_results['issues']) > 3:
+                message_parts.append(f"and {len(validation_results['issues']) - 3} more")
+
+        return " - ".join(message_parts)

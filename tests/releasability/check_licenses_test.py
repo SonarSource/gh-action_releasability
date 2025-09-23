@@ -31,7 +31,8 @@ class TestCheckLicenses(unittest.TestCase):
         self.assertFalse(result.passed)
 
     @patch('releasability.checks.check_licenses.Artifactory')
-    def test_check_execution_with_token_success(self, mock_artifactory_class):
+    @patch('releasability.checks.check_licenses.LPSValidator')
+    def test_check_execution_with_token_success(self, mock_lps_validator_class, mock_artifactory_class):
         """Test that the check passes when artifacts are downloaded successfully."""
         # Set up environment
         os.environ['ARTIFACTORY_TOKEN'] = 'test-token'
@@ -54,6 +55,17 @@ class TestCheckLicenses(unittest.TestCase):
         ]
         mock_artifactory.download_artifacts_from_build_info.return_value = mock_artifacts
 
+        # Mock LPS validator
+        mock_lps_validator = MagicMock()
+        mock_lps_validator_class.return_value = mock_lps_validator
+        mock_lps_validator.validate_artifacts.return_value = {
+            'lps_compliant': True,
+            'artifacts_processed': 1,
+            'licenses_extracted': {'test-plugin-1.0.0.jar': []},
+            'sbom_comparison': {'coverage_percentage': 100.0},
+            'issues': []
+        }
+
         # Create a new check instance to pick up the token
         check = CheckLicenses()
 
@@ -62,8 +74,7 @@ class TestCheckLicenses(unittest.TestCase):
 
         self.assertEqual(result.name, "CheckLicenses")
         self.assertEqual(result.state, ReleasabilityCheckResult.CHECK_PASSED)
-        self.assertIn("downloaded 1 artifacts", result.message)
-        self.assertIn("test-plugin-1.0.0.jar", result.message)
+        self.assertIn("LPS validation passed", result.message)
         self.assertTrue(result.passed)
 
     @patch('releasability.checks.check_licenses.Artifactory')
