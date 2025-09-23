@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import List, Dict, Set, Optional, Tuple
 import json
 
-from .sca_exceptions import SCAExceptionManager, LicenseFileDetector, SCAComparisonEngine
+from utils.sca_exceptions import SCAExceptionManager, LicenseFileDetector, SCAComparisonEngine
 
 logger = logging.getLogger(__name__)
 

@@ -10,15 +10,13 @@ from releasability.releasability_check_result import ReleasabilityCheckResult
 class TestCheckLicenses(unittest.TestCase):
 
     def setUp(self):
-        # Clear any existing ARTIFACTORY_TOKEN to test without token
-        if 'ARTIFACTORY_TOKEN' in os.environ:
-            del os.environ['ARTIFACTORY_TOKEN']
         self.check = CheckLicenses()
 
     def test_check_name(self):
         """Test that the check has the correct name."""
         self.assertEqual(self.check.name, "CheckLicenses")
 
+    @patch.dict(os.environ, {'SONAR_PROJECT_KEY': 'test-project-key'}, clear=False)
     def test_check_execution_without_token(self):
         """Test that the check fails when ARTIFACTORY_TOKEN is not set."""
         context = CheckContext("sonar", "sonar-dummy", "master", "1.0.0", "abc123")
@@ -32,10 +30,9 @@ class TestCheckLicenses(unittest.TestCase):
 
     @patch('releasability.checks.check_licenses.Artifactory')
     @patch('releasability.checks.check_licenses.LPSValidator')
+    @patch.dict(os.environ, {'ARTIFACTORY_TOKEN': 'test-token', 'SONAR_PROJECT_KEY': 'test-project-key'}, clear=False)
     def test_check_execution_with_token_success(self, mock_lps_validator_class, mock_artifactory_class):
         """Test that the check passes when artifacts are downloaded successfully."""
-        # Set up environment
-        os.environ['ARTIFACTORY_TOKEN'] = 'test-token'
 
         # Mock the Artifactory instance
         mock_artifactory = MagicMock()
@@ -78,10 +75,9 @@ class TestCheckLicenses(unittest.TestCase):
         self.assertTrue(result.passed)
 
     @patch('releasability.checks.check_licenses.Artifactory')
+    @patch.dict(os.environ, {'ARTIFACTORY_TOKEN': 'test-token', 'SONAR_PROJECT_KEY': 'test-project-key'}, clear=False)
     def test_check_execution_with_token_no_artifacts(self, mock_artifactory_class):
         """Test that the check fails when no artifacts are found."""
-        # Set up environment
-        os.environ['ARTIFACTORY_TOKEN'] = 'test-token'
 
         # Mock the Artifactory instance
         mock_artifactory = MagicMock()
@@ -102,10 +98,9 @@ class TestCheckLicenses(unittest.TestCase):
         self.assertFalse(result.passed)
 
     @patch('releasability.checks.check_licenses.Artifactory')
+    @patch.dict(os.environ, {'ARTIFACTORY_TOKEN': 'test-token', 'SONAR_PROJECT_KEY': 'test-project-key'}, clear=False)
     def test_check_execution_with_token_exception(self, mock_artifactory_class):
         """Test that the check handles exceptions gracefully."""
-        # Set up environment
-        os.environ['ARTIFACTORY_TOKEN'] = 'test-token'
 
         # Mock the Artifactory instance
         mock_artifactory = MagicMock()
@@ -131,10 +126,27 @@ class TestCheckLicenses(unittest.TestCase):
         expected = "InlineCheck(CheckLicenses)"
         self.assertEqual(str(self.check), expected)
 
-    def tearDown(self):
-        """Clean up environment variables after each test."""
-        if 'ARTIFACTORY_TOKEN' in os.environ:
-            del os.environ['ARTIFACTORY_TOKEN']
+    @patch.dict(os.environ, {}, clear=True)
+    def test_execute_bypasses_when_sonar_project_key_not_set(self):
+        """Test that the check bypasses when SONAR_PROJECT_KEY is not set."""
+        context = CheckContext("sonar", "sonar-dummy", "master", "1.0.0.123", "abc123")
+        result = self.check.execute(context)
+
+        self.assertEqual(result.name, "CheckLicenses")
+        self.assertEqual(result.state, ReleasabilityCheckResult.CHECK_PASSED)
+        self.assertIn("bypassed", result.message)
+        self.assertIn("SONAR_PROJECT_KEY not configured", result.message)
+
+    @patch.dict(os.environ, {'SONAR_PROJECT_KEY': ''}, clear=False)
+    def test_execute_bypasses_when_sonar_project_key_empty(self):
+        """Test that the check bypasses when SONAR_PROJECT_KEY is empty."""
+        context = CheckContext("sonar", "sonar-dummy", "master", "1.0.0.123", "abc123")
+        result = self.check.execute(context)
+
+        self.assertEqual(result.name, "CheckLicenses")
+        self.assertEqual(result.state, ReleasabilityCheckResult.CHECK_PASSED)
+        self.assertIn("bypassed", result.message)
+        self.assertIn("SONAR_PROJECT_KEY not configured", result.message)
 
 
 if __name__ == '__main__':

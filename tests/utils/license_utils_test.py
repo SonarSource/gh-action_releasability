@@ -5,6 +5,7 @@ Unit tests for license_utils.py module.
 import unittest
 import tempfile
 import os
+import shutil
 import zipfile
 import json
 from unittest.mock import patch, MagicMock
@@ -23,7 +24,6 @@ class TestLicenseExtractor(unittest.TestCase):
         self.temp_dir = tempfile.mkdtemp()
 
     def tearDown(self):
-        import shutil
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
 

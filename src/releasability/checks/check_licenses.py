@@ -60,6 +60,16 @@ class CheckLicenses(InlineCheck):
         try:
             logger.info(f"Starting license check for {context.repository} version {context.version}")
 
+            # Check if SonarQube project key is configured - bypass check if not set
+            sonar_project_key = os.getenv("SONAR_PROJECT_KEY")
+            if not sonar_project_key:
+                logger.info("SONAR_PROJECT_KEY not set, bypassing license check")
+                return ReleasabilityCheckResult(
+                    name=self.name,
+                    state=ReleasabilityCheckResult.CHECK_PASSED,
+                    message=f"License check bypassed for {context.repository} - SONAR_PROJECT_KEY not configured"
+                )
+
             # Check if Artifactory is configured
             if not self.artifactory:
                 return self._create_error_result("Artifactory not configured. Set ARTIFACTORY_TOKEN environment variable.")

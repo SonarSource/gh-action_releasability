@@ -8,6 +8,7 @@ to help improve SCA tool accuracy through dogfooding.
 import os
 import json
 import logging
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set, Optional, Union
 
@@ -90,7 +91,7 @@ class SCAExceptionManager:
             data = {
                 "exceptions": sorted(exceptions),
                 "description": "SCA exceptions for this repository",
-                "last_updated": str(Path.cwd())
+                "last_updated": datetime.now().isoformat()
             }
 
             with open(file_path, 'w', encoding='utf-8') as f:
