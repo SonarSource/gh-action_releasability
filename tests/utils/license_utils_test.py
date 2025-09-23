@@ -152,7 +152,7 @@ class TestLicenseExtractor(unittest.TestCase):
 class TestLicenseComparator(unittest.TestCase):
 
     def setUp(self):
-        self.comparator = LicenseComparator()
+        self.comparator = LicenseComparator(".")
 
     def test_load_sbom(self):
         """Test loading SBOM data."""
@@ -192,10 +192,12 @@ class TestLicenseComparator(unittest.TestCase):
         self.assertEqual(result['total_artifacts'], 1)
         self.assertEqual(result['total_licenses_found'], 2)
         self.assertEqual(result['total_sbom_components'], 2)
+        # With enhanced comparison, we expect perfect match
         self.assertEqual(len(result['matched_licenses']), 2)
         self.assertEqual(len(result['missing_licenses']), 0)
         self.assertEqual(len(result['extra_licenses']), 0)
         self.assertEqual(result['coverage_percentage'], 100.0)
+        self.assertTrue(result['is_compliant'])
 
     def test_compare_licenses_with_sbom_missing_licenses(self):
         """Test comparison with missing licenses."""
@@ -283,7 +285,7 @@ class TestLicenseComparator(unittest.TestCase):
 class TestLPSValidator(unittest.TestCase):
 
     def setUp(self):
-        self.validator = LPSValidator()
+        self.validator = LPSValidator(".")
 
     def test_validate_artifacts_empty_list(self):
         """Test validation with empty artifact list."""
@@ -292,7 +294,7 @@ class TestLPSValidator(unittest.TestCase):
         self.assertTrue(result['lps_compliant'])
         self.assertEqual(result['artifacts_processed'], 0)
         self.assertEqual(result['licenses_extracted'], {})
-        self.assertEqual(result['sbom_comparison'], None)
+        self.assertIsNone(result['sbom_comparison'])
         self.assertEqual(len(result['issues']), 0)
 
     def test_validate_artifacts_with_sbom(self):

@@ -39,9 +39,9 @@ class CheckLicenses(InlineCheck):
             self.sonarqube = None
             logger.warning("SONARQUBE_TOKEN not configured, SBOM download will fail")
 
-        # Initialize LPS validator
-        self.lps_validator = LPSValidator()
-        logger.info("LPS validator initialized")
+        # Initialize LPS validator with repository root
+        self.lps_validator = LPSValidator(repository_root=".")
+        logger.info("LPS validator initialized with SCA exception support")
 
     @property
     def name(self) -> str:
@@ -171,8 +171,15 @@ class CheckLicenses(InlineCheck):
         message_parts.append(f"found {licenses_count} license files")
 
         if validation_results['sbom_comparison']:
-            coverage = validation_results['sbom_comparison']['coverage_percentage']
+            comparison = validation_results['sbom_comparison']
+            coverage = comparison['coverage_percentage']
             message_parts.append(f"SBOM coverage: {coverage:.1f}%")
+
+            # Add FP/FN information if used
+            if comparison.get('false_positives_used'):
+                message_parts.append(f"FPs: {len(comparison['false_positives_used'])}")
+            if comparison.get('false_negatives_used'):
+                message_parts.append(f"FNs: {len(comparison['false_negatives_used'])}")
 
         return " - ".join(message_parts)
 

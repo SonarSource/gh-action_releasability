@@ -13,6 +13,8 @@ from pathlib import Path
 from typing import List, Dict, Set, Optional, Tuple
 import json
 
+from .sca_exceptions import SCAExceptionManager, LicenseFileDetector, SCAComparisonEngine
+
 logger = logging.getLogger(__name__)
 
 
@@ -175,30 +177,18 @@ class LicenseExtractor:
         """Extract license information from a licenses directory."""
         licenses = []
 
-        # Extract main LICENSE.txt
-        main_license_path = os.path.join(licenses_dir, 'LICENSE.txt')
-        if os.path.exists(main_license_path):
-            licenses.append({
-                'type': 'main',
-                'source': source,
-                'path': main_license_path,
-                'name': 'LICENSE.txt',
-                'content': self._read_file_content(main_license_path)
-            })
+        # Use the enhanced license file detector
+        license_files = LicenseFileDetector.detect_license_files(licenses_dir)
 
-        # Extract third-party licenses
-        third_party_dir = os.path.join(licenses_dir, 'THIRD_PARTY_LICENSES')
-        if os.path.exists(third_party_dir):
-            for file in os.listdir(third_party_dir):
-                if file.endswith(('.txt', '.md')):
-                    license_path = os.path.join(third_party_dir, file)
-                    licenses.append({
-                        'type': 'third_party',
-                        'source': source,
-                        'path': license_path,
-                        'name': file,
-                        'content': self._read_file_content(license_path)
-                    })
+        for license_file in license_files:
+            licenses.append({
+                'type': license_file['type'],
+                'source': source,
+                'path': license_file['path'],
+                'name': license_file['name'],
+                'format': license_file['format'],
+                'content': self._read_file_content(license_file['path'])
+            })
 
         return licenses
 
@@ -213,10 +203,18 @@ class LicenseExtractor:
 
 
 class LicenseComparator:
-    """Compares extracted licenses with SBOM components."""
+    """Compares extracted licenses with SBOM components with FP/FN support."""
 
-    def __init__(self):
+    def __init__(self, repository_root: str = "."):
+        """
+        Initialize license comparator with SCA exception support.
+
+        Args:
+            repository_root: Root directory of the repository
+        """
         self.sbom_components = []
+        self.exception_manager = SCAExceptionManager(repository_root)
+        self.comparison_engine = SCAComparisonEngine(self.exception_manager)
 
     def load_sbom(self, sbom_data: Dict) -> None:
         """Load SBOM data for comparison."""
@@ -225,7 +223,7 @@ class LicenseComparator:
 
     def compare_licenses_with_sbom(self, extracted_licenses: Dict[str, List[Dict]]) -> Dict[str, any]:
         """
-        Compare extracted licenses with SBOM components.
+        Compare extracted licenses with SBOM components, accounting for FPs and FNs.
 
         Args:
             extracted_licenses: Dictionary mapping artifact names to license lists
@@ -240,7 +238,10 @@ class LicenseComparator:
             'missing_licenses': [],
             'extra_licenses': [],
             'matched_licenses': [],
-            'coverage_percentage': 0.0
+            'coverage_percentage': 0.0,
+            'false_positives_used': [],
+            'false_negatives_used': [],
+            'is_compliant': False
         }
 
         # Collect all third-party licenses
@@ -252,25 +253,26 @@ class LicenseComparator:
 
         results['total_licenses_found'] = len(all_third_party_licenses)
 
-        # Compare with SBOM components
+        # Extract component and license names
         sbom_component_names = self._extract_component_names()
         license_names = self._extract_license_names(all_third_party_licenses)
 
-        # Find matches
-        matched = set(sbom_component_names) & set(license_names)
-        results['matched_licenses'] = list(matched)
+        # Use enhanced comparison with FP/FN support
+        comparison_result = self.comparison_engine.compare_with_exceptions(
+            set(license_names),
+            set(sbom_component_names)
+        )
 
-        # Find missing licenses (in SBOM but not in licenses)
-        missing = set(sbom_component_names) - set(license_names)
-        results['missing_licenses'] = list(missing)
-
-        # Find extra licenses (in licenses but not in SBOM)
-        extra = set(license_names) - set(sbom_component_names)
-        results['extra_licenses'] = list(extra)
-
-        # Calculate coverage percentage
-        if sbom_component_names:
-            results['coverage_percentage'] = (len(matched) / len(sbom_component_names)) * 100
+        # Update results with enhanced comparison
+        results.update({
+            'missing_licenses': list(comparison_result['missing_dependencies']),
+            'extra_licenses': list(comparison_result['extra_dependencies']),
+            'matched_licenses': list(comparison_result['expected_dependencies'] & comparison_result['actual_dependencies']),
+            'coverage_percentage': comparison_result['coverage_percentage'],
+            'false_positives_used': list(comparison_result['false_positives_used']),
+            'false_negatives_used': list(comparison_result['false_negatives_used']),
+            'is_compliant': self.comparison_engine.is_compliant(comparison_result)
+        })
 
         return results
 
@@ -284,13 +286,12 @@ class LicenseComparator:
         return names
 
     def _extract_license_names(self, licenses: List[Dict]) -> List[str]:
-        """Extract library names from license file names."""
+        """Extract library names from license file names using enhanced detector."""
         names = []
         for license_info in licenses:
-            name = license_info['name']
-            # Remove common suffixes like -LICENSE.txt, _LICENSE.txt
-            clean_name = name.replace('-LICENSE.txt', '').replace('_LICENSE.txt', '').replace('.txt', '')
-            if clean_name:
+            # Use the enhanced license file detector
+            clean_name = LicenseFileDetector.extract_dependency_name_from_license_file(license_info['name'])
+            if clean_name and clean_name.lower() not in ['license', 'licenses']:
                 names.append(clean_name)
         return names
 
@@ -298,9 +299,15 @@ class LicenseComparator:
 class LPSValidator:
     """Validates compliance with License Packaging Standard."""
 
-    def __init__(self):
+    def __init__(self, repository_root: str = "."):
+        """
+        Initialize LPS validator with SCA exception support.
+
+        Args:
+            repository_root: Root directory of the repository
+        """
         self.extractor = LicenseExtractor()
-        self.comparator = LicenseComparator()
+        self.comparator = LicenseComparator(repository_root)
 
     def validate_artifacts(self, artifacts: List[Dict], sbom_data: Optional[Dict] = None) -> Dict[str, any]:
         """
