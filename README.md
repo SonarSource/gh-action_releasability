@@ -81,7 +81,7 @@ jobs:
             contents: read
         if: github.event.workflow_run.conclusion == 'success'
         steps:
-            -   uses: SonarSource/gh-action_releasability/releasability-status@v2
+            -   uses: SonarSource/gh-action_releasability/releasability-status@v3
                 with:
                     optional_checks: "Jira"
                 env:
@@ -123,7 +123,7 @@ jobs:
             startsWith(github.ref_name, 'dogfood-') ||
             startsWith(github.ref_name, 'branch-')
         steps:
-            -   uses: SonarSource/gh-action_releasability/releasability-status@v2
+            -   uses: SonarSource/gh-action_releasability/releasability-status@v3
                 with:
                     optional_checks: "Jira"
                 env:
@@ -154,7 +154,7 @@ jobs:
             # Build and promote job steps
                 ...
                 # Add releasability status check after build steps
-                - uses: SonarSource/gh-action_releasability/releasability-status@v2
+                - uses: SonarSource/gh-action_releasability/releasability-status@v3
                 if: >-
                     github.ref_name == github.event.repository.default_branch ||
                     startsWith(github.ref_name, 'dogfood-') ||
@@ -191,7 +191,7 @@ jobs:
             github.event.check_suite.app.slug == 'cirrus-ci'
         steps:
             -   uses: >-
-                    SonarSource/gh-action_releasability/releasability-status@v2
+                    SonarSource/gh-action_releasability/releasability-status@v3
                 with:
                     optional_checks: "Jira"
                 env:
@@ -220,7 +220,7 @@ Within an existing GitHub workflow:
 
 ...
 steps:
-    -   uses: SonarSource/gh-action_releasability@v2
+    -   uses: SonarSource/gh-action_releasability@v3
         id: releasability-checks
         with:
             organization:
