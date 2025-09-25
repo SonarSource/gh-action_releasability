@@ -24,6 +24,7 @@ class LicenseExtractor:
 
     def __init__(self):
         self.temp_dir = None
+        self.non_compliant_inner_archives = []  # Track inner archives that don't follow LPS spec
 
     def extract_licenses_from_artifacts(self, artifacts: List[Dict]) -> Dict[str, List[Dict]]:
         """
@@ -115,6 +116,10 @@ class LicenseExtractor:
                     inner_licenses = self._process_inner_archive(inner_archive_path, file, root)
                     licenses.extend(inner_licenses)
 
+                    # Track if this inner archive produced no licenses (non-compliant)
+                    if not inner_licenses:
+                        self.non_compliant_inner_archives.append(file)
+
         return licenses
 
     def _is_archive_file(self, filename: str) -> bool:
@@ -159,9 +164,15 @@ class LicenseExtractor:
 
     def _extract_licenses_from_inner_archive(self, temp_dir: str, filename: str) -> List[Dict]:
         """Extract licenses from inner archive's licenses directory."""
-        inner_licenses_dir = os.path.join(temp_dir, 'licenses')
-        if os.path.exists(inner_licenses_dir):
-            return self._extract_licenses_from_directory(inner_licenses_dir, f'inner_{filename}')
+        # According to LPS specification, inner archives should have licenses/ directory at root
+        expected_licenses_dir = os.path.join(temp_dir, 'licenses')
+
+        if os.path.exists(expected_licenses_dir):
+            logger.info(f"Found licenses directory in inner archive (LPS compliant): {expected_licenses_dir}")
+            return self._extract_licenses_from_directory(expected_licenses_dir, f'inner_{filename}')
+
+        logger.warning(f"No licenses directory found in inner archive {filename}")
+        logger.warning(f"Inner archive {filename} does not follow LPS specification - expected 'licenses/' directory at root")
         return []
 
     def _extract_licenses_from_dedicated_dir(self, root_dir: str, filename: str) -> List[Dict]:
@@ -386,5 +397,9 @@ class LPSValidator:
             has_licenses_dir = any('licenses' in l['path'] for l in licenses)
             if not has_licenses_dir:
                 issues.append(f"No licenses/ directory found in {artifact_name}")
+
+            # Check for non-compliant inner archives
+            for non_compliant_archive in self.extractor.non_compliant_inner_archives:
+                issues.append(f"Inner archive {non_compliant_archive} does not follow LPS specification - expected 'licenses/' directory at root")
 
         return issues
