@@ -32,6 +32,15 @@ on:
           - prod
           - staging
           - dev
+      skip-lambda-checks:
+        description: "Skip lambda tests for development/testing purposes"
+        required: false
+        default: false
+        type: boolean
+      sonar-project-key:
+        description: "SonarQube project key for SBOM download (e.g., org.sonarsource.javascript:javascript)"
+        required: false
+        type: string
 
 jobs:
   trigger_releasability_checks:
@@ -39,9 +48,20 @@ jobs:
     permissions:
       id-token: write
     steps:
+      - name: Vault Secrets
+        id: secrets
+        uses: SonarSource/vault-action-wrapper@d6d745ffdbc82b040df839b903bc33b5592cd6b0 # 3.0.2
+        with:
+          secrets: |
+            development/artifactory/token/SonarSource-gh-action_releasability-private-reader access_token | artifactory_access_token;
+            development/kv/data/next token | sonarqube_token;
+
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Trigger releasability checks
         uses: ./
+        env:
+          ARTIFACTORY_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).artifactory_access_token }}
+          SONARQUBE_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).sonarqube_token }}
         with:
           organization: ${{ github.event.inputs.organization }}
           repository: ${{ github.event.inputs.repository }}
@@ -49,3 +69,5 @@ jobs:
           version: ${{ github.event.inputs.version }}
           commit-sha: ${{ github.event.inputs.commit-sha }}
           releasabily-env: ${{ github.event.inputs.releasabily-env }}
+          skip-lambda-checks: ${{ github.event.inputs.skip-lambda-checks }}
+          sonar-project-key: ${{ github.event.inputs.sonar-project-key }}

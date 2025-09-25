@@ -6,6 +6,7 @@ verify_ssl = true
 [dev-packages]
 pytest = "*"
 pytest-cov = "*"
+exceptiongroup = "*"
 
 [packages]
 requests = "*"
@@ -15,6 +16,7 @@ boto3 = "*"
 dryable = "*"
 parameterized = "*"
 github-action-utils = "*"
+dohq-artifactory = "*"
 
 [requires]
 python_version = "3.10"

@@ -105,3 +105,21 @@ class MainTest(unittest.TestCase):
                             do_releasability_checks(organization, repository, branch, version, commit_sha)
 
                             mock_set_output_status.assert_called_once_with("1")
+
+    def test_do_releasability_checks_should_skip_lambda_tests_when_skip_lambda_tests_is_true(self):
+        """Test that lambda tests are skipped when skip_lambda_tests=True."""
+        with patch.object(ReleasabilityService, '__init__', return_value=None):
+            # Mock execute_inline_checks instead of start_releasability_checks
+            inline_results = [
+                ReleasabilityCheckResult("CheckLicenses", ReleasabilityCheckResult.CHECK_PASSED, "Inline check passed"),
+            ]
+            with patch.object(ReleasabilityService, 'execute_inline_checks', return_value=inline_results):
+                organization = "some-org"
+                repository = "some-repo"
+                branch = "some-branch"
+                version = "4.3.2.1"
+                commit_sha = "ef1232ad12321"
+                with patch.object(GithubActionHelper,'set_output_logs') as mock_set_output_logs:
+                    with patch.object(GithubActionHelper, 'set_output_status') as mock_set_output_status:
+                        do_releasability_checks(organization, repository, branch, version, commit_sha, skip_lambda_tests=True)
+                        mock_set_output_status.assert_called_once_with("0")
