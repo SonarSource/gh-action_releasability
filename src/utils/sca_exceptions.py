@@ -10,7 +10,7 @@ import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Set, Optional, Union
+from typing import Dict, List, Set, Optional, Union, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -184,6 +184,7 @@ class LicenseFileDetector:
         - LibraryA-LICENSE.html
         - LibraryA.txt
         - LibraryA.html
+        - commons-io.commons-io_apache_v2.txt (Maven artifacts with version info)
         """
         # Remove common license suffixes
         name = file_name
@@ -203,7 +204,61 @@ class LicenseFileDetector:
                 name = name[:-len(suffix)]
                 break
 
+        # Remove version-related suffixes (e.g., _apache_v2, _v2, etc.)
+        import re
+        # Pattern to match version suffixes like _apache_v2, _v1, _2.0, etc.
+        version_pattern = r'(_apache_v\d+|_v\d+|_\d+\.\d+.*)$'
+        name = re.sub(version_pattern, '', name)
+
         return name.strip()
+
+    @staticmethod
+    def normalize_maven_coordinate(component_name: str) -> str:
+        """
+        Normalize Maven coordinate format for comparison.
+
+        Converts 'groupId:artifactId' to 'groupId.artifactId' format
+        to match license file naming conventions.
+
+        Args:
+            component_name: Maven coordinate in format 'groupId:artifactId'
+
+        Returns:
+            Normalized name in format 'groupId.artifactId'
+        """
+        if ':' in component_name:
+            # Convert Maven coordinate format (groupId:artifactId) to dot format
+            return component_name.replace(':', '.')
+        return component_name
+
+    @staticmethod
+    def normalize_for_comparison(name: str) -> str:
+        """
+        Normalize a name for comparison by applying all normalization rules.
+
+        Args:
+            name: Component name or license file name
+
+        Returns:
+            Normalized name ready for comparison
+        """
+        # First normalize Maven coordinates
+        normalized = LicenseFileDetector.normalize_maven_coordinate(name)
+
+        # Convert to lowercase for case-insensitive comparison
+        normalized = normalized.lower().strip()
+
+        # Handle cases where license files only contain artifact ID
+        # For Maven coordinates like "com.google.code.gson:gson",
+        # also try matching against just the artifact ID "gson"
+        if ':' in name and '.' in normalized:
+            # Extract artifact ID from Maven coordinate
+            artifact_id = name.split(':')[-1].lower()
+            # Add the artifact ID as an alternative for matching
+            # We'll return the full coordinate but also consider artifact-only matches
+            return normalized
+
+        return normalized
 
 
 class SCAComparisonEngine:
@@ -235,21 +290,34 @@ class SCAComparisonEngine:
         fps = self.exception_manager.get_false_positives()
         fns = self.exception_manager.get_false_negatives()
 
+        # Normalize all dependency names for comparison
+        normalized_license_deps = {LicenseFileDetector.normalize_for_comparison(name) for name in license_dependencies}
+        normalized_sca_deps = {LicenseFileDetector.normalize_for_comparison(name) for name in sca_dependencies}
+        normalized_fps = {LicenseFileDetector.normalize_for_comparison(name) for name in fps}
+        normalized_fns = {LicenseFileDetector.normalize_for_comparison(name) for name in fns}
+
+        # Apply fuzzy matching for Maven coordinates
+        matched_pairs = self._find_fuzzy_matches(normalized_sca_deps, normalized_license_deps)
+
+        # Create sets of matched dependencies
+        matched_sca_deps = {pair[0] for pair in matched_pairs}
+        matched_license_deps = {pair[1] for pair in matched_pairs}
+
         # Apply FP/FN logic:
         # Expected = SCA + FNs - FPs
         # Actual = License files
-        expected_dependencies = (sca_dependencies | fns) - fps
-        actual_dependencies = license_dependencies
+        expected_dependencies = (normalized_sca_deps | normalized_fns) - normalized_fps
+        actual_dependencies = normalized_license_deps
 
-        # Calculate differences
-        missing_dependencies = expected_dependencies - actual_dependencies
-        extra_dependencies = actual_dependencies - expected_dependencies
+        # Calculate differences using fuzzy matching
+        missing_dependencies = expected_dependencies - matched_sca_deps
+        extra_dependencies = actual_dependencies - matched_license_deps
 
         # Calculate coverage
         total_expected = len(expected_dependencies)
         coverage_percentage = 0.0
         if total_expected > 0:
-            matched = len(expected_dependencies & actual_dependencies)
+            matched = len(matched_sca_deps & expected_dependencies)
             coverage_percentage = (matched / total_expected) * 100
 
         return {
@@ -258,12 +326,60 @@ class SCAComparisonEngine:
             'missing_dependencies': missing_dependencies,
             'extra_dependencies': extra_dependencies,
             'coverage_percentage': coverage_percentage,
-            'false_positives_used': fps,
-            'false_negatives_used': fns,
+            'false_positives_used': normalized_fps,
+            'false_negatives_used': normalized_fns,
             'total_expected': total_expected,
             'total_actual': len(actual_dependencies),
-            'matched_count': len(expected_dependencies & actual_dependencies)
+            'matched_count': len(matched_sca_deps & expected_dependencies),
+            'fuzzy_matches': matched_pairs
         }
+
+    def _find_fuzzy_matches(self, sca_deps: Set[str], license_deps: Set[str]) -> List[Tuple[str, str]]:
+        """
+        Find fuzzy matches between SCA dependencies and license dependencies.
+
+        Handles cases like:
+        - Full Maven coordinates vs artifact-only names
+        - Different naming conventions
+
+        Args:
+            sca_deps: Set of normalized SCA dependency names
+            license_deps: Set of normalized license dependency names
+
+        Returns:
+            List of (sca_dep, license_dep) matched pairs
+        """
+        matches = []
+        used_license_deps = set()
+
+        for sca_dep in sca_deps:
+            # Try exact match first
+            if sca_dep in license_deps and sca_dep not in used_license_deps:
+                matches.append((sca_dep, sca_dep))
+                used_license_deps.add(sca_dep)
+                continue
+
+            # Try fuzzy matching for Maven coordinates
+            if '.' in sca_dep:
+                # Extract artifact ID (last part after dots)
+                artifact_id = sca_dep.split('.')[-1]
+
+                # Look for license deps that match the artifact ID
+                for license_dep in license_deps:
+                    if license_dep not in used_license_deps:
+                        # Check if license dep matches artifact ID or contains it
+                        if (license_dep == artifact_id or
+                            license_dep.endswith('.' + artifact_id) or
+                            license_dep.startswith(artifact_id + '.') or
+                            '.' + artifact_id + '.' in license_dep or
+                            # Handle cases like "gson-gson" matching "gson"
+                            (license_dep.count('-') > 0 and
+                             any(part == artifact_id for part in license_dep.split('-')))):
+                            matches.append((sca_dep, license_dep))
+                            used_license_deps.add(license_dep)
+                            break
+
+        return matches
 
     def is_compliant(self, comparison_result: Dict[str, any]) -> bool:
         """
