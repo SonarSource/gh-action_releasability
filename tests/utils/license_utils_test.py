@@ -105,6 +105,32 @@ class TestLicenseExtractor(unittest.TestCase):
         inner_licenses = [l for l in licenses if 'inner' in l['source']]
         self.assertGreater(len(inner_licenses), 0)
 
+    def test_extract_from_archive_with_inner_tgz_archives(self):
+        """Test extraction from archive with inner TGZ archives."""
+        # Create a test JAR with inner TGZ
+        jar_path = os.path.join(self.temp_dir, 'test.jar')
+        with zipfile.ZipFile(jar_path, 'w') as jar:
+            # Add main licenses
+            jar.writestr('licenses/LICENSE.txt', 'Main license')
+            jar.writestr('licenses/THIRD_PARTY_LICENSES/LibraryA-LICENSE.txt', 'Library A license')
+
+            # Add inner TGZ with its own licenses
+            inner_tgz_content = self._create_inner_tgz_content()
+            jar.writestr('inner.tgz', inner_tgz_content)
+
+        artifacts = [{'path': jar_path, 'name': 'test.jar'}]
+        result = self.extractor.extract_licenses_from_artifacts(artifacts)
+
+        self.assertIn('test.jar', result)
+        licenses = result['test.jar']
+
+        # Should have main licenses + inner archive licenses
+        self.assertGreater(len(licenses), 2)
+
+        # Check for inner archive licenses
+        inner_licenses = [l for l in licenses if 'inner' in l['source']]
+        self.assertGreater(len(inner_licenses), 0)
+
     def _create_inner_zip_content(self):
         """Create inner ZIP content for testing."""
         import io
@@ -113,6 +139,23 @@ class TestLicenseExtractor(unittest.TestCase):
             zip_file.writestr('licenses/LICENSE.txt', 'Inner main license')
             zip_file.writestr('licenses/THIRD_PARTY_LICENSES/InnerLibrary-LICENSE.txt', 'Inner library license')
         return inner_zip.getvalue()
+
+    def _create_inner_tgz_content(self):
+        """Create inner TGZ content for testing."""
+        import io
+        import tarfile
+        inner_tgz = io.BytesIO()
+        with tarfile.open(fileobj=inner_tgz, mode='w:gz') as tgz_file:
+            # Add license files to the TGZ
+            license_txt = tarfile.TarInfo(name='licenses/LICENSE.txt')
+            license_txt.size = len(b'Inner TGZ main license')
+            tgz_file.addfile(license_txt, io.BytesIO(b'Inner TGZ main license'))
+
+            third_party_license = tarfile.TarInfo(name='licenses/THIRD_PARTY_LICENSES/InnerTgzLibrary-LICENSE.txt')
+            third_party_license.size = len(b'Inner TGZ library license')
+            tgz_file.addfile(third_party_license, io.BytesIO(b'Inner TGZ library license'))
+
+        return inner_tgz.getvalue()
 
     def test_extract_licenses_from_directory(self):
         """Test extraction from a licenses directory."""

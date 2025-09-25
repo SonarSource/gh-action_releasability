@@ -7,6 +7,7 @@ licenses in Sonar software distributions.
 
 import os
 import zipfile
+import tarfile
 import tempfile
 import logging
 from pathlib import Path
@@ -146,6 +147,10 @@ class LicenseExtractor:
         """Extract archive to temporary directory."""
         if filename.endswith('.zip'):
             with zipfile.ZipFile(archive_path, 'r') as inner_archive:
+                inner_archive.extractall(temp_dir)
+            return True
+        elif filename.endswith('.tgz'):
+            with tarfile.open(archive_path, 'r:gz') as inner_archive:
                 inner_archive.extractall(temp_dir)
             return True
         else:
