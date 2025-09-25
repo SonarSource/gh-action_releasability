@@ -112,10 +112,7 @@ class TestArtifactory(unittest.TestCase):
         mock_artifactory_path.return_value = mock_path_instance
 
         # Mock the file-like object returned by open()
-        mock_file = MagicMock()
-        mock_file.read.return_value = b"fake jar content"
-        mock_path_instance.open.return_value.__enter__.return_value = mock_file
-
+        mock_path_instance.read_bytes.return_value = b"fake jar content"
         artifact_info = {
             'group_id': 'org.sonarsource',
             'artifact_id': 'plugin',

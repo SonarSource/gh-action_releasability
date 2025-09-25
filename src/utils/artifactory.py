@@ -139,8 +139,8 @@ class Artifactory:
 
             # Download to temp file
             temp_file = Path(tempfile.gettempdir()) / filename
-            with artifact_path.open('rb') as src, temp_file.open('wb') as dst:
-                dst.write(src.read())
+            with temp_file.open('wb') as dst:
+                dst.write(artifact_path.read_bytes())
 
             logger.info(f"Downloaded artifact: {filename}")
 
