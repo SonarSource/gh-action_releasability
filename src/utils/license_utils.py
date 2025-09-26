@@ -221,15 +221,19 @@ class LicenseExtractor:
 class LicenseComparator:
     """Compares extracted licenses with SBOM components with FP/FN support."""
 
-    def __init__(self, repository_root: str = "."):
+    def __init__(self, repository_root: str = ".", github_owner: Optional[str] = None,
+                 github_repo: Optional[str] = None, github_ref: str = "master"):
         """
         Initialize license comparator with SCA exception support.
 
         Args:
             repository_root: Root directory of the repository
+            github_owner: GitHub organization/owner name for fetching repository-level exceptions
+            github_repo: GitHub repository name for fetching repository-level exceptions
+            github_ref: Git reference (branch, tag, or commit SHA) for fetching repository-level exceptions
         """
         self.sbom_components = []
-        self.exception_manager = SCAExceptionManager(repository_root)
+        self.exception_manager = SCAExceptionManager(repository_root, github_owner, github_repo, github_ref)
         self.comparison_engine = SCAComparisonEngine(self.exception_manager)
 
     def load_sbom(self, sbom_data: Dict) -> None:
@@ -283,7 +287,7 @@ class LicenseComparator:
         results.update({
             'missing_licenses': list(comparison_result['missing_dependencies']),
             'extra_licenses': list(comparison_result['extra_dependencies']),
-            'matched_licenses': list(comparison_result['expected_dependencies'] & comparison_result['actual_dependencies']),
+            'matched_licenses': [pair[1] for pair in comparison_result['fuzzy_matches']],
             'coverage_percentage': comparison_result['coverage_percentage'],
             'false_positives_used': list(comparison_result['false_positives_used']),
             'false_negatives_used': list(comparison_result['false_negatives_used']),
@@ -315,15 +319,19 @@ class LicenseComparator:
 class LPSValidator:
     """Validates compliance with License Packaging Standard."""
 
-    def __init__(self, repository_root: str = "."):
+    def __init__(self, repository_root: str = ".", github_owner: Optional[str] = None,
+                 github_repo: Optional[str] = None, github_ref: str = "master"):
         """
         Initialize LPS validator with SCA exception support.
 
         Args:
             repository_root: Root directory of the repository
+            github_owner: GitHub organization/owner name for fetching repository-level exceptions
+            github_repo: GitHub repository name for fetching repository-level exceptions
+            github_ref: Git reference (branch, tag, or commit SHA) for fetching repository-level exceptions
         """
         self.extractor = LicenseExtractor()
-        self.comparator = LicenseComparator(repository_root)
+        self.comparator = LicenseComparator(repository_root, github_owner, github_repo, github_ref)
 
     def validate_artifacts(self, artifacts: List[Dict], sbom_data: Optional[Dict] = None) -> Dict[str, any]:
         """

@@ -39,9 +39,19 @@ class CheckLicenses(InlineCheck):
             self.sonarqube = None
             logger.warning("SONARQUBE_TOKEN not configured, SBOM download will fail")
 
-        # Initialize LPS validator with repository root
-        self.lps_validator = LPSValidator(repository_root=".")
-        logger.info("LPS validator initialized with SCA exception support")
+        # Initialize LPS validator with repository root and GitHub repository info
+        # Get GitHub repository information from environment variables
+        github_owner = os.getenv("INPUT_ORGANIZATION")
+        github_repo = os.getenv("INPUT_REPOSITORY")
+        github_ref = os.getenv("INPUT_BRANCH", "master")
+
+        self.lps_validator = LPSValidator(
+            repository_root=".",
+            github_owner=github_owner,
+            github_repo=github_repo,
+            github_ref=github_ref
+        )
+        logger.info(f"LPS validator initialized with SCA exception support for {github_owner}/{github_repo}@{github_ref}")
 
     @property
     def name(self) -> str:

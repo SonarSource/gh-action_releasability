@@ -1,5 +1,24 @@
 {
-  "exceptions": [],
-  "description": "SCA exceptions for this repository",
-  "last_updated": "2025-09-23T15:33:07.758223"
+  "exceptions": [
+    {
+      "name": "commons-io:commons-io",
+      "comment": "Detected by SCA but not actually used in the codebase"
+    },
+    {
+      "name": "org.apache.commons:commons-lang3",
+      "comment": "False positive detection - dependency is not present"
+    },
+    {
+      "name": "com.google.code.gson:gson",
+      "comment": "SCA incorrectly reports this dependency as present"
+    },
+    {
+      "name": "org.slf4j:slf4j-api",
+      "comment": "Not actually used despite being detected by SCA"
+    },
+    {
+      "name": "commons-codec:commons-codec",
+      "comment": "False positive - dependency is not included in the build"
+    }
+  ]
 }

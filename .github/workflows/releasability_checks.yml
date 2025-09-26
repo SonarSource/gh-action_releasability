@@ -55,6 +55,7 @@ jobs:
           secrets: |
             development/artifactory/token/SonarSource-gh-action_releasability-private-reader access_token | artifactory_access_token;
             development/kv/data/next token | sonarqube_token;
+            development/github/token/{REPO_OWNER_NAME_DASH}-license token | licenses_token;
 
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
       - name: Trigger releasability checks
@@ -62,6 +63,7 @@ jobs:
         env:
           ARTIFACTORY_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).artifactory_access_token }}
           SONARQUBE_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).sonarqube_token }}
+          GH_TOKEN: ${{ fromJSON(steps.secrets.outputs.vault).licenses_token }}
         with:
           organization: ${{ github.event.inputs.organization }}
           repository: ${{ github.event.inputs.repository }}

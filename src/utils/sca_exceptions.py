@@ -12,28 +12,59 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set, Optional, Union, Tuple
 
+from utils.github_client import GitHubClient
+
 logger = logging.getLogger(__name__)
 
 
 class SCAExceptionManager:
     """Manages SCA False Positives and False Negatives exceptions."""
 
-    def __init__(self, repository_root: str = "."):
+    def __init__(self, repository_root: str = ".", github_owner: Optional[str] = None,
+                 github_repo: Optional[str] = None, github_ref: str = "master"):
         """
         Initialize SCA exception manager.
 
         Args:
             repository_root: Root directory of the repository
+            github_owner: GitHub organization/owner name for fetching repository-level exceptions
+            github_repo: GitHub repository name for fetching repository-level exceptions
+            github_ref: Git reference (branch, tag, or commit SHA) for fetching repository-level exceptions
         """
         self.repository_root = Path(repository_root)
         self.fp_file = self.repository_root / ".sca-exceptions" / "false-positives.json"
         self.fn_file = self.repository_root / ".sca-exceptions" / "false-negatives.json"
 
-        # Load exceptions
-        self.false_positives = self._load_exceptions(self.fp_file)
-        self.false_negatives = self._load_exceptions(self.fn_file)
+        # GitHub repository information
+        self.github_owner = github_owner
+        self.github_repo = github_repo
+        self.github_ref = github_ref
 
-        logger.info(f"Loaded {len(self.false_positives)} FPs and {len(self.false_negatives)} FNs")
+        # Load exceptions from local files
+        local_fps = self._load_exceptions(self.fp_file)
+        local_fns = self._load_exceptions(self.fn_file)
+
+        # Load exceptions from GitHub repository if specified
+        github_fps = set()
+        github_fns = set()
+        if github_owner and github_repo:
+            try:
+                github_client = GitHubClient()
+                github_exceptions = github_client.get_sca_exceptions(github_owner, github_repo, github_ref)
+                github_fps = github_exceptions['false_positives']
+                github_fns = github_exceptions['false_negatives']
+                logger.info(f"Loaded {len(github_fps)} FPs and {len(github_fns)} FNs from {github_owner}/{github_repo}")
+            except Exception as e:
+                logger.warning(f"Failed to load exceptions from GitHub repository {github_owner}/{github_repo}: {e}")
+
+        # Combine local and GitHub exceptions
+        self.false_positives = local_fps | github_fps
+        self.false_negatives = local_fns | github_fns
+
+        logger.info(f"Total loaded: {len(self.false_positives)} FPs and {len(self.false_negatives)} FNs")
+        if github_owner and github_repo:
+            logger.info(f"  - Local: {len(local_fps)} FPs, {len(local_fns)} FNs")
+            logger.info(f"  - GitHub: {len(github_fps)} FPs, {len(github_fns)} FNs")
 
     def _load_exceptions(self, file_path: Path) -> Set[str]:
         """Load exceptions from JSON file."""
@@ -44,12 +75,22 @@ class SCAExceptionManager:
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                if isinstance(data, list):
-                    return set(data)
-                elif isinstance(data, dict) and 'exceptions' in data:
-                    return set(data['exceptions'])
+                if isinstance(data, dict) and 'exceptions' in data:
+                    exceptions = data['exceptions']
+                    if isinstance(exceptions, list):
+                        # New format: list of objects with name and comment
+                        result = set()
+                        for item in exceptions:
+                            if isinstance(item, dict) and 'name' in item:
+                                result.add(item['name'])
+                            else:
+                                logger.warning(f"Invalid exception item in {file_path}: {item}")
+                        return result
+                    else:
+                        logger.warning(f"Unexpected exceptions format in {file_path}")
+                        return set()
                 else:
-                    logger.warning(f"Unexpected format in {file_path}")
+                    logger.warning(f"Unexpected format in {file_path}. Expected object with 'exceptions' array.")
                     return set()
         except Exception as e:
             logger.error(f"Error loading exceptions from {file_path}: {e}")
@@ -62,6 +103,47 @@ class SCAExceptionManager:
     def get_false_negatives(self) -> Set[str]:
         """Get the set of false negative dependencies."""
         return self.false_negatives.copy()
+
+    def get_detailed_false_positives(self) -> List[Dict[str, str]]:
+        """Get detailed false positive information including comments."""
+        return self._load_detailed_exceptions(self.fp_file)
+
+    def get_detailed_false_negatives(self) -> List[Dict[str, str]]:
+        """Get detailed false negative information including comments."""
+        return self._load_detailed_exceptions(self.fn_file)
+
+    def _load_detailed_exceptions(self, file_path: Path) -> List[Dict[str, str]]:
+        """Load detailed exception information from JSON file."""
+        if not file_path.exists():
+            logger.debug(f"Exception file not found: {file_path}")
+            return []
+
+        try:
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                if isinstance(data, dict) and 'exceptions' in data:
+                    exceptions = data['exceptions']
+                    if isinstance(exceptions, list):
+                        # New format: list of objects with name and comment
+                        result = []
+                        for item in exceptions:
+                            if isinstance(item, dict) and 'name' in item:
+                                result.append({
+                                    "name": item.get('name', ''),
+                                    "comment": item.get('comment', '')
+                                })
+                            else:
+                                logger.warning(f"Invalid exception item in {file_path}: {item}")
+                        return result
+                    else:
+                        logger.warning(f"Unexpected exceptions format in {file_path}")
+                        return []
+                else:
+                    logger.warning(f"Unexpected format in {file_path}. Expected object with 'exceptions' array.")
+                    return []
+        except Exception as e:
+            logger.error(f"Error loading detailed exceptions from {file_path}: {e}")
+            return []
 
     def is_false_positive(self, dependency: str) -> bool:
         """Check if a dependency is a known false positive."""
@@ -310,14 +392,18 @@ class SCAComparisonEngine:
         actual_dependencies = normalized_license_deps
 
         # Calculate differences using fuzzy matching
-        missing_dependencies = expected_dependencies - matched_sca_deps
-        extra_dependencies = actual_dependencies - matched_license_deps
+        # Missing: expected dependencies that are not found in license files
+        # False negatives are considered as "found" if they exist in license dependencies
+        found_dependencies = matched_license_deps | (normalized_fns & actual_dependencies)
+        missing_dependencies = expected_dependencies - found_dependencies
+        # Extra: license dependencies that are not expected (not in SCA + not false negatives)
+        extra_dependencies = actual_dependencies - found_dependencies
 
         # Calculate coverage
         total_expected = len(expected_dependencies)
         coverage_percentage = 0.0
         if total_expected > 0:
-            matched = len(matched_sca_deps & expected_dependencies)
+            matched = len(found_dependencies & expected_dependencies)
             coverage_percentage = (matched / total_expected) * 100
 
         return {

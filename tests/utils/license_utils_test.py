@@ -195,7 +195,7 @@ class TestLicenseExtractor(unittest.TestCase):
 class TestLicenseComparator(unittest.TestCase):
 
     def setUp(self):
-        self.comparator = LicenseComparator(".")
+        self.comparator = LicenseComparator(".", github_owner="test-org", github_repo="test-repo", github_ref="master")
 
     def test_load_sbom(self):
         """Test loading SBOM data."""
@@ -267,7 +267,7 @@ class TestLicenseComparator(unittest.TestCase):
 
         self.assertEqual(len(result['matched_licenses']), 2)
         self.assertEqual(len(result['missing_licenses']), 1)
-        self.assertIn('LibraryC', result['missing_licenses'])
+        self.assertIn('libraryc', result['missing_licenses'])
         self.assertAlmostEqual(result['coverage_percentage'], 66.7, places=1)
 
     def test_compare_licenses_with_sbom_extra_licenses(self):
@@ -294,7 +294,7 @@ class TestLicenseComparator(unittest.TestCase):
         self.assertEqual(len(result['matched_licenses']), 1)
         self.assertEqual(len(result['missing_licenses']), 0)
         self.assertEqual(len(result['extra_licenses']), 1)
-        self.assertIn('LibraryB', result['extra_licenses'])
+        self.assertIn('libraryb', result['extra_licenses'])
 
     def test_extract_component_names(self):
         """Test extraction of component names from SBOM."""
@@ -328,7 +328,7 @@ class TestLicenseComparator(unittest.TestCase):
 class TestLPSValidator(unittest.TestCase):
 
     def setUp(self):
-        self.validator = LPSValidator(".")
+        self.validator = LPSValidator(".", github_owner="test-org", github_repo="test-repo", github_ref="master")
 
     def test_validate_artifacts_empty_list(self):
         """Test validation with empty artifact list."""

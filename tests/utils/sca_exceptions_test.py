@@ -40,19 +40,24 @@ class TestSCAExceptionManager(unittest.TestCase):
         self.assertEqual(exceptions, set())
 
     def test_load_exceptions_list_format(self):
-        """Test loading exceptions from list format."""
+        """Test loading exceptions from legacy list format (should return empty set)."""
         test_file = Path(self.temp_dir) / "test.json"
         with open(test_file, 'w') as f:
             json.dump(["dep1", "dep2", "dep3"], f)
 
         exceptions = self.manager._load_exceptions(test_file)
-        self.assertEqual(exceptions, {"dep1", "dep2", "dep3"})
+        self.assertEqual(exceptions, set())  # Legacy format should return empty set
 
     def test_load_exceptions_dict_format(self):
-        """Test loading exceptions from dict format."""
+        """Test loading exceptions from new dict format with comments."""
         test_file = Path(self.temp_dir) / "test.json"
         with open(test_file, 'w') as f:
-            json.dump({"exceptions": ["dep1", "dep2"]}, f)
+            json.dump({
+                "exceptions": [
+                    {"name": "dep1", "comment": "Test dependency 1"},
+                    {"name": "dep2", "comment": "Test dependency 2"}
+                ]
+            }, f)
 
         exceptions = self.manager._load_exceptions(test_file)
         self.assertEqual(exceptions, {"dep1", "dep2"})
@@ -243,6 +248,7 @@ class TestSCAComparisonEngine(unittest.TestCase):
 
         # dep2 should be added to expected due to FN
         self.assertEqual(result['expected_dependencies'], {"dep1", "dep2"})
+        # With fuzzy matching, dep2 should be matched
         self.assertEqual(result['missing_dependencies'], set())
         self.assertEqual(result['extra_dependencies'], set())
         self.assertEqual(result['coverage_percentage'], 100.0)
@@ -260,6 +266,7 @@ class TestSCAComparisonEngine(unittest.TestCase):
 
         # Expected = SCA + FNs - FPs = {dep1, dep3} + {dep4} - {dep3} = {dep1, dep4}
         self.assertEqual(result['expected_dependencies'], {"dep1", "dep4"})
+        # With fuzzy matching, dep1 should be matched, dep4 should be matched
         self.assertEqual(result['missing_dependencies'], set())
         self.assertEqual(result['extra_dependencies'], {"dep2"})
         self.assertEqual(result['coverage_percentage'], 100.0)
