@@ -49,7 +49,8 @@ class CheckLicenses(InlineCheck):
             repository_root=".",
             github_owner=github_owner,
             github_repo=github_repo,
-            github_ref=github_ref
+            github_ref=github_ref,
+            reference_licenses_dir="src/resources/reference-licenses"
         )
         logger.info(f"LPS validator initialized with SCA exception support for {github_owner}/{github_repo}@{github_ref}")
 

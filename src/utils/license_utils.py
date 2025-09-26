@@ -14,7 +14,8 @@ from pathlib import Path
 from typing import List, Dict, Set, Optional, Tuple
 import json
 
-from utils.sca_exceptions import SCAExceptionManager, LicenseFileDetector, SCAComparisonEngine
+from src.utils.sca_exceptions import SCAExceptionManager, LicenseFileDetector, SCAComparisonEngine
+from src.utils.license_content_validator import LicenseContentValidator, LicenseContentMatcher
 
 logger = logging.getLogger(__name__)
 
@@ -222,19 +223,23 @@ class LicenseComparator:
     """Compares extracted licenses with SBOM components with FP/FN support."""
 
     def __init__(self, repository_root: str = ".", github_owner: Optional[str] = None,
-                 github_repo: Optional[str] = None, github_ref: str = "master"):
+                 github_repo: Optional[str] = None, github_ref: str = "master",
+                 reference_licenses_dir: str = "src/resources/reference-licenses"):
         """
-        Initialize license comparator with SCA exception support.
+        Initialize license comparator with SCA exception support and content validation.
 
         Args:
             repository_root: Root directory of the repository
             github_owner: GitHub organization/owner name for fetching repository-level exceptions
             github_repo: GitHub repository name for fetching repository-level exceptions
             github_ref: Git reference (branch, tag, or commit SHA) for fetching repository-level exceptions
+            reference_licenses_dir: Directory containing reference license files
         """
         self.sbom_components = []
         self.exception_manager = SCAExceptionManager(repository_root, github_owner, github_repo, github_ref)
         self.comparison_engine = SCAComparisonEngine(self.exception_manager)
+        self.license_validator = LicenseContentValidator(reference_licenses_dir)
+        self.license_matcher = LicenseContentMatcher(self.license_validator)
 
     def load_sbom(self, sbom_data: Dict) -> None:
         """Load SBOM data for comparison."""
@@ -243,7 +248,7 @@ class LicenseComparator:
 
     def compare_licenses_with_sbom(self, extracted_licenses: Dict[str, List[Dict]]) -> Dict[str, any]:
         """
-        Compare extracted licenses with SBOM components, accounting for FPs and FNs.
+        Compare extracted licenses with SBOM components using content-based validation.
 
         Args:
             extracted_licenses: Dictionary mapping artifact names to license lists
@@ -261,7 +266,9 @@ class LicenseComparator:
             'coverage_percentage': 0.0,
             'false_positives_used': [],
             'false_negatives_used': [],
-            'is_compliant': False
+            'is_compliant': False,
+            'validation_errors': [],
+            'unmatched_licenses': []
         }
 
         # Collect all third-party licenses
@@ -273,26 +280,36 @@ class LicenseComparator:
 
         results['total_licenses_found'] = len(all_third_party_licenses)
 
-        # Extract component and license names
-        sbom_component_names = self._extract_component_names()
-        license_names = self._extract_license_names(all_third_party_licenses)
-
-        # Use enhanced comparison with FP/FN support
-        comparison_result = self.comparison_engine.compare_with_exceptions(
-            set(license_names),
-            set(sbom_component_names)
+        # Use content-based matching
+        matching_results = self.license_matcher.match_licenses_to_components(
+            extracted_licenses, self.sbom_components
         )
 
-        # Update results with enhanced comparison
+        # Update results with content-based matching
         results.update({
-            'missing_licenses': list(comparison_result['missing_dependencies']),
-            'extra_licenses': list(comparison_result['extra_dependencies']),
-            'matched_licenses': [pair[1] for pair in comparison_result['fuzzy_matches']],
-            'coverage_percentage': comparison_result['coverage_percentage'],
-            'false_positives_used': list(comparison_result['false_positives_used']),
-            'false_negatives_used': list(comparison_result['false_negatives_used']),
-            'is_compliant': self.comparison_engine.is_compliant(comparison_result)
+            'matched_licenses': [match['component_name'] for match in matching_results['matched_licenses']],
+            'unmatched_licenses': matching_results['unmatched_licenses'],
+            'validation_errors': matching_results['validation_errors'],
+            'coverage_percentage': matching_results['coverage_percentage']
         })
+
+        # Calculate missing licenses (SBOM components without matching license files)
+        matched_components = set(match['component_name'] for match in matching_results['matched_licenses'])
+        all_sbom_components = set(comp.get('name', '') for comp in self.sbom_components)
+        results['missing_licenses'] = list(all_sbom_components - matched_components)
+
+        # Calculate extra licenses (license files without matching SBOM components)
+        matched_license_files = set(match['license_file'] for match in matching_results['matched_licenses'])
+        all_license_files = set(license.get('name', '') for licenses in extracted_licenses.values()
+                              for license in licenses if license.get('type') == 'third_party')
+        results['extra_licenses'] = list(all_license_files - matched_license_files)
+
+        # Determine compliance
+        results['is_compliant'] = (
+            len(results['missing_licenses']) == 0 and
+            len(results['validation_errors']) == 0 and
+            results['coverage_percentage'] >= 100.0
+        )
 
         return results
 
@@ -320,18 +337,20 @@ class LPSValidator:
     """Validates compliance with License Packaging Standard."""
 
     def __init__(self, repository_root: str = ".", github_owner: Optional[str] = None,
-                 github_repo: Optional[str] = None, github_ref: str = "master"):
+                 github_repo: Optional[str] = None, github_ref: str = "master",
+                 reference_licenses_dir: str = "src/resources/reference-licenses"):
         """
-        Initialize LPS validator with SCA exception support.
+        Initialize LPS validator with SCA exception support and content validation.
 
         Args:
             repository_root: Root directory of the repository
             github_owner: GitHub organization/owner name for fetching repository-level exceptions
             github_repo: GitHub repository name for fetching repository-level exceptions
             github_ref: Git reference (branch, tag, or commit SHA) for fetching repository-level exceptions
+            reference_licenses_dir: Directory containing reference license files
         """
         self.extractor = LicenseExtractor()
-        self.comparator = LicenseComparator(repository_root, github_owner, github_repo, github_ref)
+        self.comparator = LicenseComparator(repository_root, github_owner, github_repo, github_ref, reference_licenses_dir)
 
     def validate_artifacts(self, artifacts: List[Dict], sbom_data: Optional[Dict] = None) -> Dict[str, any]:
         """

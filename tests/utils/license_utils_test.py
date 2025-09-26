@@ -258,7 +258,7 @@ class TestLicenseExtractor(unittest.TestCase):
 class TestLicenseComparator(unittest.TestCase):
 
     def setUp(self):
-        self.comparator = LicenseComparator(".", github_owner="test-org", github_repo="test-repo", github_ref="master")
+        self.comparator = LicenseComparator(".", github_owner="test-org", github_repo="test-repo", github_ref="master", reference_licenses_dir="src/resources/reference-licenses")
 
     def test_load_sbom(self):
         """Test loading SBOM data."""
@@ -275,21 +275,24 @@ class TestLicenseComparator(unittest.TestCase):
 
     def test_compare_licenses_with_sbom_perfect_match(self):
         """Test comparison with perfect match between licenses and SBOM."""
-        # Load SBOM
+        # Load SBOM with license information
         sbom_data = {
             'components': [
-                {'name': 'LibraryA', 'version': '1.0.0'},
-                {'name': 'LibraryB', 'version': '2.0.0'}
+                {'name': 'LibraryA', 'version': '1.0.0', 'licenses': [{'expression': 'MIT'}]},
+                {'name': 'LibraryB', 'version': '2.0.0', 'licenses': [{'expression': 'MIT'}]}
             ]
         }
         self.comparator.load_sbom(sbom_data)
 
-        # Create extracted licenses
+        # Create extracted licenses with proper MIT license content (using reference content)
+        with open('src/resources/reference-licenses/MIT.txt', 'r') as f:
+            mit_license_content = f.read()
+
         extracted_licenses = {
             'test.jar': [
                 {'type': 'main', 'name': 'LICENSE.txt', 'content': 'Main license'},
-                {'type': 'third_party', 'name': 'LibraryA-LICENSE.txt', 'content': 'Library A license'},
-                {'type': 'third_party', 'name': 'LibraryB-LICENSE.txt', 'content': 'Library B license'}
+                {'type': 'third_party', 'name': 'LibraryA-LICENSE.txt', 'content': mit_license_content},
+                {'type': 'third_party', 'name': 'LibraryB-LICENSE.txt', 'content': mit_license_content}
             ]
         }
 
@@ -307,22 +310,25 @@ class TestLicenseComparator(unittest.TestCase):
 
     def test_compare_licenses_with_sbom_missing_licenses(self):
         """Test comparison with missing licenses."""
-        # Load SBOM
+        # Load SBOM with license information
         sbom_data = {
             'components': [
-                {'name': 'LibraryA', 'version': '1.0.0'},
-                {'name': 'LibraryB', 'version': '2.0.0'},
-                {'name': 'LibraryC', 'version': '3.0.0'}
+                {'name': 'LibraryA', 'version': '1.0.0', 'licenses': [{'expression': 'MIT'}]},
+                {'name': 'LibraryB', 'version': '2.0.0', 'licenses': [{'expression': 'MIT'}]},
+                {'name': 'LibraryC', 'version': '3.0.0', 'licenses': [{'expression': 'MIT'}]}
             ]
         }
         self.comparator.load_sbom(sbom_data)
 
-        # Create extracted licenses with missing LibraryC
+        # Create extracted licenses with proper MIT license content (missing LibraryC)
+        with open('src/resources/reference-licenses/MIT.txt', 'r') as f:
+            mit_license_content = f.read()
+
         extracted_licenses = {
             'test.jar': [
                 {'type': 'main', 'name': 'LICENSE.txt', 'content': 'Main license'},
-                {'type': 'third_party', 'name': 'LibraryA-LICENSE.txt', 'content': 'Library A license'},
-                {'type': 'third_party', 'name': 'LibraryB-LICENSE.txt', 'content': 'Library B license'}
+                {'type': 'third_party', 'name': 'LibraryA-LICENSE.txt', 'content': mit_license_content},
+                {'type': 'third_party', 'name': 'LibraryB-LICENSE.txt', 'content': mit_license_content}
             ]
         }
 
@@ -330,25 +336,28 @@ class TestLicenseComparator(unittest.TestCase):
 
         self.assertEqual(len(result['matched_licenses']), 2)
         self.assertEqual(len(result['missing_licenses']), 1)
-        self.assertIn('libraryc', result['missing_licenses'])
+        self.assertIn('LibraryC', result['missing_licenses'])
         self.assertAlmostEqual(result['coverage_percentage'], 66.7, places=1)
 
     def test_compare_licenses_with_sbom_extra_licenses(self):
         """Test comparison with extra licenses not in SBOM."""
-        # Load SBOM
+        # Load SBOM with license information
         sbom_data = {
             'components': [
-                {'name': 'LibraryA', 'version': '1.0.0'}
+                {'name': 'LibraryA', 'version': '1.0.0', 'licenses': [{'expression': 'MIT'}]}
             ]
         }
         self.comparator.load_sbom(sbom_data)
 
-        # Create extracted licenses with extra LibraryB
+        # Create extracted licenses with proper MIT license content (extra LibraryB)
+        with open('src/resources/reference-licenses/MIT.txt', 'r') as f:
+            mit_license_content = f.read()
+
         extracted_licenses = {
             'test.jar': [
                 {'type': 'main', 'name': 'LICENSE.txt', 'content': 'Main license'},
-                {'type': 'third_party', 'name': 'LibraryA-LICENSE.txt', 'content': 'Library A license'},
-                {'type': 'third_party', 'name': 'LibraryB-LICENSE.txt', 'content': 'Library B license'}
+                {'type': 'third_party', 'name': 'LibraryA-LICENSE.txt', 'content': mit_license_content},
+                {'type': 'third_party', 'name': 'LibraryB-LICENSE.txt', 'content': mit_license_content}
             ]
         }
 
@@ -357,7 +366,7 @@ class TestLicenseComparator(unittest.TestCase):
         self.assertEqual(len(result['matched_licenses']), 1)
         self.assertEqual(len(result['missing_licenses']), 0)
         self.assertEqual(len(result['extra_licenses']), 1)
-        self.assertIn('libraryb', result['extra_licenses'])
+        self.assertIn('LibraryB-LICENSE.txt', result['extra_licenses'])
 
     def test_extract_component_names(self):
         """Test extraction of component names from SBOM."""
@@ -391,7 +400,7 @@ class TestLicenseComparator(unittest.TestCase):
 class TestLPSValidator(unittest.TestCase):
 
     def setUp(self):
-        self.validator = LPSValidator(".", github_owner="test-org", github_repo="test-repo", github_ref="master")
+        self.validator = LPSValidator(".", github_owner="test-org", github_repo="test-repo", github_ref="master", reference_licenses_dir="src/resources/reference-licenses")
 
     def test_validate_artifacts_empty_list(self):
         """Test validation with empty artifact list."""
@@ -405,19 +414,22 @@ class TestLPSValidator(unittest.TestCase):
 
     def test_validate_artifacts_with_sbom(self):
         """Test validation with SBOM data."""
-        # Mock the extractor to return test data
+        # Mock the extractor to return test data with proper MIT license content
+        with open('src/resources/reference-licenses/MIT.txt', 'r') as f:
+            mit_license_content = f.read()
+
         with patch.object(self.validator.extractor, 'extract_licenses_from_artifacts') as mock_extract:
             mock_extract.return_value = {
                 'test.jar': [
                     {'type': 'main', 'name': 'LICENSE.txt', 'content': 'Main license', 'path': '/licenses/LICENSE.txt'},
-                    {'type': 'third_party', 'name': 'LibraryA-LICENSE.txt', 'content': 'Library A license', 'path': '/licenses/THIRD_PARTY_LICENSES/LibraryA-LICENSE.txt'}
+                    {'type': 'third_party', 'name': 'LibraryA-LICENSE.txt', 'content': mit_license_content, 'path': '/licenses/THIRD_PARTY_LICENSES/LibraryA-LICENSE.txt'}
                 ]
             }
 
             sbom_data = {
                 'components': [
-                    {'name': 'LibraryA', 'version': '1.0.0'},
-                    {'name': 'LibraryB', 'version': '2.0.0'}
+                    {'name': 'LibraryA', 'version': '1.0.0', 'licenses': [{'expression': 'MIT'}]},
+                    {'name': 'LibraryB', 'version': '2.0.0', 'licenses': [{'expression': 'MIT'}]}
                 ]
             }
 

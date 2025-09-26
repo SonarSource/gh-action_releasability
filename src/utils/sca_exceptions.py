@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set, Optional, Union, Tuple
 
-from utils.github_client import GitHubClient
+from src.utils.github_client import GitHubClient
 
 logger = logging.getLogger(__name__)
 
