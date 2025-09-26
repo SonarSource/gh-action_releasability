@@ -66,7 +66,7 @@ class LicenseExtractor:
         self.temp_dir = tempfile.mkdtemp(prefix="license_extraction_")
 
         try:
-            if artifact_path.endswith('.jar') or artifact_path.endswith('.zip'):
+            if artifact_path.endswith('.jar') or artifact_path.endswith('.zip') or artifact_path.endswith('.nupkg'):
                 licenses = self._extract_from_archive(artifact_path)
             else:
                 logger.warning(f"Unsupported artifact format: {artifact_path}")
@@ -82,7 +82,7 @@ class LicenseExtractor:
         return licenses
 
     def _extract_from_archive(self, archive_path: str) -> List[Dict]:
-        """Extract license files from JAR/ZIP archive."""
+        """Extract license files from JAR/ZIP/NUPKG archive."""
         licenses = []
 
         with zipfile.ZipFile(archive_path, 'r') as archive:
@@ -124,7 +124,7 @@ class LicenseExtractor:
 
     def _is_archive_file(self, filename: str) -> bool:
         """Check if file is a supported archive format."""
-        return filename.endswith(('.zip', '.tgz', '.txz', '.xz'))
+        return filename.endswith(('.zip', '.tgz', '.txz', '.xz', '.nupkg'))
 
     def _process_inner_archive(self, archive_path: str, filename: str, root_dir: str) -> List[Dict]:
         """Process a single inner archive and extract licenses."""
@@ -150,7 +150,7 @@ class LicenseExtractor:
 
     def _extract_archive_to_temp(self, archive_path: str, filename: str, temp_dir: str) -> bool:
         """Extract archive to temporary directory."""
-        if filename.endswith('.zip'):
+        if filename.endswith('.zip') or filename.endswith('.nupkg'):
             with zipfile.ZipFile(archive_path, 'r') as inner_archive:
                 inner_archive.extractall(temp_dir)
             return True

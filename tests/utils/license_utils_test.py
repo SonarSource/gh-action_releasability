@@ -191,6 +191,69 @@ class TestLicenseExtractor(unittest.TestCase):
         third_party_licenses = [l for l in licenses if l['type'] == 'third_party']
         self.assertEqual(len(third_party_licenses), 2)
 
+    def test_extract_from_nupkg_archive_with_licenses(self):
+        """Test extraction from NUPKG archive with proper license structure."""
+        # Create a test NUPKG with license structure
+        nupkg_path = os.path.join(self.temp_dir, 'test.nupkg')
+        with zipfile.ZipFile(nupkg_path, 'w') as nupkg:
+            # Add main LICENSE.txt
+            nupkg.writestr('licenses/LICENSE.txt', 'Main license content')
+            # Add third-party licenses
+            nupkg.writestr('licenses/THIRD_PARTY_LICENSES/LibraryA-LICENSE.txt', 'Library A license')
+            nupkg.writestr('licenses/THIRD_PARTY_LICENSES/LibraryB-LICENSE.txt', 'Library B license')
+
+        artifacts = [{'path': nupkg_path, 'name': 'test.nupkg'}]
+        result = self.extractor.extract_licenses_from_artifacts(artifacts)
+
+        self.assertIn('test.nupkg', result)
+        licenses = result['test.nupkg']
+        self.assertEqual(len(licenses), 3)  # 1 main + 2 third-party
+
+        # Check main license
+        main_licenses = [l for l in licenses if l['type'] == 'main']
+        self.assertEqual(len(main_licenses), 1)
+        self.assertEqual(main_licenses[0]['name'], 'LICENSE.txt')
+
+        # Check third-party licenses
+        third_party_licenses = [l for l in licenses if l['type'] == 'third_party']
+        self.assertEqual(len(third_party_licenses), 2)
+        license_names = [l['name'] for l in third_party_licenses]
+        self.assertIn('LibraryA-LICENSE.txt', license_names)
+        self.assertIn('LibraryB-LICENSE.txt', license_names)
+
+    def test_extract_from_archive_with_inner_nupkg_archives(self):
+        """Test extraction from archive with inner NUPKG archives."""
+        # Create a test JAR with inner NUPKG
+        jar_path = os.path.join(self.temp_dir, 'test.jar')
+        with zipfile.ZipFile(jar_path, 'w') as jar:
+            # Add main LICENSE.txt
+            jar.writestr('licenses/LICENSE.txt', 'Main license content')
+            # Add inner NUPKG with licenses
+            inner_nupkg_content = self._create_inner_nupkg_content()
+            jar.writestr('inner.nupkg', inner_nupkg_content)
+
+        artifacts = [{'path': jar_path, 'name': 'test.jar'}]
+        result = self.extractor.extract_licenses_from_artifacts(artifacts)
+
+        self.assertIn('test.jar', result)
+        licenses = result['test.jar']
+
+        # Should have main license + inner NUPKG licenses
+        self.assertGreater(len(licenses), 1)
+
+        # Check for inner archive licenses
+        inner_licenses = [l for l in licenses if 'inner' in l['source']]
+        self.assertGreater(len(inner_licenses), 0)
+
+    def _create_inner_nupkg_content(self):
+        """Create inner NUPKG content for testing."""
+        import io
+        inner_nupkg = io.BytesIO()
+        with zipfile.ZipFile(inner_nupkg, 'w') as nupkg_file:
+            nupkg_file.writestr('licenses/LICENSE.txt', 'Inner main license')
+            nupkg_file.writestr('licenses/THIRD_PARTY_LICENSES/InnerLibrary-LICENSE.txt', 'Inner library license')
+        return inner_nupkg.getvalue()
+
 
 class TestLicenseComparator(unittest.TestCase):
 
