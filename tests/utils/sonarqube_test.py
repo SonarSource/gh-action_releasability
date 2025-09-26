@@ -14,7 +14,7 @@ class TestSonarQube(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures."""
-        self.sonarqube = SonarQube("https://test.sonarqube.com", "test-token")
+        self.sonarqube = SonarQube(base_url="https://test.sonarqube.com", token="test-token")
         self.sample_sbom_data = {
             "bomFormat": "CycloneDX",
             "specVersion": "1.6",
@@ -42,7 +42,7 @@ class TestSonarQube(unittest.TestCase):
 
     def test_init_strips_trailing_slash(self):
         """Test that initialization strips trailing slash from base URL."""
-        sonarqube = SonarQube("https://test.sonarqube.com/", "test-token")
+        sonarqube = SonarQube(base_url="https://test.sonarqube.com/", token="test-token")
         self.assertEqual(sonarqube.base_url, "https://test.sonarqube.com")
 
     @patch('utils.sonarqube.requests.get')

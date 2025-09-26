@@ -28,16 +28,17 @@ class CheckLicenses(InlineCheck):
             self.artifactory = None
             logger.warning("ARTIFACTORY_TOKEN not configured, artifact download will fail")
 
-        # Get SonarQube token from environment
-        self.sonarqube_token = os.getenv("SONARQUBE_TOKEN")
+        # Get SonarQube instance from environment
+        self.sonarqube_instance = os.getenv("SONARQUBE_INSTANCE", "next")
 
-        # Initialize SonarQube client if token is available
-        if self.sonarqube_token:
-            self.sonarqube = SonarQube("https://next.sonarqube.com", self.sonarqube_token)
-            logger.info("SonarQube client initialized")
-        else:
+        # Initialize SonarQube client
+        try:
+            self.sonarqube = SonarQube(instance=self.sonarqube_instance)
+            logger.info(f"SonarQube client initialized for instance: {self.sonarqube_instance}")
+        except ValueError as e:
             self.sonarqube = None
-            logger.warning("SONARQUBE_TOKEN not configured, SBOM download will fail")
+            logger.warning(f"SonarQube client initialization failed: {e}")
+            logger.warning("SBOM download will be skipped")
 
         # Initialize LPS validator with repository root and GitHub repository info
         # Get GitHub repository information from environment variables
@@ -136,7 +137,12 @@ class CheckLicenses(InlineCheck):
             logger.warning("SonarQube not configured, skipping SBOM download")
             return None
 
-        logger.info("Downloading SBOM from SonarQube...")
+        # Check if the instance supports SBOM
+        if not self.sonarqube.supports_sbom:
+            logger.warning(f"SonarQube instance {self.sonarqube_instance} does not support SBOM API, skipping SBOM download")
+            return None
+
+        logger.info(f"Downloading SBOM from SonarQube instance: {self.sonarqube_instance}")
         try:
             component = self.sonarqube.get_project_key_from_env()
             if not component:
