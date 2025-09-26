@@ -32,6 +32,10 @@ inputs:
   sonar-project-key:
     description: SonarQube project key for SBOM download (e.g., org.sonarsource.javascript:javascript)
     required: false
+  sonarqube-instance:
+    description: SonarQube instance to use for SBOM download
+    required: false
+    default: "next"
 outputs:
   status:
     description: Provide the exit code returned by the releasability checks
@@ -134,6 +138,7 @@ runs:
         INPUT_COMMIT_SHA: ${{ inputs.commit-sha}}
         INPUT_SKIP_LAMBDA_TESTS: ${{ inputs.skip-lambda-checks }}
         SONAR_PROJECT_KEY: ${{ inputs.sonar-project-key }}
+        SONARQUBE_INSTANCE: ${{ inputs.sonarqube-instance }}
         PYTHONUNBUFFERED: "1" # that way logs are printed live
     - name: Print execution
       run: |

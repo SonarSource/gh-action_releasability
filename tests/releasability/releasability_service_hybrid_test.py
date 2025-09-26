@@ -37,8 +37,9 @@ class TestReleasabilityServiceHybrid(unittest.TestCase):
             (r for r in results if r.name == "CheckLicenses"), None
         )
         self.assertIsNotNone(check_licenses_result)
-        # CheckLicenses now returns CHECK_ERROR when ARTIFACTORY_TOKEN is not configured
-        self.assertEqual(check_licenses_result.state, ReleasabilityCheckResult.CHECK_ERROR)
+        # CheckLicenses now returns CHECK_PASSED (bypassed) when SONAR_PROJECT_KEY is not configured
+        self.assertEqual(check_licenses_result.state, ReleasabilityCheckResult.CHECK_PASSED)
+        self.assertIn("bypassed", check_licenses_result.message)
 
         # Check that TestCheck result is present
         test_check_result = next(

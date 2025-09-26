@@ -7,6 +7,7 @@ from ..inline_check import InlineCheck, CheckContext
 from ..releasability_check_result import ReleasabilityCheckResult
 from utils.artifactory import Artifactory
 from utils.sonarqube import SonarQube
+from utils.license_utils import LPSValidator
 
 logger = logging.getLogger(__name__)
 
@@ -27,16 +28,32 @@ class CheckLicenses(InlineCheck):
             self.artifactory = None
             logger.warning("ARTIFACTORY_TOKEN not configured, artifact download will fail")
 
-        # Get SonarQube token from environment
-        self.sonarqube_token = os.getenv("SONARQUBE_TOKEN")
+        # Get SonarQube instance from environment
+        self.sonarqube_instance = os.getenv("SONARQUBE_INSTANCE", "next")
 
-        # Initialize SonarQube client if token is available
-        if self.sonarqube_token:
-            self.sonarqube = SonarQube("https://next.sonarqube.com", self.sonarqube_token)
-            logger.info("SonarQube client initialized")
-        else:
+        # Initialize SonarQube client
+        try:
+            self.sonarqube = SonarQube(instance=self.sonarqube_instance)
+            logger.info(f"SonarQube client initialized for instance: {self.sonarqube_instance}")
+        except ValueError as e:
             self.sonarqube = None
-            logger.warning("SONARQUBE_TOKEN not configured, SBOM download will fail")
+            logger.warning(f"SonarQube client initialization failed: {e}")
+            logger.warning("SBOM download will be skipped")
+
+        # Initialize LPS validator with repository root and GitHub repository info
+        # Get GitHub repository information from environment variables
+        github_owner = os.getenv("INPUT_ORGANIZATION")
+        github_repo = os.getenv("INPUT_REPOSITORY")
+        github_ref = os.getenv("INPUT_BRANCH", "master")
+
+        self.lps_validator = LPSValidator(
+            repository_root=".",
+            github_owner=github_owner,
+            github_repo=github_repo,
+            github_ref=github_ref,
+            reference_licenses_dir="src/resources/reference-licenses"
+        )
+        logger.info(f"LPS validator initialized with SCA exception support for {github_owner}/{github_repo}@{github_ref}")
 
     @property
     def name(self) -> str:
@@ -55,6 +72,17 @@ class CheckLicenses(InlineCheck):
         try:
             logger.info(f"Starting license check for {context.repository} version {context.version}")
 
+            # Check if SonarQube project key is configured - bypass check if not set
+            sonar_project_key = os.getenv("SONAR_PROJECT_KEY")
+            if not sonar_project_key:
+                logger.info("SONAR_PROJECT_KEY not set, bypassing license check")
+                return ReleasabilityCheckResult(
+                    name=self.name,
+                    state=ReleasabilityCheckResult.CHECK_PASSED,
+                    message=f"License check bypassed for {context.repository} - SONAR_PROJECT_KEY not configured",
+                    details={}
+                )
+
             # Check if Artifactory is configured
             if not self.artifactory:
                 return self._create_error_result("Artifactory not configured. Set ARTIFACTORY_TOKEN environment variable.")
@@ -70,12 +98,26 @@ class CheckLicenses(InlineCheck):
             # Download SBOM from SonarQube
             sbom_data = self._download_sbom(context)
 
-            # Prepare and return success result
-            message = self._build_success_message(context, artifacts, sbom_data)
+            # Validate artifacts against LPS specification
+            logger.info("Validating artifacts against License Packaging Standard...")
+            validation_results = self.lps_validator.validate_artifacts(artifacts, sbom_data)
+
+            # Determine check result based on validation
+            if validation_results['lps_compliant']:
+                state = ReleasabilityCheckResult.CHECK_PASSED
+                message = self._build_lps_success_message(context, validation_results)
+            else:
+                state = ReleasabilityCheckResult.CHECK_FAILED
+                message = self._build_lps_failure_message(context, validation_results)
+
+            # Build detailed information for the report
+            details = self._build_detailed_information(artifacts, validation_results)
+
             return ReleasabilityCheckResult(
                 name=self.name,
-                state=ReleasabilityCheckResult.CHECK_PASSED,
-                message=message
+                state=state,
+                message=message,
+                details=details
             )
 
         except Exception as e:
@@ -100,7 +142,12 @@ class CheckLicenses(InlineCheck):
             logger.warning("SonarQube not configured, skipping SBOM download")
             return None
 
-        logger.info("Downloading SBOM from SonarQube...")
+        # Check if the instance supports SBOM
+        if not self.sonarqube.supports_sbom:
+            logger.warning(f"SonarQube instance {self.sonarqube_instance} does not support SBOM API, skipping SBOM download")
+            return None
+
+        logger.info(f"Downloading SBOM from SonarQube instance: {self.sonarqube_instance}")
         try:
             component = self.sonarqube.get_project_key_from_env()
             if not component:
@@ -135,7 +182,8 @@ class CheckLicenses(InlineCheck):
         return ReleasabilityCheckResult(
             name=self.name,
             state=ReleasabilityCheckResult.CHECK_ERROR,
-            message=message
+            message=message,
+            details={}
         )
 
     def _create_failed_result(self, message: str) -> ReleasabilityCheckResult:
@@ -143,5 +191,78 @@ class CheckLicenses(InlineCheck):
         return ReleasabilityCheckResult(
             name=self.name,
             state=ReleasabilityCheckResult.CHECK_FAILED,
-            message=message
+            message=message,
+            details={}
         )
+
+    def _build_lps_success_message(self, context: CheckContext, validation_results: dict) -> str:
+        """Build success message for LPS validation."""
+        artifacts_count = validation_results['artifacts_processed']
+        licenses_count = sum(len(licenses) for licenses in validation_results['licenses_extracted'].values())
+
+        message_parts = [f"LPS validation passed for {context.repository}"]
+        message_parts.append(f"processed {artifacts_count} artifacts")
+        message_parts.append(f"found {licenses_count} license files")
+
+        if validation_results['sbom_comparison']:
+            comparison = validation_results['sbom_comparison']
+            coverage = comparison['coverage_percentage']
+            message_parts.append(f"SBOM coverage: {coverage:.1f}%")
+
+            # Add FP/FN information if used
+            if comparison.get('false_positives_used'):
+                message_parts.append(f"FPs: {len(comparison['false_positives_used'])}")
+            if comparison.get('false_negatives_used'):
+                message_parts.append(f"FNs: {len(comparison['false_negatives_used'])}")
+
+        return " - ".join(message_parts)
+
+    def _build_lps_failure_message(self, context: CheckContext, validation_results: dict) -> str:
+        """Build failure message for LPS validation."""
+        message_parts = [f"LPS validation failed for {context.repository}"]
+
+        if validation_results['issues']:
+            message_parts.append(f"Issues: {'; '.join(validation_results['issues'][:3])}")
+            if len(validation_results['issues']) > 3:
+                message_parts.append(f"and {len(validation_results['issues']) - 3} more")
+
+        return " - ".join(message_parts)
+
+    def _build_detailed_information(self, artifacts: list, validation_results: dict) -> dict:
+        """Build detailed information for the report."""
+        details = {}
+
+        # Artifact information
+        details['artifacts'] = []
+        for artifact in artifacts:
+            artifact_info = {
+                'name': artifact.get('name', 'Unknown'),
+                'size': artifact.get('size', 0),
+                'group_id': artifact.get('group_id', ''),
+                'artifact_id': artifact.get('artifact_id', ''),
+                'version': artifact.get('version', ''),
+                'extension': artifact.get('extension', '')
+            }
+            details['artifacts'].append(artifact_info)
+
+        # SBOM comparison details
+        if validation_results.get('sbom_comparison'):
+            comparison = validation_results['sbom_comparison']
+
+            # Missing licenses
+            if comparison.get('missing_licenses'):
+                details['missing_licenses'] = comparison['missing_licenses']
+
+            # License mismatches (validation errors)
+            if comparison.get('validation_errors'):
+                mismatches = []
+                for error in comparison['validation_errors']:
+                    mismatch_info = f"{error.get('dependency_name', 'Unknown')} - {error.get('error', 'Validation failed')}"
+                    mismatches.append(mismatch_info)
+                details['license_mismatches'] = mismatches
+
+            # SBOM coverage
+            if 'coverage_percentage' in comparison:
+                details['sbom_coverage'] = comparison['coverage_percentage']
+
+        return details

@@ -1,0 +1,1044 @@
+{
+  "bomFormat" : "CycloneDX",
+  "specVersion" : "1.6",
+  "version" : 1,
+  "metadata" : {
+    "timestamp" : "2025-09-26T09:36:26Z",
+    "component" : {
+      "type" : "application",
+      "bom-ref" : "AutoScan.NET",
+      "name" : "AutoScan.NET",
+      "version" : "master"
+    },
+    "supplier" : {
+      "name" : "SonarSource SA",
+      "url" : [ "https://sonarsource.com" ]
+    }
+  },
+  "components" : [ {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/altcover@9.0.1",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/altcover/9.0.1/altcover.9.0.1.nupkg" ]
+    },
+    "name" : "altcover",
+    "version" : "9.0.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/altcover@9.0.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Castle.Core@5.1.1",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Castle.Core/5.1.1/Castle.Core.5.1.1.nupkg" ]
+    },
+    "name" : "Castle.Core",
+    "version" : "5.1.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:nuget/Castle.Core@5.1.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/FluentAssertions@7.2.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/FluentAssertions/7.2.0/FluentAssertions.7.2.0.nupkg" ]
+    },
+    "name" : "FluentAssertions",
+    "version" : "7.2.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:nuget/FluentAssertions@7.2.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/FluentAssertions.Analyzers@0.34.1",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/FluentAssertions.Analyzers/0.34.1/FluentAssertions.Analyzers.0.34.1.nupkg" ]
+    },
+    "name" : "FluentAssertions.Analyzers",
+    "version" : "0.34.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/FluentAssertions.Analyzers@0.34.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Humanizer.Core@2.14.1",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Humanizer.Core/2.14.1/Humanizer.Core.2.14.1.nupkg" ]
+    },
+    "name" : "Humanizer.Core",
+    "version" : "2.14.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Humanizer.Core@2.14.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.ApplicationInsights@2.23.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.ApplicationInsights/2.23.0/Microsoft.ApplicationInsights.2.23.0.nupkg" ]
+    },
+    "name" : "Microsoft.ApplicationInsights",
+    "version" : "2.23.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.ApplicationInsights@2.23.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.CodeAnalysis.Analyzers@3.11.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.CodeAnalysis.Analyzers/3.11.0/Microsoft.CodeAnalysis.Analyzers.3.11.0.nupkg" ]
+    },
+    "name" : "Microsoft.CodeAnalysis.Analyzers",
+    "version" : "3.11.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.CodeAnalysis.Analyzers@3.11.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.CodeAnalysis.Common@4.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.CodeAnalysis.Common/4.14.0/Microsoft.CodeAnalysis.Common.4.14.0.nupkg" ]
+    },
+    "name" : "Microsoft.CodeAnalysis.Common",
+    "version" : "4.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.CodeAnalysis.Common@4.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.CodeAnalysis.CSharp@4.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.CodeAnalysis.CSharp/4.14.0/Microsoft.CodeAnalysis.CSharp.4.14.0.nupkg" ]
+    },
+    "name" : "Microsoft.CodeAnalysis.CSharp",
+    "version" : "4.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.CodeAnalysis.CSharp@4.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.CodeAnalysis.CSharp.Workspaces@4.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.CodeAnalysis.CSharp.Workspaces/4.14.0/Microsoft.CodeAnalysis.CSharp.Workspaces.4.14.0.nupkg" ]
+    },
+    "name" : "Microsoft.CodeAnalysis.CSharp.Workspaces",
+    "version" : "4.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.CodeAnalysis.CSharp.Workspaces@4.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.CodeAnalysis.VisualBasic@4.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.CodeAnalysis.VisualBasic/4.14.0/Microsoft.CodeAnalysis.VisualBasic.4.14.0.nupkg" ]
+    },
+    "name" : "Microsoft.CodeAnalysis.VisualBasic",
+    "version" : "4.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.CodeAnalysis.VisualBasic@4.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.CodeAnalysis.VisualBasic.Workspaces@4.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.CodeAnalysis.VisualBasic.Workspaces/4.14.0/Microsoft.CodeAnalysis.VisualBasic.Workspaces.4.14.0.nupkg" ]
+    },
+    "name" : "Microsoft.CodeAnalysis.VisualBasic.Workspaces",
+    "version" : "4.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.CodeAnalysis.VisualBasic.Workspaces@4.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.CodeAnalysis.Workspaces.Common@4.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.CodeAnalysis.Workspaces.Common/4.14.0/Microsoft.CodeAnalysis.Workspaces.Common.4.14.0.nupkg" ]
+    },
+    "name" : "Microsoft.CodeAnalysis.Workspaces.Common",
+    "version" : "4.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.CodeAnalysis.Workspaces.Common@4.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.CodeCoverage@17.14.1",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.CodeCoverage/17.14.1/Microsoft.CodeCoverage.17.14.1.nupkg" ]
+    },
+    "name" : "Microsoft.CodeCoverage",
+    "version" : "17.14.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LicenseRef-sonar-dotnet-library"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.CodeCoverage@17.14.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.NETFramework.ReferenceAssemblies.net481@1.0.3",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.NETFramework.ReferenceAssemblies.net481/1.0.3/Microsoft.NETFramework.ReferenceAssemblies.net481.1.0.3.nupkg" ]
+    },
+    "name" : "Microsoft.NETFramework.ReferenceAssemblies.net481",
+    "version" : "1.0.3",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.NETFramework.ReferenceAssemblies.net481@1.0.3"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.NET.Test.Sdk@17.14.1",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.NET.Test.Sdk/17.14.1/Microsoft.NET.Test.Sdk.17.14.1.nupkg" ]
+    },
+    "name" : "Microsoft.NET.Test.Sdk",
+    "version" : "17.14.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LicenseRef-sonar-dotnet-library"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.NET.Test.Sdk@17.14.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.Testing.Extensions.Telemetry@1.8.4",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.Testing.Extensions.Telemetry/1.8.4/Microsoft.Testing.Extensions.Telemetry.1.8.4.nupkg" ]
+    },
+    "name" : "Microsoft.Testing.Extensions.Telemetry",
+    "version" : "1.8.4",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.Testing.Extensions.Telemetry@1.8.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.Testing.Extensions.TrxReport.Abstractions@1.8.4",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.Testing.Extensions.TrxReport.Abstractions/1.8.4/Microsoft.Testing.Extensions.TrxReport.Abstractions.1.8.4.nupkg" ]
+    },
+    "name" : "Microsoft.Testing.Extensions.TrxReport.Abstractions",
+    "version" : "1.8.4",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.Testing.Extensions.TrxReport.Abstractions@1.8.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.Testing.Extensions.VSTestBridge@1.8.4",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.Testing.Extensions.VSTestBridge/1.8.4/Microsoft.Testing.Extensions.VSTestBridge.1.8.4.nupkg" ]
+    },
+    "name" : "Microsoft.Testing.Extensions.VSTestBridge",
+    "version" : "1.8.4",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.Testing.Extensions.VSTestBridge@1.8.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.Testing.Platform@1.8.4",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.Testing.Platform/1.8.4/Microsoft.Testing.Platform.1.8.4.nupkg" ]
+    },
+    "name" : "Microsoft.Testing.Platform",
+    "version" : "1.8.4",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.Testing.Platform@1.8.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.Testing.Platform.MSBuild@1.8.4",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.Testing.Platform.MSBuild/1.8.4/Microsoft.Testing.Platform.MSBuild.1.8.4.nupkg" ]
+    },
+    "name" : "Microsoft.Testing.Platform.MSBuild",
+    "version" : "1.8.4",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.Testing.Platform.MSBuild@1.8.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.TestPlatform.AdapterUtilities@17.13.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.TestPlatform.AdapterUtilities/17.13.0/Microsoft.TestPlatform.AdapterUtilities.17.13.0.nupkg" ]
+    },
+    "name" : "Microsoft.TestPlatform.AdapterUtilities",
+    "version" : "17.13.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.TestPlatform.AdapterUtilities@17.13.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.TestPlatform.ObjectModel@17.14.1",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.TestPlatform.ObjectModel/17.14.1/Microsoft.TestPlatform.ObjectModel.17.14.1.nupkg" ]
+    },
+    "name" : "Microsoft.TestPlatform.ObjectModel",
+    "version" : "17.14.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LicenseRef-sonar-dotnet-library"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.TestPlatform.ObjectModel@17.14.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.TestPlatform.TestHost@17.14.1",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.TestPlatform.TestHost/17.14.1/Microsoft.TestPlatform.TestHost.17.14.1.nupkg" ]
+    },
+    "name" : "Microsoft.TestPlatform.TestHost",
+    "version" : "17.14.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LicenseRef-sonar-dotnet-library"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.TestPlatform.TestHost@17.14.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Microsoft.Win32.SystemEvents@6.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Microsoft.Win32.SystemEvents/6.0.0/Microsoft.Win32.SystemEvents.6.0.0.nupkg" ]
+    },
+    "name" : "Microsoft.Win32.SystemEvents",
+    "version" : "6.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Microsoft.Win32.SystemEvents@6.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/MSTest.Analyzers@3.10.4",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/MSTest.Analyzers/3.10.4/MSTest.Analyzers.3.10.4.nupkg" ]
+    },
+    "name" : "MSTest.Analyzers",
+    "version" : "3.10.4",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/MSTest.Analyzers@3.10.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/MSTest.TestAdapter@3.10.4",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/MSTest.TestAdapter/3.10.4/MSTest.TestAdapter.3.10.4.nupkg" ]
+    },
+    "name" : "MSTest.TestAdapter",
+    "version" : "3.10.4",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:nuget/MSTest.TestAdapter@3.10.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/MSTest.TestFramework@3.10.4",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/MSTest.TestFramework/3.10.4/MSTest.TestFramework.3.10.4.nupkg" ]
+    },
+    "name" : "MSTest.TestFramework",
+    "version" : "3.10.4",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/MSTest.TestFramework@3.10.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Namotion.Reflection@3.4.3",
+    "name" : "Namotion.Reflection",
+    "version" : "3.4.3",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "NOASSERTION"
+    } ],
+    "purl" : "pkg:nuget/Namotion.Reflection@3.4.3"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/Newtonsoft.Json@13.0.3",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/Newtonsoft.Json/13.0.3/Newtonsoft.Json.13.0.3.nupkg" ]
+    },
+    "name" : "Newtonsoft.Json",
+    "version" : "13.0.3",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/Newtonsoft.Json@13.0.3"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/NJsonSchema@11.5.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/NJsonSchema/11.5.0/NJsonSchema.11.5.0.nupkg" ]
+    },
+    "name" : "NJsonSchema",
+    "version" : "11.5.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/NJsonSchema@11.5.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/NJsonSchema.Annotations@11.5.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/NJsonSchema.Annotations/11.5.0/NJsonSchema.Annotations.11.5.0.nupkg" ]
+    },
+    "name" : "NJsonSchema.Annotations",
+    "version" : "11.5.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/NJsonSchema.Annotations@11.5.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/NSubstitute@5.3.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/NSubstitute/5.3.0/NSubstitute.5.3.0.nupkg" ]
+    },
+    "name" : "NSubstitute",
+    "version" : "5.3.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "BSD-3-Clause"
+    } ],
+    "purl" : "pkg:nuget/NSubstitute@5.3.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/NuGet.Common@6.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/NuGet.Common/6.14.0/NuGet.Common.6.14.0.nupkg" ]
+    },
+    "name" : "NuGet.Common",
+    "version" : "6.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:nuget/NuGet.Common@6.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/NuGet.Configuration@6.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/NuGet.Configuration/6.14.0/NuGet.Configuration.6.14.0.nupkg" ]
+    },
+    "name" : "NuGet.Configuration",
+    "version" : "6.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:nuget/NuGet.Configuration@6.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/NuGet.Frameworks@6.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/NuGet.Frameworks/6.14.0/NuGet.Frameworks.6.14.0.nupkg" ]
+    },
+    "name" : "NuGet.Frameworks",
+    "version" : "6.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:nuget/NuGet.Frameworks@6.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/NuGet.Packaging@6.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/NuGet.Packaging/6.14.0/NuGet.Packaging.6.14.0.nupkg" ]
+    },
+    "name" : "NuGet.Packaging",
+    "version" : "6.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:nuget/NuGet.Packaging@6.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/NuGet.Protocol@6.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/NuGet.Protocol/6.14.0/NuGet.Protocol.6.14.0.nupkg" ]
+    },
+    "name" : "NuGet.Protocol",
+    "version" : "6.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:nuget/NuGet.Protocol@6.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/NuGet.Versioning@6.14.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/NuGet.Versioning/6.14.0/NuGet.Versioning.6.14.0.nupkg" ]
+    },
+    "name" : "NuGet.Versioning",
+    "version" : "6.14.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:nuget/NuGet.Versioning@6.14.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/SonarAnalyzer.CSharp.Styling@10.15.0.120848",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/SonarAnalyzer.CSharp.Styling/10.15.0.120848/SonarAnalyzer.CSharp.Styling.10.15.0.120848.nupkg" ]
+    },
+    "name" : "SonarAnalyzer.CSharp.Styling",
+    "version" : "10.15.0.120848",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LicenseRef-sonar-SSAL-1.0"
+    } ],
+    "purl" : "pkg:nuget/SonarAnalyzer.CSharp.Styling@10.15.0.120848"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/StyleCop.Analyzers@1.2.0-beta.556",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/StyleCop.Analyzers/1.2.0-beta.556/StyleCop.Analyzers.1.2.0-beta.556.nupkg" ]
+    },
+    "name" : "StyleCop.Analyzers",
+    "version" : "1.2.0-beta.556",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/StyleCop.Analyzers@1.2.0-beta.556"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/StyleCop.Analyzers.Unstable@1.2.0.556",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/StyleCop.Analyzers.Unstable/1.2.0.556/StyleCop.Analyzers.Unstable.1.2.0.556.nupkg" ]
+    },
+    "name" : "StyleCop.Analyzers.Unstable",
+    "version" : "1.2.0.556",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/StyleCop.Analyzers.Unstable@1.2.0.556"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Collections.Immutable@9.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Collections.Immutable/9.0.0/System.Collections.Immutable.9.0.0.nupkg" ]
+    },
+    "name" : "System.Collections.Immutable",
+    "version" : "9.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Collections.Immutable@9.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Composition@9.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Composition/9.0.0/System.Composition.9.0.0.nupkg" ]
+    },
+    "name" : "System.Composition",
+    "version" : "9.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Composition@9.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Composition.AttributedModel@9.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Composition.AttributedModel/9.0.0/System.Composition.AttributedModel.9.0.0.nupkg" ]
+    },
+    "name" : "System.Composition.AttributedModel",
+    "version" : "9.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Composition.AttributedModel@9.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Composition.Convention@9.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Composition.Convention/9.0.0/System.Composition.Convention.9.0.0.nupkg" ]
+    },
+    "name" : "System.Composition.Convention",
+    "version" : "9.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Composition.Convention@9.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Composition.Hosting@9.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Composition.Hosting/9.0.0/System.Composition.Hosting.9.0.0.nupkg" ]
+    },
+    "name" : "System.Composition.Hosting",
+    "version" : "9.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Composition.Hosting@9.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Composition.Runtime@9.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Composition.Runtime/9.0.0/System.Composition.Runtime.9.0.0.nupkg" ]
+    },
+    "name" : "System.Composition.Runtime",
+    "version" : "9.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Composition.Runtime@9.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Composition.TypedParts@9.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Composition.TypedParts/9.0.0/System.Composition.TypedParts.9.0.0.nupkg" ]
+    },
+    "name" : "System.Composition.TypedParts",
+    "version" : "9.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Composition.TypedParts@9.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Configuration.ConfigurationManager@6.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Configuration.ConfigurationManager/6.0.0/System.Configuration.ConfigurationManager.6.0.0.nupkg" ]
+    },
+    "name" : "System.Configuration.ConfigurationManager",
+    "version" : "6.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Configuration.ConfigurationManager@6.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Diagnostics.DiagnosticSource@5.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Diagnostics.DiagnosticSource/5.0.0/System.Diagnostics.DiagnosticSource.5.0.0.nupkg" ]
+    },
+    "name" : "System.Diagnostics.DiagnosticSource",
+    "version" : "5.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Diagnostics.DiagnosticSource@5.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Diagnostics.EventLog@6.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Diagnostics.EventLog/6.0.0/System.Diagnostics.EventLog.6.0.0.nupkg" ]
+    },
+    "name" : "System.Diagnostics.EventLog",
+    "version" : "6.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Diagnostics.EventLog@6.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Drawing.Common@6.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Drawing.Common/6.0.0/System.Drawing.Common.6.0.0.nupkg" ]
+    },
+    "name" : "System.Drawing.Common",
+    "version" : "6.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Drawing.Common@6.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Formats.Asn1@6.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Formats.Asn1/6.0.0/System.Formats.Asn1.6.0.0.nupkg" ]
+    },
+    "name" : "System.Formats.Asn1",
+    "version" : "6.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Formats.Asn1@6.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.IO.Pipelines@9.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.IO.Pipelines/9.0.0/System.IO.Pipelines.9.0.0.nupkg" ]
+    },
+    "name" : "System.IO.Pipelines",
+    "version" : "9.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.IO.Pipelines@9.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Reflection.Metadata@9.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Reflection.Metadata/9.0.0/System.Reflection.Metadata.9.0.0.nupkg" ]
+    },
+    "name" : "System.Reflection.Metadata",
+    "version" : "9.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Reflection.Metadata@9.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Security.AccessControl@6.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Security.AccessControl/6.0.0/System.Security.AccessControl.6.0.0.nupkg" ]
+    },
+    "name" : "System.Security.AccessControl",
+    "version" : "6.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Security.AccessControl@6.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Security.Cryptography.Pkcs@6.0.4",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Security.Cryptography.Pkcs/6.0.4/System.Security.Cryptography.Pkcs.6.0.4.nupkg" ]
+    },
+    "name" : "System.Security.Cryptography.Pkcs",
+    "version" : "6.0.4",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Security.Cryptography.Pkcs@6.0.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Security.Cryptography.ProtectedData@4.4.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Security.Cryptography.ProtectedData/4.4.0/System.Security.Cryptography.ProtectedData.4.4.0.nupkg" ]
+    },
+    "name" : "System.Security.Cryptography.ProtectedData",
+    "version" : "4.4.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Security.Cryptography.ProtectedData@4.4.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Security.Cryptography.ProtectedData@6.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Security.Cryptography.ProtectedData/6.0.0/System.Security.Cryptography.ProtectedData.6.0.0.nupkg" ]
+    },
+    "name" : "System.Security.Cryptography.ProtectedData",
+    "version" : "6.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Security.Cryptography.ProtectedData@6.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Security.Permissions@6.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Security.Permissions/6.0.0/System.Security.Permissions.6.0.0.nupkg" ]
+    },
+    "name" : "System.Security.Permissions",
+    "version" : "6.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Security.Permissions@6.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Threading.Channels@7.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Threading.Channels/7.0.0/System.Threading.Channels.7.0.0.nupkg" ]
+    },
+    "name" : "System.Threading.Channels",
+    "version" : "7.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Threading.Channels@7.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/System.Windows.Extensions@6.0.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/System.Windows.Extensions/6.0.0/System.Windows.Extensions.6.0.0.nupkg" ]
+    },
+    "name" : "System.Windows.Extensions",
+    "version" : "6.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:nuget/System.Windows.Extensions@6.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:nuget/xunit.analyzers@0.7.0",
+    "supplier" : {
+      "url" : [ "https://api.nuget.org/v3/registration5-gz-semver2/xunit.analyzers/0.7.0/xunit.analyzers.0.7.0.nupkg" ]
+    },
+    "name" : "xunit.analyzers",
+    "version" : "0.7.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:nuget/xunit.analyzers@0.7.0"
+  } ],
+  "dependencies" : [ {
+    "ref" : "pkg:nuget/Microsoft.CodeCoverage@17.14.1",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.CodeAnalysis.Common@4.14.0",
+    "dependsOn" : [ "pkg:nuget/System.Reflection.Metadata@9.0.0", "pkg:nuget/Microsoft.CodeAnalysis.Analyzers@3.11.0", "pkg:nuget/System.Collections.Immutable@9.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/System.Reflection.Metadata@9.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.NETFramework.ReferenceAssemblies.net481@1.0.3",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Humanizer.Core@2.14.1",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.CodeAnalysis.VisualBasic.Workspaces@4.14.0",
+    "dependsOn" : [ "pkg:nuget/System.Composition@9.0.0", "pkg:nuget/Microsoft.CodeAnalysis.Common@4.14.0", "pkg:nuget/System.Reflection.Metadata@9.0.0", "pkg:nuget/Microsoft.CodeAnalysis.Analyzers@3.11.0", "pkg:nuget/Microsoft.CodeAnalysis.Workspaces.Common@4.14.0", "pkg:nuget/Humanizer.Core@2.14.1", "pkg:nuget/System.Threading.Channels@7.0.0", "pkg:nuget/System.IO.Pipelines@9.0.0", "pkg:nuget/System.Collections.Immutable@9.0.0", "pkg:nuget/Microsoft.CodeAnalysis.VisualBasic@4.14.0" ]
+  }, {
+    "ref" : "pkg:nuget/System.Composition.TypedParts@9.0.0",
+    "dependsOn" : [ "pkg:nuget/System.Composition.AttributedModel@9.0.0", "pkg:nuget/System.Composition.Hosting@9.0.0", "pkg:nuget/System.Composition.Runtime@9.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/NuGet.Frameworks@6.14.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.Win32.SystemEvents@6.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/System.Diagnostics.EventLog@6.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.TestPlatform.TestHost@17.14.1",
+    "dependsOn" : [ "pkg:nuget/Newtonsoft.Json@13.0.3", "pkg:nuget/Microsoft.TestPlatform.ObjectModel@17.14.1" ]
+  }, {
+    "ref" : "pkg:nuget/System.Windows.Extensions@6.0.0",
+    "dependsOn" : [ "pkg:nuget/System.Drawing.Common@6.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.CodeAnalysis.CSharp@4.14.0",
+    "dependsOn" : [ "pkg:nuget/Microsoft.CodeAnalysis.Common@4.14.0", "pkg:nuget/System.Reflection.Metadata@9.0.0", "pkg:nuget/Microsoft.CodeAnalysis.Analyzers@3.11.0", "pkg:nuget/System.Collections.Immutable@9.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/FluentAssertions@7.2.0",
+    "dependsOn" : [ "pkg:nuget/System.Configuration.ConfigurationManager@6.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.Testing.Platform.MSBuild@1.8.4",
+    "dependsOn" : [ "pkg:nuget/Microsoft.Testing.Platform@1.8.4" ]
+  }, {
+    "ref" : "pkg:nuget/MSTest.TestAdapter@3.10.4",
+    "dependsOn" : [ "pkg:nuget/Microsoft.Testing.Extensions.VSTestBridge@1.8.4", "pkg:nuget/Microsoft.Testing.Platform.MSBuild@1.8.4" ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.NET.Test.Sdk@17.14.1",
+    "dependsOn" : [ "pkg:nuget/Microsoft.CodeCoverage@17.14.1", "pkg:nuget/Microsoft.TestPlatform.TestHost@17.14.1" ]
+  }, {
+    "ref" : "pkg:nuget/Castle.Core@5.1.1",
+    "dependsOn" : [ "pkg:nuget/System.Diagnostics.EventLog@6.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/System.Collections.Immutable@9.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.TestPlatform.ObjectModel@17.14.1",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.Testing.Extensions.TrxReport.Abstractions@1.8.4",
+    "dependsOn" : [ "pkg:nuget/Microsoft.Testing.Platform@1.8.4" ]
+  }, {
+    "ref" : "pkg:nuget/System.Configuration.ConfigurationManager@6.0.0",
+    "dependsOn" : [ "pkg:nuget/System.Security.Cryptography.ProtectedData@6.0.0", "pkg:nuget/System.Security.Permissions@6.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/System.Security.AccessControl@6.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/StyleCop.Analyzers.Unstable@1.2.0.556",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/System.Threading.Channels@7.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/NJsonSchema.Annotations@11.5.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/System.Formats.Asn1@6.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Namotion.Reflection@3.4.3",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/System.Security.Permissions@6.0.0",
+    "dependsOn" : [ "pkg:nuget/System.Windows.Extensions@6.0.0", "pkg:nuget/System.Security.AccessControl@6.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/FluentAssertions.Analyzers@0.34.1",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/System.Composition.AttributedModel@9.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.TestPlatform.AdapterUtilities@17.13.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/SonarAnalyzer.CSharp.Styling@10.15.0.120848",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "AutoScan.NET",
+    "dependsOn" : [ "pkg:nuget/Microsoft.CodeAnalysis.Workspaces.Common@4.14.0", "pkg:nuget/Microsoft.NETFramework.ReferenceAssemblies.net481@1.0.3", "pkg:nuget/Microsoft.CodeAnalysis.VisualBasic.Workspaces@4.14.0", "pkg:nuget/MSTest.TestFramework@3.10.4", "pkg:nuget/xunit.analyzers@0.7.0", "pkg:nuget/FluentAssertions.Analyzers@0.34.1", "pkg:nuget/NJsonSchema@11.5.0", "pkg:nuget/Microsoft.CodeAnalysis.CSharp.Workspaces@4.14.0", "pkg:nuget/altcover@9.0.1", "pkg:nuget/FluentAssertions@7.2.0", "pkg:nuget/MSTest.TestAdapter@3.10.4", "pkg:nuget/Microsoft.NET.Test.Sdk@17.14.1", "pkg:nuget/NuGet.Protocol@6.14.0", "pkg:nuget/NSubstitute@5.3.0" ]
+  }, {
+    "ref" : "pkg:nuget/altcover@9.0.1",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.Testing.Extensions.Telemetry@1.8.4",
+    "dependsOn" : [ "pkg:nuget/Microsoft.ApplicationInsights@2.23.0", "pkg:nuget/Microsoft.Testing.Platform@1.8.4" ]
+  }, {
+    "ref" : "pkg:nuget/StyleCop.Analyzers@1.2.0-beta.556",
+    "dependsOn" : [ "pkg:nuget/StyleCop.Analyzers.Unstable@1.2.0.556" ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.CodeAnalysis.VisualBasic@4.14.0",
+    "dependsOn" : [ "pkg:nuget/Microsoft.CodeAnalysis.Common@4.14.0", "pkg:nuget/System.Reflection.Metadata@9.0.0", "pkg:nuget/Microsoft.CodeAnalysis.Analyzers@3.11.0", "pkg:nuget/System.Collections.Immutable@9.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/System.Security.Cryptography.ProtectedData@6.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/System.Composition@9.0.0",
+    "dependsOn" : [ "pkg:nuget/System.Composition.AttributedModel@9.0.0", "pkg:nuget/System.Composition.Hosting@9.0.0", "pkg:nuget/System.Composition.Runtime@9.0.0", "pkg:nuget/System.Composition.Convention@9.0.0", "pkg:nuget/System.Composition.TypedParts@9.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/System.Drawing.Common@6.0.0",
+    "dependsOn" : [ "pkg:nuget/Microsoft.Win32.SystemEvents@6.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.CodeAnalysis.Analyzers@3.11.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/System.Composition.Hosting@9.0.0",
+    "dependsOn" : [ "pkg:nuget/System.Composition.Runtime@9.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/System.Composition.Runtime@9.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/MSTest.TestFramework@3.10.4",
+    "dependsOn" : [ "pkg:nuget/MSTest.Analyzers@3.10.4" ]
+  }, {
+    "ref" : "pkg:nuget/NuGet.Configuration@6.14.0",
+    "dependsOn" : [ "pkg:nuget/NuGet.Common@6.14.0", "pkg:nuget/System.Security.Cryptography.ProtectedData@4.4.0" ]
+  }, {
+    "ref" : "pkg:nuget/NJsonSchema@11.5.0",
+    "dependsOn" : [ "pkg:nuget/Newtonsoft.Json@13.0.3", "pkg:nuget/NJsonSchema.Annotations@11.5.0", "pkg:nuget/Namotion.Reflection@3.4.3" ]
+  }, {
+    "ref" : "pkg:nuget/System.Diagnostics.DiagnosticSource@5.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.CodeAnalysis.CSharp.Workspaces@4.14.0",
+    "dependsOn" : [ "pkg:nuget/System.Composition@9.0.0", "pkg:nuget/Microsoft.CodeAnalysis.Common@4.14.0", "pkg:nuget/Microsoft.CodeAnalysis.CSharp@4.14.0", "pkg:nuget/System.Reflection.Metadata@9.0.0", "pkg:nuget/Microsoft.CodeAnalysis.Analyzers@3.11.0", "pkg:nuget/Microsoft.CodeAnalysis.Workspaces.Common@4.14.0", "pkg:nuget/Humanizer.Core@2.14.1", "pkg:nuget/System.Threading.Channels@7.0.0", "pkg:nuget/System.IO.Pipelines@9.0.0", "pkg:nuget/System.Collections.Immutable@9.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/NuGet.Packaging@6.14.0",
+    "dependsOn" : [ "pkg:nuget/NuGet.Versioning@6.14.0", "pkg:nuget/Newtonsoft.Json@13.0.3", "pkg:nuget/System.Security.Cryptography.Pkcs@6.0.4", "pkg:nuget/NuGet.Configuration@6.14.0" ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.Testing.Extensions.VSTestBridge@1.8.4",
+    "dependsOn" : [ "pkg:nuget/Microsoft.TestPlatform.AdapterUtilities@17.13.0", "pkg:nuget/Microsoft.Testing.Platform@1.8.4", "pkg:nuget/Microsoft.Testing.Extensions.Telemetry@1.8.4", "pkg:nuget/Microsoft.TestPlatform.ObjectModel@17.14.1", "pkg:nuget/Microsoft.Testing.Extensions.TrxReport.Abstractions@1.8.4" ]
+  }, {
+    "ref" : "pkg:nuget/NuGet.Protocol@6.14.0",
+    "dependsOn" : [ "pkg:nuget/NuGet.Packaging@6.14.0" ]
+  }, {
+    "ref" : "pkg:nuget/System.IO.Pipelines@9.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/NSubstitute@5.3.0",
+    "dependsOn" : [ "pkg:nuget/Castle.Core@5.1.1" ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.ApplicationInsights@2.23.0",
+    "dependsOn" : [ "pkg:nuget/System.Diagnostics.DiagnosticSource@5.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/MSTest.Analyzers@3.10.4",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Newtonsoft.Json@13.0.3",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.CodeAnalysis.Workspaces.Common@4.14.0",
+    "dependsOn" : [ "pkg:nuget/System.Composition@9.0.0", "pkg:nuget/Microsoft.CodeAnalysis.Common@4.14.0", "pkg:nuget/System.Reflection.Metadata@9.0.0", "pkg:nuget/Microsoft.CodeAnalysis.Analyzers@3.11.0", "pkg:nuget/Humanizer.Core@2.14.1", "pkg:nuget/System.Threading.Channels@7.0.0", "pkg:nuget/System.IO.Pipelines@9.0.0", "pkg:nuget/System.Collections.Immutable@9.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/System.Security.Cryptography.Pkcs@6.0.4",
+    "dependsOn" : [ "pkg:nuget/System.Formats.Asn1@6.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/xunit.analyzers@0.7.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/NuGet.Versioning@6.14.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/Microsoft.Testing.Platform@1.8.4",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:nuget/NuGet.Common@6.14.0",
+    "dependsOn" : [ "pkg:nuget/NuGet.Frameworks@6.14.0" ]
+  }, {
+    "ref" : "pkg:nuget/System.Composition.Convention@9.0.0",
+    "dependsOn" : [ "pkg:nuget/System.Composition.AttributedModel@9.0.0" ]
+  }, {
+    "ref" : "pkg:nuget/System.Security.Cryptography.ProtectedData@4.4.0",
+    "dependsOn" : [ ]
+  } ]
+}

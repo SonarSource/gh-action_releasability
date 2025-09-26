@@ -1,0 +1,37 @@
+{
+    "version" : "1.0.1",
+    "name" : "sonar-dotnet-autoscan",
+    "number" : "124996",
+    "buildAgent" : {
+      "name" : "GENERIC",
+      "version" : "2.76.1"
+    },
+    "agent" : {
+      "name" : "jfrog-azure-devops-extension",
+      "version" : "2.12.0"
+    },
+    "started" : "2025-09-24T05:32:12.080+0000",
+    "durationMillis" : 0,
+    "artifactoryPrincipal" : "token:azure_devops_promoter_e8027028-cc03-4a59-9c85-81a8dbed1026",
+    "modules" : [ {
+      "properties" : { },
+      "type" : "generic",
+      "id" : "com.sonarsource:sonar-dotnet-autoscan:2.4.0",
+      "artifacts" : [ {
+        "type" : "nupkg",
+        "sha1" : "786bf58c42abc44e23337d78426a55935041acad",
+        "sha256" : "e73f135f2751ab3d1f58331b6a53e400a4551729bafb204ddc2336ac5e526489",
+        "md5" : "11dd252c804a5b82e5dbd06fa95f162b",
+        "name" : "AutoScan.NET.2.4.0.124996.nupkg",
+        "originalDeploymentRepo" : "sonarsource-nuget-private-qa",
+        "path" : "AutoScan.NET.2.4.0.124996.nupkg"
+      } ]
+    } ],
+    "statuses" : [ {
+      "status" : "it-passed",
+      "repository" : "sonarsource-nuget-private-builds",
+      "timestamp" : "2025-09-24T05:54:09.132+0000",
+      "user" : "token:azure_devops_promoter_e8027028-cc03-4a59-9c85-81a8dbed1026",
+      "timestampDate" : 1758693249132
+    } ]
+  }

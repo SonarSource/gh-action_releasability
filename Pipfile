@@ -17,6 +17,7 @@ dryable = "*"
 parameterized = "*"
 github-action-utils = "*"
 dohq-artifactory = "*"
+pygithub = "*"
 
 [requires]
 python_version = "3.10"

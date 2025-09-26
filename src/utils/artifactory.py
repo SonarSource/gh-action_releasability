@@ -59,9 +59,17 @@ class Artifactory:
             build_info = self.get_build_info(context.repository, build_number)
             artifacts_to_publish = build_info.get_artifacts_to_publish()
 
-            if not artifacts_to_publish:
-                logger.warning("No artifacts to publish found in build info")
-                return []
+            if not artifacts_to_publish or not artifacts_to_publish.strip():
+                logger.info("No artifacts to publish found in build info, trying to find suitable artifact...")
+
+                # Try to find the first suitable artifact as fallback
+                fallback_artifact = build_info.get_first_suitable_artifact()
+                if fallback_artifact:
+                    logger.info(f"Found suitable fallback artifact: {fallback_artifact}")
+                    artifacts_to_publish = fallback_artifact
+                else:
+                    logger.warning("No suitable artifacts found in build info")
+                    return []
 
             # Download each artifact
             downloaded_artifacts = []
@@ -85,14 +93,37 @@ class Artifactory:
 
     def _parse_artifact_string(self, artifact_str: str, context) -> Optional[Dict]:
         """Parse artifact string and return artifact information."""
+        logger.info(f"Parsing artifact string: {artifact_str}")
         parts = artifact_str.split(':')
+        logger.info(f"Split into {len(parts)} parts: {parts}")
         if len(parts) < 3:
+            logger.warning(f"Artifact string has too few parts: {len(parts)}")
             return None
 
         group_id = parts[0]
         artifact_id = parts[1]
 
-        if len(parts) >= 4:
+        # Initialize all variables
+        actual_filename = None
+        original_repo = None
+        classifier = None
+
+        if len(parts) >= 6:
+            # Format: "groupId:artifactId:version:extension:actual_filename:original_repo" (fallback format)
+            version = parts[2]
+            extension = parts[3]
+            actual_filename = parts[4]
+            original_repo = parts[5]
+        elif len(parts) >= 5:
+            # Check if this is a fallback format (has actual_filename) or normal format (has classifier)
+            # Fallback format: "groupId:artifactId:version:extension:actual_filename"
+            # Normal format: "groupId:artifactId:version:extension:classifier"
+            version = parts[2]
+            extension = parts[3]
+            # For now, assume it's a classifier unless we have more context
+            # This will be handled by the calling code based on whether original_repo is available
+            classifier = parts[4]
+        elif len(parts) >= 4:
             # Format: "groupId:artifactId:version:extension:classifier"
             version = parts[2]
             extension = parts[3]
@@ -101,14 +132,15 @@ class Artifactory:
             # Format: "groupId:artifactId:extension" - version from context
             version = context.version
             extension = parts[2]
-            classifier = None
 
         return {
             'group_id': group_id,
             'artifact_id': artifact_id,
             'version': version,
             'extension': extension,
-            'classifier': classifier
+            'classifier': classifier,
+            'actual_filename': actual_filename,
+            'original_repo': original_repo
         }
 
     def _download_single_artifact(self, artifact_info: Dict) -> Optional[Dict]:
@@ -120,40 +152,96 @@ class Artifactory:
         classifier = artifact_info['classifier']
 
         try:
-            # Determine repository
-            repository = "sonarsource-private-releases" if group_id.startswith('com.') else "sonarsource-public-releases"
-
-            # Build artifact path
-            group_path = group_id.replace(".", "/")
-            filename = f"{artifact_id}-{version}"
-            if classifier:
-                filename += f"-{classifier}"
-            filename += f".{extension}"
-
-            # Special case for sonarqube
-            if artifact_id == "sonar-application":
-                filename = f"sonarqube-{version}.zip"
-
-            artifact_url = f"{self.base_url}/{repository}/{group_path}/{artifact_id}/{version}/{filename}"
+            repository = self._determine_repository(extension, group_id)
+            artifact_url = self._build_artifact_url(artifact_info, repository)
             artifact_path = ArtifactoryPath(artifact_url, auth=self.auth)
 
             # Download to temp file
+            filename = self._get_filename(artifact_info)
             temp_file = Path(tempfile.gettempdir()) / filename
             with temp_file.open('wb') as dst:
                 dst.write(artifact_path.read_bytes())
 
             logger.info(f"Downloaded artifact: {filename}")
 
-            return {
-                'path': str(temp_file),
-                'group_id': group_id,
-                'artifact_id': artifact_id,
-                'version': version,
-                'extension': extension,
-                'classifier': classifier,
-                'name': filename
-            }
+            return self._create_artifact_result(temp_file, artifact_info, filename)
 
         except Exception as e:
             logger.error(f"Failed to download artifact {artifact_id}-{version}: {e}")
             return None
+
+    def _determine_repository(self, extension: str, group_id: str) -> str:
+        """Determine the appropriate repository based on extension and group ID."""
+        if extension.lower() in ['nupkg']:
+            return "sonarsource-nuget-private-builds" if group_id.startswith('com.') else "sonarsource-nuget-public"
+        else:
+            return "sonarsource-private-builds" if group_id.startswith('com.') else "sonarsource-public-builds"
+
+    def _build_artifact_url(self, artifact_info: Dict, repository: str) -> str:
+        """Build the artifact URL for download."""
+        actual_filename = artifact_info.get('actual_filename')
+
+        if actual_filename:
+            return self._build_fallback_url(actual_filename, repository)
+        else:
+            return self._build_normal_url(artifact_info, repository)
+
+    def _build_fallback_url(self, filename: str, repository: str) -> str:
+        """Build URL for fallback case with actual filename."""
+        base_url_without_repox = self._get_base_url_without_repox()
+        artifact_url = f"{base_url_without_repox}/artifactory/{repository}/{filename}"
+        logger.info(f"Fallback artifact URL: {artifact_url}")
+        return artifact_url
+
+    def _build_normal_url(self, artifact_info: Dict, repository: str) -> str:
+        """Build URL for normal Maven-style path structure."""
+        group_id = artifact_info['group_id']
+        artifact_id = artifact_info['artifact_id']
+        version = artifact_info['version']
+        filename = self._get_filename(artifact_info)
+
+        group_path = group_id.replace(".", "/")
+        base_url_without_repox = self._get_base_url_without_repox()
+        return f"{base_url_without_repox}/artifactory/{repository}/{group_path}/{artifact_id}/{version}/{filename}"
+
+    def _get_base_url_without_repox(self) -> str:
+        """Get base URL without /repox suffix."""
+        if self.base_url.endswith('/repox'):
+            return self.base_url[:-6]  # Remove '/repox' from the end
+        else:
+            return self.base_url
+
+    def _get_filename(self, artifact_info: Dict) -> str:
+        """Get the filename for the artifact."""
+        actual_filename = artifact_info.get('actual_filename')
+        if actual_filename:
+            return actual_filename
+
+        artifact_id = artifact_info['artifact_id']
+        version = artifact_info['version']
+        classifier = artifact_info['classifier']
+        extension = artifact_info['extension']
+
+        # Special case for sonarqube
+        if artifact_id == "sonar-application":
+            return f"sonarqube-{version}.zip"
+
+        # Construct filename from components
+        filename = f"{artifact_id}-{version}"
+        if classifier:
+            filename += f"-{classifier}"
+        filename += f".{extension}"
+        return filename
+
+    def _create_artifact_result(self, temp_file: Path, artifact_info: Dict, filename: str) -> Dict:
+        """Create the result dictionary for the downloaded artifact."""
+        return {
+            'path': str(temp_file),
+            'size': temp_file.stat().st_size,
+            'group_id': artifact_info['group_id'],
+            'artifact_id': artifact_info['artifact_id'],
+            'version': artifact_info['version'],
+            'extension': artifact_info['extension'],
+            'classifier': artifact_info['classifier'],
+            'name': filename
+        }
