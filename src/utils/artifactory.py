@@ -59,9 +59,17 @@ class Artifactory:
             build_info = self.get_build_info(context.repository, build_number)
             artifacts_to_publish = build_info.get_artifacts_to_publish()
 
-            if not artifacts_to_publish:
-                logger.warning("No artifacts to publish found in build info")
-                return []
+            if not artifacts_to_publish or not artifacts_to_publish.strip():
+                logger.warning("No artifacts to publish found in build info, trying to find suitable artifact...")
+
+                # Try to find the first suitable artifact as fallback
+                fallback_artifact = build_info.get_first_suitable_artifact()
+                if fallback_artifact:
+                    logger.info(f"Found suitable fallback artifact: {fallback_artifact}")
+                    artifacts_to_publish = fallback_artifact
+                else:
+                    logger.warning("No suitable artifacts found in build info")
+                    return []
 
             # Download each artifact
             downloaded_artifacts = []
@@ -85,14 +93,37 @@ class Artifactory:
 
     def _parse_artifact_string(self, artifact_str: str, context) -> Optional[Dict]:
         """Parse artifact string and return artifact information."""
+        logger.info(f"Parsing artifact string: {artifact_str}")
         parts = artifact_str.split(':')
+        logger.info(f"Split into {len(parts)} parts: {parts}")
         if len(parts) < 3:
+            logger.warning(f"Artifact string has too few parts: {len(parts)}")
             return None
 
         group_id = parts[0]
         artifact_id = parts[1]
 
-        if len(parts) >= 4:
+        # Initialize all variables
+        actual_filename = None
+        original_repo = None
+        classifier = None
+
+        if len(parts) >= 6:
+            # Format: "groupId:artifactId:version:extension:actual_filename:original_repo" (fallback format)
+            version = parts[2]
+            extension = parts[3]
+            actual_filename = parts[4]
+            original_repo = parts[5]
+        elif len(parts) >= 5:
+            # Check if this is a fallback format (has actual_filename) or normal format (has classifier)
+            # Fallback format: "groupId:artifactId:version:extension:actual_filename"
+            # Normal format: "groupId:artifactId:version:extension:classifier"
+            version = parts[2]
+            extension = parts[3]
+            # For now, assume it's a classifier unless we have more context
+            # This will be handled by the calling code based on whether original_repo is available
+            classifier = parts[4]
+        elif len(parts) >= 4:
             # Format: "groupId:artifactId:version:extension:classifier"
             version = parts[2]
             extension = parts[3]
@@ -101,14 +132,15 @@ class Artifactory:
             # Format: "groupId:artifactId:extension" - version from context
             version = context.version
             extension = parts[2]
-            classifier = None
 
         return {
             'group_id': group_id,
             'artifact_id': artifact_id,
             'version': version,
             'extension': extension,
-            'classifier': classifier
+            'classifier': classifier,
+            'actual_filename': actual_filename,
+            'original_repo': original_repo
         }
 
     def _download_single_artifact(self, artifact_info: Dict) -> Optional[Dict]:
@@ -118,23 +150,54 @@ class Artifactory:
         version = artifact_info['version']
         extension = artifact_info['extension']
         classifier = artifact_info['classifier']
+        actual_filename = artifact_info.get('actual_filename')
+        original_repo = artifact_info.get('original_repo')
 
         try:
-            # Determine repository
-            repository = "sonarsource-private-builds" if group_id.startswith('com.') else "sonarsource-public-builds"
+            # Determine repository based on package type and group ID
+            if extension.lower() in ['nupkg']:
+                # NuGet packages use different repositories
+                repository = "sonarsource-nuget-private-builds" if group_id.startswith('com.') else "sonarsource-nuget-public"
+            else:
+                # Regular packages (JAR, ZIP, etc.)
+                repository = "sonarsource-private-builds" if group_id.startswith('com.') else "sonarsource-public-builds"
 
             # Build artifact path
-            group_path = group_id.replace(".", "/")
-            filename = f"{artifact_id}-{version}"
-            if classifier:
-                filename += f"-{classifier}"
-            filename += f".{extension}"
+            if actual_filename:
+                # For fallback case with actual filename, use direct path
+                # dohq-artifactory will prepend /api/storage/, so we need to adjust the base URL
+                filename = actual_filename
+                # Use the base URL without /repox/ since dohq-artifactory will add /api/storage/
+                if self.base_url.endswith('/repox'):
+                    base_url_without_repox = self.base_url[:-6]  # Remove '/repox' from the end
+                else:
+                    base_url_without_repox = self.base_url
+                artifact_url = f"{base_url_without_repox}/artifactory/{repository}/{filename}"
+                logger.info(f"Fallback artifact URL: {artifact_url}")
+            else:
+                # Normal case - use Maven-style path structure
+                group_path = group_id.replace(".", "/")
 
-            # Special case for sonarqube
-            if artifact_id == "sonar-application":
-                filename = f"sonarqube-{version}.zip"
+                if actual_filename:
+                    # Use the actual filename from build info (fallback case)
+                    filename = actual_filename
+                else:
+                    # Construct filename from components (normal case)
+                    filename = f"{artifact_id}-{version}"
+                    if classifier:
+                        filename += f"-{classifier}"
+                    filename += f".{extension}"
 
-            artifact_url = f"{self.base_url}/{repository}/{group_path}/{artifact_id}/{version}/{filename}"
+                # Special case for sonarqube
+                if artifact_id == "sonar-application":
+                    filename = f"sonarqube-{version}.zip"
+
+                # Use the base URL without /repox/ since dohq-artifactory will add /api/storage/
+                if self.base_url.endswith('/repox'):
+                    base_url_without_repox = self.base_url[:-6]  # Remove '/repox' from the end
+                else:
+                    base_url_without_repox = self.base_url
+                artifact_url = f"{base_url_without_repox}/artifactory/{repository}/{group_path}/{artifact_id}/{version}/{filename}"
             artifact_path = ArtifactoryPath(artifact_url, auth=self.auth)
 
             # Download to temp file
@@ -146,6 +209,7 @@ class Artifactory:
 
             return {
                 'path': str(temp_file),
+                'size': temp_file.stat().st_size,
                 'group_id': group_id,
                 'artifact_id': artifact_id,
                 'version': version,

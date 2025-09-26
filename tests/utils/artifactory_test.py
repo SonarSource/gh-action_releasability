@@ -80,7 +80,9 @@ class TestArtifactory(unittest.TestCase):
             'artifact_id': 'plugin',
             'version': '1.0.0',
             'extension': 'jar',
-            'classifier': 'sources'
+            'classifier': 'sources',
+            'actual_filename': None,
+            'original_repo': None
         }
         self.assertEqual(result, expected)
 
@@ -94,7 +96,9 @@ class TestArtifactory(unittest.TestCase):
             'artifact_id': 'plugin',
             'version': '11.4.0.34681',  # From context
             'extension': 'jar',
-            'classifier': None
+            'classifier': None,
+            'actual_filename': None,
+            'original_repo': None
         }
         self.assertEqual(result, expected)
 

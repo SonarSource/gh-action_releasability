@@ -1,0 +1,1068 @@
+{
+  "bomFormat" : "CycloneDX",
+  "specVersion" : "1.6",
+  "version" : 1,
+  "metadata" : {
+    "timestamp" : "2025-09-26T14:16:40Z",
+    "component" : {
+      "type" : "application",
+      "bom-ref" : "Flex",
+      "name" : "Flex",
+      "version" : "master"
+    },
+    "supplier" : {
+      "name" : "SonarSource SA",
+      "url" : [ "https://sonarsource.com" ]
+    }
+  },
+  "components" : [ {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/ch.qos.logback/logback-classic@1.2.9",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/ch/qos/logback/logback-classic/1.2.9/logback-classic-1.2.9.jar" ]
+    },
+    "name" : "ch.qos.logback:logback-classic",
+    "version" : "1.2.9",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "EPL-1.0 OR LGPL-2.1-only"
+    } ],
+    "purl" : "pkg:maven/ch.qos.logback/logback-classic@1.2.9"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/ch.qos.logback/logback-core@1.2.9",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/ch/qos/logback/logback-core/1.2.9/logback-core-1.2.9.jar" ]
+    },
+    "name" : "ch.qos.logback:logback-core",
+    "version" : "1.2.9",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "EPL-1.0 OR LGPL-2.1-only"
+    } ],
+    "purl" : "pkg:maven/ch.qos.logback/logback-core@1.2.9"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/com.github.spotbugs/spotbugs-annotations@4.9.4",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/com/github/spotbugs/spotbugs-annotations/4.9.4/spotbugs-annotations-4.9.4.jar" ]
+    },
+    "name" : "com.github.spotbugs:spotbugs-annotations",
+    "version" : "4.9.4",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "LGPL-2.1-only"
+    } ],
+    "purl" : "pkg:maven/com.github.spotbugs/spotbugs-annotations@4.9.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/com.google.code.findbugs/jsr305@3.0.2",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar" ]
+    },
+    "name" : "com.google.code.findbugs:jsr305",
+    "version" : "3.0.2",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0 AND CC-BY-2.5"
+    } ],
+    "purl" : "pkg:maven/com.google.code.findbugs/jsr305@3.0.2"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/com.google.code.gson/gson@2.13.1",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/com/google/code/gson/gson/2.13.1/gson-2.13.1.jar" ]
+    },
+    "name" : "com.google.code.gson:gson",
+    "version" : "2.13.1",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/com.google.code.gson/gson@2.13.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/com.googlecode.json-simple/json-simple@1.1.1",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/com/googlecode/json-simple/json-simple/1.1.1/json-simple-1.1.1.jar" ]
+    },
+    "name" : "com.googlecode.json-simple:json-simple",
+    "version" : "1.1.1",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/com.googlecode.json-simple/json-simple@1.1.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.38.0",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.38.0/error_prone_annotations-2.38.0.jar" ]
+    },
+    "name" : "com.google.errorprone:error_prone_annotations",
+    "version" : "2.38.0",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.38.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.41.0",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/com/google/errorprone/error_prone_annotations/2.41.0/error_prone_annotations-2.41.0.jar" ]
+    },
+    "name" : "com.google.errorprone:error_prone_annotations",
+    "version" : "2.41.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.41.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/com.google.guava/failureaccess@1.0.3",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/com/google/guava/failureaccess/1.0.3/failureaccess-1.0.3.jar" ]
+    },
+    "name" : "com.google.guava:failureaccess",
+    "version" : "1.0.3",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/com.google.guava/failureaccess@1.0.3"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/com.google.guava/guava@33.5.0-jre",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/com/google/guava/guava/33.5.0-jre/guava-33.5.0-jre.jar" ]
+    },
+    "name" : "com.google.guava:guava",
+    "version" : "33.5.0-jre",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0 AND CC0-1.0"
+    } ],
+    "purl" : "pkg:maven/com.google.guava/guava@33.5.0-jre"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/com.google.guava/listenablefuture@9999.0-empty-to-avoid-conflict-with-guava",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar" ]
+    },
+    "name" : "com.google.guava:listenablefuture",
+    "version" : "9999.0-empty-to-avoid-conflict-with-guava",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/com.google.guava/listenablefuture@9999.0-empty-to-avoid-conflict-with-guava"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/com.google.j2objc/j2objc-annotations@3.1",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/com/google/j2objc/j2objc-annotations/3.1/j2objc-annotations-3.1.jar" ]
+    },
+    "name" : "com.google.j2objc:j2objc-annotations",
+    "version" : "3.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/com.google.j2objc/j2objc-annotations@3.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/commons-codec/commons-codec@1.19.0",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/commons-codec/commons-codec/1.19.0/commons-codec-1.19.0.jar" ]
+    },
+    "name" : "commons-codec:commons-codec",
+    "version" : "1.19.0",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/commons-codec/commons-codec@1.19.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/commons-io/commons-io@2.20.0",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/commons-io/commons-io/2.20.0/commons-io-2.20.0.jar" ]
+    },
+    "name" : "commons-io:commons-io",
+    "version" : "2.20.0",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/commons-io/commons-io@2.20.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/commons-io/commons-io@2.20.0",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/commons-io/commons-io/2.20.0/commons-io-2.20.0.jar" ]
+    },
+    "name" : "commons-io:commons-io",
+    "version" : "2.20.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/commons-io/commons-io@2.20.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/jakarta.activation/jakarta.activation-api@2.1.3",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/jakarta/activation/jakarta.activation-api/2.1.3/jakarta.activation-api-2.1.3.jar" ]
+    },
+    "name" : "jakarta.activation:jakarta.activation-api",
+    "version" : "2.1.3",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "BSD-3-Clause"
+    } ],
+    "purl" : "pkg:maven/jakarta.activation/jakarta.activation-api@2.1.3"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/jakarta.mail/jakarta.mail-api@2.1.3",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/jakarta/mail/jakarta.mail-api/2.1.3/jakarta.mail-api-2.1.3.jar" ]
+    },
+    "name" : "jakarta.mail:jakarta.mail-api",
+    "version" : "2.1.3",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "EPL-2.0 OR (GPL-2.0 WITH Classpath-exception-2.0)"
+    } ],
+    "purl" : "pkg:maven/jakarta.mail/jakarta.mail-api@2.1.3"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/javax.xml.stream/stax-api@1.0-2",
+    "name" : "javax.xml.stream:stax-api",
+    "version" : "1.0-2",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "NOASSERTION"
+    } ],
+    "purl" : "pkg:maven/javax.xml.stream/stax-api@1.0-2"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/jaxen/jaxen@1.1.4",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/jaxen/jaxen/1.1.4/jaxen-1.1.4.jar" ]
+    },
+    "name" : "jaxen:jaxen",
+    "version" : "1.1.4",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "BSD-3-Clause"
+    } ],
+    "purl" : "pkg:maven/jaxen/jaxen@1.1.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/jaxen/jaxen@1.1.4",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/jaxen/jaxen/1.1.4/jaxen-1.1.4.jar" ]
+    },
+    "name" : "jaxen:jaxen",
+    "version" : "1.1.4",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "BSD-3-Clause"
+    } ],
+    "purl" : "pkg:maven/jaxen/jaxen@1.1.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/junit/junit@4.13.2",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/junit/junit/4.13.2/junit-4.13.2.jar" ]
+    },
+    "name" : "junit:junit",
+    "version" : "4.13.2",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "EPL-1.0"
+    } ],
+    "purl" : "pkg:maven/junit/junit@4.13.2"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/net.bytebuddy/byte-buddy@1.17.7",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy/1.17.7/byte-buddy-1.17.7.jar" ]
+    },
+    "name" : "net.bytebuddy:byte-buddy",
+    "version" : "1.17.7",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/net.bytebuddy/byte-buddy@1.17.7"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/net.bytebuddy/byte-buddy-agent@1.17.7",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/net/bytebuddy/byte-buddy-agent/1.17.7/byte-buddy-agent-1.17.7.jar" ]
+    },
+    "name" : "net.bytebuddy:byte-buddy-agent",
+    "version" : "1.17.7",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/net.bytebuddy/byte-buddy-agent@1.17.7"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.apache.commons/commons-csv@1.14.1",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/apache/commons/commons-csv/1.14.1/commons-csv-1.14.1.jar" ]
+    },
+    "name" : "org.apache.commons:commons-csv",
+    "version" : "1.14.1",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/org.apache.commons/commons-csv@1.14.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.apache.commons/commons-lang3@3.18.0",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/apache/commons/commons-lang3/3.18.0/commons-lang3-3.18.0.jar" ]
+    },
+    "name" : "org.apache.commons:commons-lang3",
+    "version" : "3.18.0",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/org.apache.commons/commons-lang3@3.18.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.apiguardian/apiguardian-api@1.1.2",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar" ]
+    },
+    "name" : "org.apiguardian:apiguardian-api",
+    "version" : "1.1.2",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/org.apiguardian/apiguardian-api@1.1.2"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.assertj/assertj-core@3.27.6",
+    "name" : "org.assertj:assertj-core",
+    "version" : "3.27.6",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "NOASSERTION"
+    } ],
+    "purl" : "pkg:maven/org.assertj/assertj-core@3.27.6"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.codehaus.sonar/sonar-channel@3.7",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/codehaus/sonar/sonar-channel/3.7/sonar-channel-3.7.jar" ]
+    },
+    "name" : "org.codehaus.sonar:sonar-channel",
+    "version" : "3.7",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0"
+    } ],
+    "purl" : "pkg:maven/org.codehaus.sonar/sonar-channel@3.7"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.codehaus.sonar/sonar-channel@3.7",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/codehaus/sonar/sonar-channel/3.7/sonar-channel-3.7.jar" ]
+    },
+    "name" : "org.codehaus.sonar:sonar-channel",
+    "version" : "3.7",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0"
+    } ],
+    "purl" : "pkg:maven/org.codehaus.sonar/sonar-channel@3.7"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.codehaus.sonar/sonar-colorizer@3.7",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/codehaus/sonar/sonar-colorizer/3.7/sonar-colorizer-3.7.jar" ]
+    },
+    "name" : "org.codehaus.sonar:sonar-colorizer",
+    "version" : "3.7",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0"
+    } ],
+    "purl" : "pkg:maven/org.codehaus.sonar/sonar-colorizer@3.7"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.codehaus.sonar/sonar-colorizer@3.7",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/codehaus/sonar/sonar-colorizer/3.7/sonar-colorizer-3.7.jar" ]
+    },
+    "name" : "org.codehaus.sonar:sonar-colorizer",
+    "version" : "3.7",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0"
+    } ],
+    "purl" : "pkg:maven/org.codehaus.sonar/sonar-colorizer@3.7"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.codehaus.staxmate/staxmate@2.0.1",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/codehaus/staxmate/staxmate/2.0.1/staxmate-2.0.1.jar" ]
+    },
+    "name" : "org.codehaus.staxmate:staxmate",
+    "version" : "2.0.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "BSD-2-Clause"
+    } ],
+    "purl" : "pkg:maven/org.codehaus.staxmate/staxmate@2.0.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.codehaus.woodstox/stax2-api@3.1.4",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/codehaus/woodstox/stax2-api/3.1.4/stax2-api-3.1.4.jar" ]
+    },
+    "name" : "org.codehaus.woodstox:stax2-api",
+    "version" : "3.1.4",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "BSD-2-Clause"
+    } ],
+    "purl" : "pkg:maven/org.codehaus.woodstox/stax2-api@3.1.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.codehaus.woodstox/woodstox-core-lgpl@4.4.1",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/codehaus/woodstox/woodstox-core-lgpl/4.4.1/woodstox-core-lgpl-4.4.1.jar" ]
+    },
+    "name" : "org.codehaus.woodstox:woodstox-core-lgpl",
+    "version" : "4.4.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-2.1-only"
+    } ],
+    "purl" : "pkg:maven/org.codehaus.woodstox/woodstox-core-lgpl@4.4.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.easytesting/fest-assert@1.4",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/easytesting/fest-assert/1.4/fest-assert-1.4.jar" ]
+    },
+    "name" : "org.easytesting:fest-assert",
+    "version" : "1.4",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/org.easytesting/fest-assert@1.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.easytesting/fest-util@1.1.6",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/easytesting/fest-util/1.1.6/fest-util-1.1.6.jar" ]
+    },
+    "name" : "org.easytesting:fest-util",
+    "version" : "1.1.6",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/org.easytesting/fest-util@1.1.6"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.hamcrest/hamcrest-all@1.3",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/hamcrest/hamcrest-all/1.3/hamcrest-all-1.3.jar" ]
+    },
+    "name" : "org.hamcrest:hamcrest-all",
+    "version" : "1.3",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "BSD-3-Clause"
+    } ],
+    "purl" : "pkg:maven/org.hamcrest/hamcrest-all@1.3"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.hamcrest/hamcrest-core@1.3",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar" ]
+    },
+    "name" : "org.hamcrest:hamcrest-core",
+    "version" : "1.3",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "BSD-3-Clause"
+    } ],
+    "purl" : "pkg:maven/org.hamcrest/hamcrest-core@1.3"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.jsoup/jsoup@1.21.1",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/jsoup/jsoup/1.21.1/jsoup-1.21.1.jar" ]
+    },
+    "name" : "org.jsoup:jsoup",
+    "version" : "1.21.1",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:maven/org.jsoup/jsoup@1.21.1"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.jspecify/jspecify@1.0.0",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/jspecify/jspecify/1.0.0/jspecify-1.0.0.jar" ]
+    },
+    "name" : "org.jspecify:jspecify",
+    "version" : "1.0.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/org.jspecify/jspecify@1.0.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.junit.jupiter/junit-jupiter@5.13.4",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter/5.13.4/junit-jupiter-5.13.4.jar" ]
+    },
+    "name" : "org.junit.jupiter:junit-jupiter",
+    "version" : "5.13.4",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "EPL-2.0"
+    } ],
+    "purl" : "pkg:maven/org.junit.jupiter/junit-jupiter@5.13.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.junit.jupiter/junit-jupiter-api@5.13.4",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-api/5.13.4/junit-jupiter-api-5.13.4.jar" ]
+    },
+    "name" : "org.junit.jupiter:junit-jupiter-api",
+    "version" : "5.13.4",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "EPL-2.0"
+    } ],
+    "purl" : "pkg:maven/org.junit.jupiter/junit-jupiter-api@5.13.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.junit.jupiter/junit-jupiter-engine@5.13.4",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-engine/5.13.4/junit-jupiter-engine-5.13.4.jar" ]
+    },
+    "name" : "org.junit.jupiter:junit-jupiter-engine",
+    "version" : "5.13.4",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "EPL-2.0"
+    } ],
+    "purl" : "pkg:maven/org.junit.jupiter/junit-jupiter-engine@5.13.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.junit.jupiter/junit-jupiter-params@5.13.4",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/junit/jupiter/junit-jupiter-params/5.13.4/junit-jupiter-params-5.13.4.jar" ]
+    },
+    "name" : "org.junit.jupiter:junit-jupiter-params",
+    "version" : "5.13.4",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "EPL-2.0"
+    } ],
+    "purl" : "pkg:maven/org.junit.jupiter/junit-jupiter-params@5.13.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.junit.platform/junit-platform-commons@1.13.4",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-commons/1.13.4/junit-platform-commons-1.13.4.jar" ]
+    },
+    "name" : "org.junit.platform:junit-platform-commons",
+    "version" : "1.13.4",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "EPL-2.0"
+    } ],
+    "purl" : "pkg:maven/org.junit.platform/junit-platform-commons@1.13.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.junit.platform/junit-platform-engine@1.13.4",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/junit/platform/junit-platform-engine/1.13.4/junit-platform-engine-1.13.4.jar" ]
+    },
+    "name" : "org.junit.platform:junit-platform-engine",
+    "version" : "1.13.4",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "EPL-2.0"
+    } ],
+    "purl" : "pkg:maven/org.junit.platform/junit-platform-engine@1.13.4"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.mockito/mockito-core@5.20.0",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/mockito/mockito-core/5.20.0/mockito-core-5.20.0.jar" ]
+    },
+    "name" : "org.mockito:mockito-core",
+    "version" : "5.20.0",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:maven/org.mockito/mockito-core@5.20.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.mockito/mockito-core@5.20.0",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/mockito/mockito-core/5.20.0/mockito-core-5.20.0.jar" ]
+    },
+    "name" : "org.mockito:mockito-core",
+    "version" : "5.20.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:maven/org.mockito/mockito-core@5.20.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.objenesis/objenesis@3.3",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/objenesis/objenesis/3.3/objenesis-3.3.jar" ]
+    },
+    "name" : "org.objenesis:objenesis",
+    "version" : "3.3",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/org.objenesis/objenesis@3.3"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.opentest4j/opentest4j@1.3.0",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar" ]
+    },
+    "name" : "org.opentest4j:opentest4j",
+    "version" : "1.3.0",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/org.opentest4j/opentest4j@1.3.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.ow2.asm/asm@9.0",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/ow2/asm/asm/9.0/asm-9.0.jar" ]
+    },
+    "name" : "org.ow2.asm:asm",
+    "version" : "9.0",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "BSD-3-Clause"
+    } ],
+    "purl" : "pkg:maven/org.ow2.asm/asm@9.0"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.slf4j/slf4j-api@1.6.2",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.6.2/slf4j-api-1.6.2.jar" ]
+    },
+    "name" : "org.slf4j:slf4j-api",
+    "version" : "1.6.2",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:maven/org.slf4j/slf4j-api@1.6.2"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.slf4j/slf4j-api@1.7.30",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/1.7.30/slf4j-api-1.7.30.jar" ]
+    },
+    "name" : "org.slf4j:slf4j-api",
+    "version" : "1.7.30",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "MIT"
+    } ],
+    "purl" : "pkg:maven/org.slf4j/slf4j-api@1.7.30"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-commons@2.18.0.3393",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/analyzer-commons/sonar-analyzer-commons/2.18.0.3393/sonar-analyzer-commons-2.18.0.3393.jar" ]
+    },
+    "name" : "org.sonarsource.analyzer-commons:sonar-analyzer-commons",
+    "version" : "2.18.0.3393",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-commons@2.18.0.3393"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-recognizers@2.18.0.3393",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/analyzer-commons/sonar-analyzer-recognizers/2.18.0.3393/sonar-analyzer-recognizers-2.18.0.3393.jar" ]
+    },
+    "name" : "org.sonarsource.analyzer-commons:sonar-analyzer-recognizers",
+    "version" : "2.18.0.3393",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-recognizers@2.18.0.3393"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-test-commons@2.18.0.3393",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/analyzer-commons/sonar-analyzer-test-commons/2.18.0.3393/sonar-analyzer-test-commons-2.18.0.3393.jar" ]
+    },
+    "name" : "org.sonarsource.analyzer-commons:sonar-analyzer-test-commons",
+    "version" : "2.18.0.3393",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-test-commons@2.18.0.3393"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.api.plugin/sonar-plugin-api@13.2.0.3137",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/api/plugin/sonar-plugin-api/13.2.0.3137/sonar-plugin-api-13.2.0.3137.jar" ]
+    },
+    "name" : "org.sonarsource.api.plugin:sonar-plugin-api",
+    "version" : "13.2.0.3137",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0-or-later"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.api.plugin/sonar-plugin-api@13.2.0.3137"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.api.plugin/sonar-plugin-api-test-fixtures@13.2.0.3137",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/api/plugin/sonar-plugin-api-test-fixtures/13.2.0.3137/sonar-plugin-api-test-fixtures-13.2.0.3137.jar" ]
+    },
+    "name" : "org.sonarsource.api.plugin:sonar-plugin-api-test-fixtures",
+    "version" : "13.2.0.3137",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0-or-later"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.api.plugin/sonar-plugin-api-test-fixtures@13.2.0.3137"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.sonarqube/sonar-plugin-api-impl@25.9.0.112764",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/sonarqube/sonar-plugin-api-impl/25.9.0.112764/sonar-plugin-api-impl-25.9.0.112764.jar" ]
+    },
+    "name" : "org.sonarsource.sonarqube:sonar-plugin-api-impl",
+    "version" : "25.9.0.112764",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0-or-later"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.sonarqube/sonar-plugin-api-impl@25.9.0.112764"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.sonarqube/sonar-testing-harness@25.9.0.112764",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/sonarqube/sonar-testing-harness/25.9.0.112764/sonar-testing-harness-25.9.0.112764.jar" ]
+    },
+    "name" : "org.sonarsource.sonarqube:sonar-testing-harness",
+    "version" : "25.9.0.112764",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0-or-later"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.sonarqube/sonar-testing-harness@25.9.0.112764"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.sslr/sslr-core@1.24.0.633",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/sslr/sslr-core/1.24.0.633/sslr-core-1.24.0.633.jar" ]
+    },
+    "name" : "org.sonarsource.sslr:sslr-core",
+    "version" : "1.24.0.633",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0-or-later"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.sslr/sslr-core@1.24.0.633"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.sslr/sslr-testing-harness@1.24.0.633",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/sslr/sslr-testing-harness/1.24.0.633/sslr-testing-harness-1.24.0.633.jar" ]
+    },
+    "name" : "org.sonarsource.sslr:sslr-testing-harness",
+    "version" : "1.24.0.633",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.sslr/sslr-testing-harness@1.24.0.633"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.sslr/sslr-toolkit@1.24.0.633",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/sslr/sslr-toolkit/1.24.0.633/sslr-toolkit-1.24.0.633.jar" ]
+    },
+    "name" : "org.sonarsource.sslr:sslr-toolkit",
+    "version" : "1.24.0.633",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.sslr/sslr-toolkit@1.24.0.633"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.sslr/sslr-toolkit@1.24.0.633",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/sslr/sslr-toolkit/1.24.0.633/sslr-toolkit-1.24.0.633.jar" ]
+    },
+    "name" : "org.sonarsource.sslr:sslr-toolkit",
+    "version" : "1.24.0.633",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.sslr/sslr-toolkit@1.24.0.633"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.sslr/sslr-xpath@1.24.0.633",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/sslr/sslr-xpath/1.24.0.633/sslr-xpath-1.24.0.633.jar" ]
+    },
+    "name" : "org.sonarsource.sslr:sslr-xpath",
+    "version" : "1.24.0.633",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0-or-later"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.sslr/sslr-xpath@1.24.0.633"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/org.sonarsource.sslr/sslr-xpath@1.24.0.633",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/org/sonarsource/sslr/sslr-xpath/1.24.0.633/sslr-xpath-1.24.0.633.jar" ]
+    },
+    "name" : "org.sonarsource.sslr:sslr-xpath",
+    "version" : "1.24.0.633",
+    "scope" : "optional",
+    "licenses" : [ {
+      "expression" : "LGPL-3.0-or-later"
+    } ],
+    "purl" : "pkg:maven/org.sonarsource.sslr/sslr-xpath@1.24.0.633"
+  }, {
+    "type" : "library",
+    "bom-ref" : "pkg:maven/stax/stax-api@1.0.1",
+    "supplier" : {
+      "url" : [ "https://repo1.maven.org/maven2/stax/stax-api/1.0.1/stax-api-1.0.1.jar" ]
+    },
+    "name" : "stax:stax-api",
+    "version" : "1.0.1",
+    "scope" : "required",
+    "licenses" : [ {
+      "expression" : "Apache-2.0"
+    } ],
+    "purl" : "pkg:maven/stax/stax-api@1.0.1"
+  } ],
+  "dependencies" : [ {
+    "ref" : "pkg:maven/junit/junit@4.13.2",
+    "dependsOn" : [ "pkg:maven/org.hamcrest/hamcrest-core@1.3" ]
+  }, {
+    "ref" : "pkg:maven/org.junit.jupiter/junit-jupiter-engine@5.13.4",
+    "dependsOn" : [ "pkg:maven/org.junit.platform/junit-platform-engine@1.13.4" ]
+  }, {
+    "ref" : "pkg:maven/org.junit.jupiter/junit-jupiter-params@5.13.4",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.sonarsource.sslr/sslr-xpath@1.24.0.633",
+    "dependsOn" : [ "pkg:maven/jaxen/jaxen@1.1.4" ]
+  }, {
+    "ref" : "pkg:maven/org.hamcrest/hamcrest-all@1.3",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.opentest4j/opentest4j@1.3.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/ch.qos.logback/logback-core@1.2.9",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.mockito/mockito-core@5.20.0",
+    "dependsOn" : [ "pkg:maven/net.bytebuddy/byte-buddy-agent@1.17.7", "pkg:maven/org.objenesis/objenesis@3.3" ]
+  }, {
+    "ref" : "pkg:maven/net.bytebuddy/byte-buddy@1.17.7",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.codehaus.sonar/sonar-colorizer@3.7",
+    "dependsOn" : [ "pkg:maven/org.codehaus.sonar/sonar-channel@3.7" ]
+  }, {
+    "ref" : "pkg:maven/stax/stax-api@1.0.1",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/commons-io/commons-io@2.20.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/com.google.code.gson/gson@2.13.1",
+    "dependsOn" : [ "pkg:maven/com.google.errorprone/error_prone_annotations@2.38.0" ]
+  }, {
+    "ref" : "pkg:maven/org.codehaus.woodstox/stax2-api@3.1.4",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/com.googlecode.json-simple/json-simple@1.1.1",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.easytesting/fest-util@1.1.6",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/com.google.guava/failureaccess@1.0.3",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/net.bytebuddy/byte-buddy-agent@1.17.7",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.junit.platform/junit-platform-engine@1.13.4",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "Flex",
+    "dependsOn" : [ "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-commons@2.18.0.3393", "pkg:maven/org.codehaus.woodstox/woodstox-core-lgpl@4.4.1", "pkg:maven/org.sonarsource.api.plugin/sonar-plugin-api-test-fixtures@13.2.0.3137", "pkg:maven/org.sonarsource.sslr/sslr-xpath@1.24.0.633", "pkg:maven/org.sonarsource.sslr/sslr-core@1.24.0.633", "pkg:maven/org.assertj/assertj-core@3.27.6", "pkg:maven/org.hamcrest/hamcrest-all@1.3", "pkg:maven/com.google.guava/guava@33.5.0-jre", "pkg:maven/org.sonarsource.api.plugin/sonar-plugin-api@13.2.0.3137", "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-test-commons@2.18.0.3393", "pkg:maven/org.mockito/mockito-core@5.20.0", "pkg:maven/org.junit.jupiter/junit-jupiter@5.13.4", "pkg:maven/org.sonarsource.sslr/sslr-toolkit@1.24.0.633", "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-recognizers@2.18.0.3393", "pkg:maven/org.sonarsource.sonarqube/sonar-testing-harness@25.9.0.112764", "pkg:maven/org.codehaus.staxmate/staxmate@2.0.1", "pkg:maven/org.sonarsource.sonarqube/sonar-plugin-api-impl@25.9.0.112764", "pkg:maven/org.sonarsource.sslr/sslr-testing-harness@1.24.0.633" ]
+  }, {
+    "ref" : "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-recognizers@2.18.0.3393",
+    "dependsOn" : [ "pkg:maven/com.google.code.findbugs/jsr305@3.0.2" ]
+  }, {
+    "ref" : "pkg:maven/org.codehaus.staxmate/staxmate@2.0.1",
+    "dependsOn" : [ "pkg:maven/stax/stax-api@1.0.1" ]
+  }, {
+    "ref" : "pkg:maven/org.apache.commons/commons-lang3@3.18.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.sonarsource.sslr/sslr-testing-harness@1.24.0.633",
+    "dependsOn" : [ "pkg:maven/junit/junit@4.13.2", "pkg:maven/org.sonarsource.sslr/sslr-toolkit@1.24.0.633", "pkg:maven/org.easytesting/fest-assert@1.4", "pkg:maven/org.hamcrest/hamcrest-all@1.3" ]
+  }, {
+    "ref" : "pkg:maven/org.ow2.asm/asm@9.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.easytesting/fest-assert@1.4",
+    "dependsOn" : [ "pkg:maven/org.easytesting/fest-util@1.1.6" ]
+  }, {
+    "ref" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.41.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.slf4j/slf4j-api@1.7.30",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.junit.jupiter/junit-jupiter-api@5.13.4",
+    "dependsOn" : [ "pkg:maven/org.apiguardian/apiguardian-api@1.1.2", "pkg:maven/org.junit.platform/junit-platform-commons@1.13.4", "pkg:maven/org.opentest4j/opentest4j@1.3.0" ]
+  }, {
+    "ref" : "pkg:maven/org.sonarsource.sslr/sslr-core@1.24.0.633",
+    "dependsOn" : [ "pkg:maven/com.google.code.findbugs/jsr305@3.0.2", "pkg:maven/org.ow2.asm/asm@9.0" ]
+  }, {
+    "ref" : "pkg:maven/com.google.code.findbugs/jsr305@3.0.2",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.sonarsource.api.plugin/sonar-plugin-api@13.2.0.3137",
+    "dependsOn" : [ "pkg:maven/org.slf4j/slf4j-api@1.7.30" ]
+  }, {
+    "ref" : "pkg:maven/javax.xml.stream/stax-api@1.0-2",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/com.google.guava/guava@33.5.0-jre",
+    "dependsOn" : [ "pkg:maven/com.google.guava/listenablefuture@9999.0-empty-to-avoid-conflict-with-guava", "pkg:maven/com.google.j2objc/j2objc-annotations@3.1", "pkg:maven/com.google.guava/failureaccess@1.0.3", "pkg:maven/org.jspecify/jspecify@1.0.0", "pkg:maven/com.google.errorprone/error_prone_annotations@2.41.0" ]
+  }, {
+    "ref" : "pkg:maven/org.slf4j/slf4j-api@1.6.2",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.apache.commons/commons-csv@1.14.1",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/jakarta.activation/jakarta.activation-api@2.1.3",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/com.google.errorprone/error_prone_annotations@2.38.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.jspecify/jspecify@1.0.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.sonarsource.sonarqube/sonar-testing-harness@25.9.0.112764",
+    "dependsOn" : [ "pkg:maven/com.googlecode.json-simple/json-simple@1.1.1", "pkg:maven/jakarta.mail/jakarta.mail-api@2.1.3", "pkg:maven/com.google.code.gson/gson@2.13.1", "pkg:maven/org.jsoup/jsoup@1.21.1" ]
+  }, {
+    "ref" : "pkg:maven/org.jsoup/jsoup@1.21.1",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.sonarsource.sonarqube/sonar-plugin-api-impl@25.9.0.112764",
+    "dependsOn" : [ "pkg:maven/junit/junit@4.13.2", "pkg:maven/com.github.spotbugs/spotbugs-annotations@4.9.4", "pkg:maven/org.apache.commons/commons-csv@1.14.1", "pkg:maven/commons-codec/commons-codec@1.19.0", "pkg:maven/commons-io/commons-io@2.20.0", "pkg:maven/org.apache.commons/commons-lang3@3.18.0" ]
+  }, {
+    "ref" : "pkg:maven/org.objenesis/objenesis@3.3",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.codehaus.sonar/sonar-channel@3.7",
+    "dependsOn" : [ "pkg:maven/commons-io/commons-io@2.20.0", "pkg:maven/org.slf4j/slf4j-api@1.6.2" ]
+  }, {
+    "ref" : "pkg:maven/com.github.spotbugs/spotbugs-annotations@4.9.4",
+    "dependsOn" : [ "pkg:maven/com.google.code.findbugs/jsr305@3.0.2" ]
+  }, {
+    "ref" : "pkg:maven/jakarta.mail/jakarta.mail-api@2.1.3",
+    "dependsOn" : [ "pkg:maven/jakarta.activation/jakarta.activation-api@2.1.3" ]
+  }, {
+    "ref" : "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-commons@2.18.0.3393",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/com.google.guava/listenablefuture@9999.0-empty-to-avoid-conflict-with-guava",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.junit.platform/junit-platform-commons@1.13.4",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/com.google.j2objc/j2objc-annotations@3.1",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.codehaus.woodstox/woodstox-core-lgpl@4.4.1",
+    "dependsOn" : [ "pkg:maven/javax.xml.stream/stax-api@1.0-2", "pkg:maven/org.codehaus.woodstox/stax2-api@3.1.4" ]
+  }, {
+    "ref" : "pkg:maven/org.sonarsource.api.plugin/sonar-plugin-api-test-fixtures@13.2.0.3137",
+    "dependsOn" : [ "pkg:maven/ch.qos.logback/logback-classic@1.2.9" ]
+  }, {
+    "ref" : "pkg:maven/ch.qos.logback/logback-classic@1.2.9",
+    "dependsOn" : [ "pkg:maven/ch.qos.logback/logback-core@1.2.9" ]
+  }, {
+    "ref" : "pkg:maven/org.assertj/assertj-core@3.27.6",
+    "dependsOn" : [ "pkg:maven/net.bytebuddy/byte-buddy@1.17.7" ]
+  }, {
+    "ref" : "pkg:maven/org.sonarsource.analyzer-commons/sonar-analyzer-test-commons@2.18.0.3393",
+    "dependsOn" : [ "pkg:maven/junit/junit@4.13.2" ]
+  }, {
+    "ref" : "pkg:maven/org.apiguardian/apiguardian-api@1.1.2",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/commons-codec/commons-codec@1.19.0",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.hamcrest/hamcrest-core@1.3",
+    "dependsOn" : [ ]
+  }, {
+    "ref" : "pkg:maven/org.junit.jupiter/junit-jupiter@5.13.4",
+    "dependsOn" : [ "pkg:maven/org.junit.jupiter/junit-jupiter-api@5.13.4", "pkg:maven/org.junit.jupiter/junit-jupiter-engine@5.13.4", "pkg:maven/org.junit.jupiter/junit-jupiter-params@5.13.4" ]
+  }, {
+    "ref" : "pkg:maven/org.sonarsource.sslr/sslr-toolkit@1.24.0.633",
+    "dependsOn" : [ "pkg:maven/org.codehaus.sonar/sonar-colorizer@3.7", "pkg:maven/org.sonarsource.sslr/sslr-xpath@1.24.0.633" ]
+  }, {
+    "ref" : "pkg:maven/jaxen/jaxen@1.1.4",
+    "dependsOn" : [ ]
+  } ]
+}
