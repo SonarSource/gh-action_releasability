@@ -21,9 +21,7 @@ class LicenseContentValidator:
     # Allowed licenses at SonarSource
     ALLOWED_LICENSES = {
         'LGPL-2.1', 'LGPL-3.0', 'Apache-2.0', 'MIT', 'BSD-2-Clause', 'BSD-3-Clause',
-        'EPL-1.0', 'EPL-2.0', 'PSF-2.0', 'LicenseRef-sonar-dotnet-library',
-        'LicenseRef-sonar-SSAL-1.0', 'Microsoft-Software-License-Terms',
-        'Elastic-License-2.0', 'NOASSERTION'
+        'EPL-1.0', 'EPL-2.0', 'PSF-2.0'
     }
 
     def __init__(self, reference_licenses_dir: str = "src/resources/reference-licenses"):
