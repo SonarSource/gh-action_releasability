@@ -101,31 +101,6 @@ class TestBuildInfo(unittest.TestCase):
         result = buildinfo.get_version()
         self.assertIsNone(result)
 
-    def test_get_source_and_target_repos_revoke_false(self):
-        """Test repository names when revoke is False."""
-        source, target = self.buildinfo.get_source_and_target_repos(False)
-        self.assertEqual(source, 'sonarsource-public-builds')
-        self.assertEqual(target, 'sonarsource-public-releases')
-
-    def test_get_source_and_target_repos_revoke_true(self):
-        """Test repository names when revoke is True."""
-        source, target = self.buildinfo.get_source_and_target_repos(True)
-        self.assertEqual(source, 'sonarsource-public-releases')
-        self.assertEqual(target, 'sonarsource-public-builds')
-
-    def test_get_source_and_target_repos_no_statuses(self):
-        """Test repository names with no statuses."""
-        buildinfo_data = {
-            'buildInfo': {
-                'statuses': []
-            }
-        }
-        buildinfo = BuildInfo(buildinfo_data)
-
-        source, target = buildinfo.get_source_and_target_repos(False)
-        self.assertIsNone(source)
-        self.assertIsNone(target)
-
     def test_get_artifacts_to_publish_from_module(self):
         """Test artifacts to publish retrieval from module properties."""
         result = self.buildinfo.get_artifacts_to_publish()

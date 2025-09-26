@@ -26,20 +26,6 @@ class BuildInfo:
         except (KeyError, IndexError):
             return None
 
-    def get_source_and_target_repos(self, revoke):
-        try:
-            repo = self.json['buildInfo']['statuses'][0]['repository']
-            repo_type = repo.split('-')[-1]
-            if revoke:
-                sourcerepo = repo.replace(repo_type, 'releases')
-                targetrepo = repo.replace(repo_type, 'builds')
-            else:
-                sourcerepo = repo.replace(repo_type, 'builds')
-                targetrepo = repo.replace(repo_type, 'releases')
-            return sourcerepo, targetrepo
-        except (KeyError, IndexError):
-            return None, None
-
     def get_artifacts_to_publish(self):
         artifacts = self.get_module_property('artifactsToPublish', self.get_property('buildInfo.env.ARTIFACTS_TO_PUBLISH'))
         if not artifacts:

@@ -121,7 +121,7 @@ class Artifactory:
 
         try:
             # Determine repository
-            repository = "sonarsource-private-releases" if group_id.startswith('com.') else "sonarsource-public-releases"
+            repository = "sonarsource-private-builds" if group_id.startswith('com.') else "sonarsource-public-builds"
 
             # Build artifact path
             group_path = group_id.replace(".", "/")
