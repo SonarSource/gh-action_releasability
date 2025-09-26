@@ -214,7 +214,7 @@ class LicenseFileDetector:
             return license_files
 
         # Supported license file extensions
-        license_extensions = ['.txt', '.html', '.htm', '.md']
+        license_extensions = ['.txt']
 
         for root, dirs, files in os.walk(licenses_dir):
             for file in files:
@@ -245,7 +245,7 @@ class LicenseFileDetector:
         """Determine if the file is a main license or third-party license."""
         if 'THIRD_PARTY_LICENSES' in file_path:
             return 'third_party'
-        elif file.lower() in ['license.txt', 'license.html', 'license.htm', 'license.md']:
+        elif file.lower() == 'license.txt':
             return 'main'
         else:
             return 'third_party'  # Default to third-party
@@ -253,7 +253,7 @@ class LicenseFileDetector:
     @staticmethod
     def _determine_file_format(file_ext: str) -> str:
         """Determine the file format based on extension."""
-        return 'html' if file_ext in ['.html', '.htm'] else 'text'
+        return 'text'
 
     @staticmethod
     def extract_dependency_name_from_license_file(file_name: str) -> str:
@@ -263,9 +263,7 @@ class LicenseFileDetector:
         Supports various naming patterns:
         - LibraryA-LICENSE.txt
         - LibraryA_LICENSE.txt
-        - LibraryA-LICENSE.html
         - LibraryA.txt
-        - LibraryA.html
         - commons-io.commons-io_apache_v2.txt (Maven artifacts with version info)
         """
         # Remove common license suffixes

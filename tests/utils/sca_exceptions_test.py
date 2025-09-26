@@ -147,42 +147,51 @@ class TestLicenseFileDetector(unittest.TestCase):
         third_party_licenses = [l for l in licenses if l['type'] == 'third_party']
         self.assertEqual(len(third_party_licenses), 2)
 
-    def test_detect_license_files_html_format(self):
-        """Test detection of HTML license files."""
+    def test_detect_license_files_ignores_non_txt_files(self):
+        """Test that non-TXT license files are ignored."""
         # Create test structure
         licenses_dir = os.path.join(self.temp_dir, "licenses")
         os.makedirs(licenses_dir)
 
-        # Main license in HTML
+        # Main license in TXT (should be detected)
+        with open(os.path.join(licenses_dir, "LICENSE.txt"), 'w') as f:
+            f.write("Main license content")
+
+        # Non-TXT files (should be ignored)
         with open(os.path.join(licenses_dir, "LICENSE.html"), 'w') as f:
             f.write("<html><body>Main license</body></html>")
 
-        # Third-party licenses in HTML
+        with open(os.path.join(licenses_dir, "LICENSE.md"), 'w') as f:
+            f.write("# Main license")
+
+        with open(os.path.join(licenses_dir, "LICENSE.htm"), 'w') as f:
+            f.write("<html><body>Main license</body></html>")
+
+        # Third-party licenses
         third_party_dir = os.path.join(licenses_dir, "THIRD_PARTY_LICENSES")
         os.makedirs(third_party_dir)
 
-        with open(os.path.join(third_party_dir, "LibraryA-LICENSE.html"), 'w') as f:
-            f.write("<html><body>Library A license</body></html>")
+        with open(os.path.join(third_party_dir, "LibraryA-LICENSE.txt"), 'w') as f:
+            f.write("Library A license")
 
-        with open(os.path.join(third_party_dir, "LibraryB.htm"), 'w') as f:
+        with open(os.path.join(third_party_dir, "LibraryB-LICENSE.html"), 'w') as f:
             f.write("<html><body>Library B license</body></html>")
 
         licenses = LicenseFileDetector.detect_license_files(licenses_dir)
 
-        self.assertEqual(len(licenses), 3)
+        # Should only detect TXT files
+        self.assertEqual(len(licenses), 2)
 
-        # Check HTML format detection
-        html_licenses = [l for l in licenses if l['format'] == 'html']
-        self.assertEqual(len(html_licenses), 3)
+        # All detected licenses should be text format
+        for license_info in licenses:
+            self.assertEqual(license_info['format'], 'text')
 
     def test_extract_dependency_name_from_license_file(self):
         """Test extracting dependency names from license file names."""
         test_cases = [
             ("LibraryA-LICENSE.txt", "LibraryA"),
             ("LibraryA_LICENSE.txt", "LibraryA"),
-            ("LibraryA-LICENSE.html", "LibraryA"),
             ("LibraryA.txt", "LibraryA"),
-            ("LibraryA.html", "LibraryA"),
             ("LibraryA-License.txt", "LibraryA"),
             ("LibraryA_license.txt", "LibraryA"),
             ("LICENSE.txt", "LICENSE"),
