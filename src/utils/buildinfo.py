@@ -85,7 +85,7 @@ class BuildInfo:
         """Find the first suitable artifact in a module."""
         artifacts = module.get('artifacts', [])
         for artifact in artifacts:
-            if self._is_suitable_artifact(artifact, is_public):
+            if self._is_suitable_artifact(artifact):
                 return self._build_artifact_string(artifact, module, is_public)
         return None
 
@@ -134,13 +134,12 @@ class BuildInfo:
             return artifact_name.replace(f'.{artifact_type}', '')
         return artifact_name
 
-    def _is_suitable_artifact(self, artifact: dict, is_public: bool) -> bool:
+    def _is_suitable_artifact(self, artifact: dict) -> bool:
         """
         Check if an artifact is suitable for download.
 
         Args:
             artifact: Artifact dictionary from build info
-            is_public: Whether this is a public project
 
         Returns:
             True if artifact is suitable, False otherwise

@@ -186,7 +186,7 @@ class TestBuildInfoFallback(unittest.TestCase):
             'path': 'org/sonarsource/test/test-plugin/1.0.0/test-plugin.jar'
         }
 
-        result = buildinfo._is_suitable_artifact(artifact, is_public=True)
+        result = buildinfo._is_suitable_artifact(artifact)
         self.assertTrue(result)
 
     def test_is_suitable_artifact_nupkg_file(self):
@@ -199,7 +199,7 @@ class TestBuildInfoFallback(unittest.TestCase):
             'path': 'com/sonarsource/test/test-plugin/1.0.0/test-plugin.nupkg'
         }
 
-        result = buildinfo._is_suitable_artifact(artifact, is_public=False)
+        result = buildinfo._is_suitable_artifact(artifact)
         self.assertTrue(result)
 
     def test_is_suitable_artifact_non_supported_file(self):
@@ -212,7 +212,7 @@ class TestBuildInfoFallback(unittest.TestCase):
             'path': 'org/sonarsource/test/test-plugin/1.0.0/test-plugin.zip'
         }
 
-        result = buildinfo._is_suitable_artifact(artifact, is_public=True)
+        result = buildinfo._is_suitable_artifact(artifact)
         self.assertFalse(result)
 
     def test_is_suitable_artifact_sources_jar(self):
@@ -225,7 +225,7 @@ class TestBuildInfoFallback(unittest.TestCase):
             'path': 'org/sonarsource/test/test-plugin/1.0.0/test-plugin-sources.jar'
         }
 
-        result = buildinfo._is_suitable_artifact(artifact, is_public=True)
+        result = buildinfo._is_suitable_artifact(artifact)
         self.assertFalse(result)
 
     def test_is_suitable_artifact_javadoc_jar(self):
@@ -238,7 +238,7 @@ class TestBuildInfoFallback(unittest.TestCase):
             'path': 'org/sonarsource/test/test-plugin/1.0.0/test-plugin-javadoc.jar'
         }
 
-        result = buildinfo._is_suitable_artifact(artifact, is_public=True)
+        result = buildinfo._is_suitable_artifact(artifact)
         self.assertFalse(result)
 
     def test_is_suitable_artifact_sources_in_name(self):
@@ -251,7 +251,7 @@ class TestBuildInfoFallback(unittest.TestCase):
             'path': 'org/sonarsource/test/sources-test-plugin/1.0.0/sources-test-plugin.jar'
         }
 
-        result = buildinfo._is_suitable_artifact(artifact, is_public=True)
+        result = buildinfo._is_suitable_artifact(artifact)
         self.assertFalse(result)
 
     def test_is_suitable_artifact_javadoc_in_name(self):
@@ -264,7 +264,7 @@ class TestBuildInfoFallback(unittest.TestCase):
             'path': 'org/sonarsource/test/javadoc-test-plugin/1.0.0/javadoc-test-plugin.jar'
         }
 
-        result = buildinfo._is_suitable_artifact(artifact, is_public=True)
+        result = buildinfo._is_suitable_artifact(artifact)
         self.assertFalse(result)
 
     def test_get_first_suitable_artifact_with_version_fallback(self):

@@ -60,7 +60,7 @@ class Artifactory:
             artifacts_to_publish = build_info.get_artifacts_to_publish()
 
             if not artifacts_to_publish or not artifacts_to_publish.strip():
-                logger.warning("No artifacts to publish found in build info, trying to find suitable artifact...")
+                logger.info("No artifacts to publish found in build info, trying to find suitable artifact...")
 
                 # Try to find the first suitable artifact as fallback
                 fallback_artifact = build_info.get_first_suitable_artifact()
@@ -150,74 +150,98 @@ class Artifactory:
         version = artifact_info['version']
         extension = artifact_info['extension']
         classifier = artifact_info['classifier']
-        actual_filename = artifact_info.get('actual_filename')
-        original_repo = artifact_info.get('original_repo')
 
         try:
-            # Determine repository based on package type and group ID
-            if extension.lower() in ['nupkg']:
-                # NuGet packages use different repositories
-                repository = "sonarsource-nuget-private-builds" if group_id.startswith('com.') else "sonarsource-nuget-public"
-            else:
-                # Regular packages (JAR, ZIP, etc.)
-                repository = "sonarsource-private-builds" if group_id.startswith('com.') else "sonarsource-public-builds"
-
-            # Build artifact path
-            if actual_filename:
-                # For fallback case with actual filename, use direct path
-                # dohq-artifactory will prepend /api/storage/, so we need to adjust the base URL
-                filename = actual_filename
-                # Use the base URL without /repox/ since dohq-artifactory will add /api/storage/
-                if self.base_url.endswith('/repox'):
-                    base_url_without_repox = self.base_url[:-6]  # Remove '/repox' from the end
-                else:
-                    base_url_without_repox = self.base_url
-                artifact_url = f"{base_url_without_repox}/artifactory/{repository}/{filename}"
-                logger.info(f"Fallback artifact URL: {artifact_url}")
-            else:
-                # Normal case - use Maven-style path structure
-                group_path = group_id.replace(".", "/")
-
-                if actual_filename:
-                    # Use the actual filename from build info (fallback case)
-                    filename = actual_filename
-                else:
-                    # Construct filename from components (normal case)
-                    filename = f"{artifact_id}-{version}"
-                    if classifier:
-                        filename += f"-{classifier}"
-                    filename += f".{extension}"
-
-                # Special case for sonarqube
-                if artifact_id == "sonar-application":
-                    filename = f"sonarqube-{version}.zip"
-
-                # Use the base URL without /repox/ since dohq-artifactory will add /api/storage/
-                if self.base_url.endswith('/repox'):
-                    base_url_without_repox = self.base_url[:-6]  # Remove '/repox' from the end
-                else:
-                    base_url_without_repox = self.base_url
-                artifact_url = f"{base_url_without_repox}/artifactory/{repository}/{group_path}/{artifact_id}/{version}/{filename}"
+            repository = self._determine_repository(extension, group_id)
+            artifact_url = self._build_artifact_url(artifact_info, repository)
             artifact_path = ArtifactoryPath(artifact_url, auth=self.auth)
 
             # Download to temp file
+            filename = self._get_filename(artifact_info)
             temp_file = Path(tempfile.gettempdir()) / filename
             with temp_file.open('wb') as dst:
                 dst.write(artifact_path.read_bytes())
 
             logger.info(f"Downloaded artifact: {filename}")
 
-            return {
-                'path': str(temp_file),
-                'size': temp_file.stat().st_size,
-                'group_id': group_id,
-                'artifact_id': artifact_id,
-                'version': version,
-                'extension': extension,
-                'classifier': classifier,
-                'name': filename
-            }
+            return self._create_artifact_result(temp_file, artifact_info, filename)
 
         except Exception as e:
             logger.error(f"Failed to download artifact {artifact_id}-{version}: {e}")
             return None
+
+    def _determine_repository(self, extension: str, group_id: str) -> str:
+        """Determine the appropriate repository based on extension and group ID."""
+        if extension.lower() in ['nupkg']:
+            return "sonarsource-nuget-private-builds" if group_id.startswith('com.') else "sonarsource-nuget-public"
+        else:
+            return "sonarsource-private-builds" if group_id.startswith('com.') else "sonarsource-public-builds"
+
+    def _build_artifact_url(self, artifact_info: Dict, repository: str) -> str:
+        """Build the artifact URL for download."""
+        actual_filename = artifact_info.get('actual_filename')
+
+        if actual_filename:
+            return self._build_fallback_url(actual_filename, repository)
+        else:
+            return self._build_normal_url(artifact_info, repository)
+
+    def _build_fallback_url(self, filename: str, repository: str) -> str:
+        """Build URL for fallback case with actual filename."""
+        base_url_without_repox = self._get_base_url_without_repox()
+        artifact_url = f"{base_url_without_repox}/artifactory/{repository}/{filename}"
+        logger.info(f"Fallback artifact URL: {artifact_url}")
+        return artifact_url
+
+    def _build_normal_url(self, artifact_info: Dict, repository: str) -> str:
+        """Build URL for normal Maven-style path structure."""
+        group_id = artifact_info['group_id']
+        artifact_id = artifact_info['artifact_id']
+        version = artifact_info['version']
+        filename = self._get_filename(artifact_info)
+
+        group_path = group_id.replace(".", "/")
+        base_url_without_repox = self._get_base_url_without_repox()
+        return f"{base_url_without_repox}/artifactory/{repository}/{group_path}/{artifact_id}/{version}/{filename}"
+
+    def _get_base_url_without_repox(self) -> str:
+        """Get base URL without /repox suffix."""
+        if self.base_url.endswith('/repox'):
+            return self.base_url[:-6]  # Remove '/repox' from the end
+        else:
+            return self.base_url
+
+    def _get_filename(self, artifact_info: Dict) -> str:
+        """Get the filename for the artifact."""
+        actual_filename = artifact_info.get('actual_filename')
+        if actual_filename:
+            return actual_filename
+
+        artifact_id = artifact_info['artifact_id']
+        version = artifact_info['version']
+        classifier = artifact_info['classifier']
+        extension = artifact_info['extension']
+
+        # Special case for sonarqube
+        if artifact_id == "sonar-application":
+            return f"sonarqube-{version}.zip"
+
+        # Construct filename from components
+        filename = f"{artifact_id}-{version}"
+        if classifier:
+            filename += f"-{classifier}"
+        filename += f".{extension}"
+        return filename
+
+    def _create_artifact_result(self, temp_file: Path, artifact_info: Dict, filename: str) -> Dict:
+        """Create the result dictionary for the downloaded artifact."""
+        return {
+            'path': str(temp_file),
+            'size': temp_file.stat().st_size,
+            'group_id': artifact_info['group_id'],
+            'artifact_id': artifact_info['artifact_id'],
+            'version': artifact_info['version'],
+            'extension': artifact_info['extension'],
+            'classifier': artifact_info['classifier'],
+            'name': filename
+        }

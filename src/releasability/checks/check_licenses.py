@@ -79,7 +79,8 @@ class CheckLicenses(InlineCheck):
                 return ReleasabilityCheckResult(
                     name=self.name,
                     state=ReleasabilityCheckResult.CHECK_PASSED,
-                    message=f"License check bypassed for {context.repository} - SONAR_PROJECT_KEY not configured"
+                    message=f"License check bypassed for {context.repository} - SONAR_PROJECT_KEY not configured",
+                    details={}
                 )
 
             # Check if Artifactory is configured
@@ -109,10 +110,14 @@ class CheckLicenses(InlineCheck):
                 state = ReleasabilityCheckResult.CHECK_FAILED
                 message = self._build_lps_failure_message(context, validation_results)
 
+            # Build detailed information for the report
+            details = self._build_detailed_information(artifacts, validation_results)
+
             return ReleasabilityCheckResult(
                 name=self.name,
                 state=state,
-                message=message
+                message=message,
+                details=details
             )
 
         except Exception as e:
@@ -177,7 +182,8 @@ class CheckLicenses(InlineCheck):
         return ReleasabilityCheckResult(
             name=self.name,
             state=ReleasabilityCheckResult.CHECK_ERROR,
-            message=message
+            message=message,
+            details={}
         )
 
     def _create_failed_result(self, message: str) -> ReleasabilityCheckResult:
@@ -185,7 +191,8 @@ class CheckLicenses(InlineCheck):
         return ReleasabilityCheckResult(
             name=self.name,
             state=ReleasabilityCheckResult.CHECK_FAILED,
-            message=message
+            message=message,
+            details={}
         )
 
     def _build_lps_success_message(self, context: CheckContext, validation_results: dict) -> str:
@@ -220,3 +227,42 @@ class CheckLicenses(InlineCheck):
                 message_parts.append(f"and {len(validation_results['issues']) - 3} more")
 
         return " - ".join(message_parts)
+
+    def _build_detailed_information(self, artifacts: list, validation_results: dict) -> dict:
+        """Build detailed information for the report."""
+        details = {}
+
+        # Artifact information
+        details['artifacts'] = []
+        for artifact in artifacts:
+            artifact_info = {
+                'name': artifact.get('name', 'Unknown'),
+                'size': artifact.get('size', 0),
+                'group_id': artifact.get('group_id', ''),
+                'artifact_id': artifact.get('artifact_id', ''),
+                'version': artifact.get('version', ''),
+                'extension': artifact.get('extension', '')
+            }
+            details['artifacts'].append(artifact_info)
+
+        # SBOM comparison details
+        if validation_results.get('sbom_comparison'):
+            comparison = validation_results['sbom_comparison']
+
+            # Missing licenses
+            if comparison.get('missing_licenses'):
+                details['missing_licenses'] = comparison['missing_licenses']
+
+            # License mismatches (validation errors)
+            if comparison.get('validation_errors'):
+                mismatches = []
+                for error in comparison['validation_errors']:
+                    mismatch_info = f"{error.get('dependency_name', 'Unknown')} - {error.get('error', 'Validation failed')}"
+                    mismatches.append(mismatch_info)
+                details['license_mismatches'] = mismatches
+
+            # SBOM coverage
+            if 'coverage_percentage' in comparison:
+                details['sbom_coverage'] = comparison['coverage_percentage']
+
+        return details
