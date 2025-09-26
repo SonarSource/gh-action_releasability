@@ -8,9 +8,10 @@ files from a product repository using the GitHub API.
 import os
 import json
 import logging
-import requests
+import base64
 from typing import Dict, Set, Optional
 from pathlib import Path
+from github import Github, GithubException, Auth
 
 logger = logging.getLogger(__name__)
 
@@ -29,12 +30,7 @@ class GitHubClient:
         if not self.token:
             raise ValueError("GitHub token is required. Set GH_TOKEN environment variable or pass token parameter.")
 
-        self.base_url = "https://api.github.com"
-        self.headers = {
-            "Authorization": f"token {self.token}",
-            "Accept": "application/vnd.github.v3+json",
-            "User-Agent": "sonarsource-gh-action-releasability"
-        }
+        self.github = Github(auth=Auth.Token(self.token))
 
     def get_file_content(self, owner: str, repo: str, file_path: str, ref: str = "master") -> Optional[str]:
         """
@@ -49,37 +45,29 @@ class GitHubClient:
         Returns:
             File content as string, or None if file doesn't exist or error occurs
         """
-        url = f"{self.base_url}/repos/{owner}/{repo}/contents/{file_path}"
-        params = {"ref": ref}
-
         try:
             logger.info(f"Fetching file from GitHub: {owner}/{repo}/{file_path}@{ref}")
-            response = requests.get(url, headers=self.headers, params=params, timeout=30)
+            repo_obj = self.github.get_repo(f"{owner}/{repo}")
+            file_content = repo_obj.get_contents(file_path, ref=ref)
 
-            if response.status_code == 404:
+            if file_content.content:
+                content = base64.b64decode(file_content.content).decode('utf-8')
+                logger.info(f"Successfully fetched file {file_path} ({len(content)} characters)")
+                return content
+            else:
+                logger.warning(f"File {file_path} is empty")
+                return None
+
+        except GithubException as e:
+            if e.status == 404:
                 logger.debug(f"File not found: {owner}/{repo}/{file_path}")
                 return None
-            elif response.status_code == 403:
+            elif e.status == 403:
                 logger.warning(f"Access forbidden for {owner}/{repo}/{file_path}. Check token permissions.")
                 return None
-            elif response.status_code != 200:
-                logger.error(f"Failed to fetch file {owner}/{repo}/{file_path}: {response.status_code} - {response.text}")
+            else:
+                logger.error(f"GitHub API error fetching {owner}/{repo}/{file_path}: {e.status} - {e.data}")
                 return None
-
-            data = response.json()
-            if 'content' not in data:
-                logger.error(f"Unexpected response format for {owner}/{repo}/{file_path}")
-                return None
-
-            # Decode base64 content
-            import base64
-            content = base64.b64decode(data['content']).decode('utf-8')
-            logger.info(f"Successfully fetched file {file_path} ({len(content)} characters)")
-            return content
-
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Network error fetching {owner}/{repo}/{file_path}: {e}")
-            return None
         except Exception as e:
             logger.error(f"Unexpected error fetching {owner}/{repo}/{file_path}: {e}")
             return None
@@ -133,29 +121,33 @@ class GitHubClient:
         """
         try:
             data = json.loads(content)
-            if isinstance(data, dict) and 'exceptions' in data:
-                exceptions = data['exceptions']
-                if isinstance(exceptions, list):
-                    # New format: list of objects with name and comment
-                    result = set()
-                    for item in exceptions:
-                        if isinstance(item, dict) and 'name' in item:
-                            result.add(item['name'])
-                        else:
-                            logger.warning(f"Invalid exception item in JSON: {item}")
-                    return result
-                else:
-                    logger.warning(f"Unexpected exceptions format in JSON")
-                    return set()
-            else:
-                logger.warning(f"Unexpected JSON format. Expected object with 'exceptions' array.")
-                return set()
+            return self._extract_exceptions_from_data(data)
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse JSON content: {e}")
             return set()
         except Exception as e:
             logger.error(f"Unexpected error parsing JSON: {e}")
             return set()
+
+    def _extract_exceptions_from_data(self, data: dict) -> Set[str]:
+        """Extract exceptions from parsed JSON data."""
+        if not isinstance(data, dict) or 'exceptions' not in data:
+            logger.warning("Unexpected JSON format. Expected object with 'exceptions' array.")
+            return set()
+
+        exceptions = data['exceptions']
+        if not isinstance(exceptions, list):
+            logger.warning("Unexpected exceptions format in JSON")
+            return set()
+
+        # New format: list of objects with name and comment
+        result = set()
+        for item in exceptions:
+            if isinstance(item, dict) and 'name' in item:
+                result.add(item['name'])
+            else:
+                logger.warning(f"Invalid exception item in JSON: {item}")
+        return result
 
     def test_connection(self, owner: str, repo: str) -> bool:
         """
@@ -168,15 +160,20 @@ class GitHubClient:
         Returns:
             True if connection is successful, False otherwise
         """
-        url = f"{self.base_url}/repos/{owner}/{repo}"
         try:
-            response = requests.get(url, headers=self.headers, timeout=10)
-            if response.status_code == 200:
-                logger.info(f"Successfully connected to {owner}/{repo}")
-                return True
+            repo_obj = self.github.get_repo(f"{owner}/{repo}")
+            # Try to access basic repository info
+            _ = repo_obj.name
+            logger.info(f"Successfully connected to {owner}/{repo}")
+            return True
+        except GithubException as e:
+            if e.status == 404:
+                logger.warning(f"Repository not found: {owner}/{repo}")
+            elif e.status == 403:
+                logger.warning(f"Access forbidden for {owner}/{repo}. Check token permissions.")
             else:
-                logger.warning(f"Cannot access {owner}/{repo}: {response.status_code}")
-                return False
+                logger.warning(f"Cannot access {owner}/{repo}: {e.status}")
+            return False
         except Exception as e:
             logger.error(f"Connection test failed for {owner}/{repo}: {e}")
             return False

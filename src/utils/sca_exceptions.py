@@ -12,7 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set, Optional, Union, Tuple
 
-from src.utils.github_client import GitHubClient
+from utils.github_client import GitHubClient
 
 logger = logging.getLogger(__name__)
 
@@ -75,26 +75,30 @@ class SCAExceptionManager:
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                if isinstance(data, dict) and 'exceptions' in data:
-                    exceptions = data['exceptions']
-                    if isinstance(exceptions, list):
-                        # New format: list of objects with name and comment
-                        result = set()
-                        for item in exceptions:
-                            if isinstance(item, dict) and 'name' in item:
-                                result.add(item['name'])
-                            else:
-                                logger.warning(f"Invalid exception item in {file_path}: {item}")
-                        return result
-                    else:
-                        logger.warning(f"Unexpected exceptions format in {file_path}")
-                        return set()
-                else:
-                    logger.warning(f"Unexpected format in {file_path}. Expected object with 'exceptions' array.")
-                    return set()
+                return self._extract_exceptions_from_data(data, file_path)
         except Exception as e:
             logger.error(f"Error loading exceptions from {file_path}: {e}")
             return set()
+
+    def _extract_exceptions_from_data(self, data: dict, file_path: Path) -> Set[str]:
+        """Extract exceptions from parsed JSON data."""
+        if not isinstance(data, dict) or 'exceptions' not in data:
+            logger.warning(f"Unexpected format in {file_path}. Expected object with 'exceptions' array.")
+            return set()
+
+        exceptions = data['exceptions']
+        if not isinstance(exceptions, list):
+            logger.warning(f"Unexpected exceptions format in {file_path}")
+            return set()
+
+        # New format: list of objects with name and comment
+        result = set()
+        for item in exceptions:
+            if isinstance(item, dict) and 'name' in item:
+                result.add(item['name'])
+            else:
+                logger.warning(f"Invalid exception item in {file_path}: {item}")
+        return result
 
     def get_false_positives(self) -> Set[str]:
         """Get the set of false positive dependencies."""
@@ -121,29 +125,33 @@ class SCAExceptionManager:
         try:
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                if isinstance(data, dict) and 'exceptions' in data:
-                    exceptions = data['exceptions']
-                    if isinstance(exceptions, list):
-                        # New format: list of objects with name and comment
-                        result = []
-                        for item in exceptions:
-                            if isinstance(item, dict) and 'name' in item:
-                                result.append({
-                                    "name": item.get('name', ''),
-                                    "comment": item.get('comment', '')
-                                })
-                            else:
-                                logger.warning(f"Invalid exception item in {file_path}: {item}")
-                        return result
-                    else:
-                        logger.warning(f"Unexpected exceptions format in {file_path}")
-                        return []
-                else:
-                    logger.warning(f"Unexpected format in {file_path}. Expected object with 'exceptions' array.")
-                    return []
+                return self._extract_detailed_exceptions_from_data(data, file_path)
         except Exception as e:
             logger.error(f"Error loading detailed exceptions from {file_path}: {e}")
             return []
+
+    def _extract_detailed_exceptions_from_data(self, data: dict, file_path: Path) -> List[Dict[str, str]]:
+        """Extract detailed exceptions from parsed JSON data."""
+        if not isinstance(data, dict) or 'exceptions' not in data:
+            logger.warning(f"Unexpected format in {file_path}. Expected object with 'exceptions' array.")
+            return []
+
+        exceptions = data['exceptions']
+        if not isinstance(exceptions, list):
+            logger.warning(f"Unexpected exceptions format in {file_path}")
+            return []
+
+        # New format: list of objects with name and comment
+        result = []
+        for item in exceptions:
+            if isinstance(item, dict) and 'name' in item:
+                result.append({
+                    "name": item.get('name', ''),
+                    "comment": item.get('comment', '')
+                })
+            else:
+                logger.warning(f"Invalid exception item in {file_path}: {item}")
+        return result
 
     def is_false_positive(self, dependency: str) -> bool:
         """Check if a dependency is a known false positive."""
@@ -328,16 +336,6 @@ class LicenseFileDetector:
         # Convert to lowercase for case-insensitive comparison
         normalized = normalized.lower().strip()
 
-        # Handle cases where license files only contain artifact ID
-        # For Maven coordinates like "com.google.code.gson:gson",
-        # also try matching against just the artifact ID "gson"
-        if ':' in name and '.' in normalized:
-            # Extract artifact ID from Maven coordinate
-            artifact_id = name.split(':')[-1].lower()
-            # Add the artifact ID as an alternative for matching
-            # We'll return the full coordinate but also consider artifact-only matches
-            return normalized
-
         return normalized
 
 
@@ -437,33 +435,46 @@ class SCAComparisonEngine:
         used_license_deps = set()
 
         for sca_dep in sca_deps:
-            # Try exact match first
-            if sca_dep in license_deps and sca_dep not in used_license_deps:
-                matches.append((sca_dep, sca_dep))
-                used_license_deps.add(sca_dep)
+            if self._try_exact_match(sca_dep, license_deps, used_license_deps, matches):
                 continue
 
-            # Try fuzzy matching for Maven coordinates
             if '.' in sca_dep:
-                # Extract artifact ID (last part after dots)
-                artifact_id = sca_dep.split('.')[-1]
-
-                # Look for license deps that match the artifact ID
-                for license_dep in license_deps:
-                    if license_dep not in used_license_deps:
-                        # Check if license dep matches artifact ID or contains it
-                        if (license_dep == artifact_id or
-                            license_dep.endswith('.' + artifact_id) or
-                            license_dep.startswith(artifact_id + '.') or
-                            '.' + artifact_id + '.' in license_dep or
-                            # Handle cases like "gson-gson" matching "gson"
-                            (license_dep.count('-') > 0 and
-                             any(part == artifact_id for part in license_dep.split('-')))):
-                            matches.append((sca_dep, license_dep))
-                            used_license_deps.add(license_dep)
-                            break
+                self._try_fuzzy_match(sca_dep, license_deps, used_license_deps, matches)
 
         return matches
+
+    def _try_exact_match(self, sca_dep: str, license_deps: Set[str],
+                        used_license_deps: Set[str], matches: List[Tuple[str, str]]) -> bool:
+        """Try exact match for SCA dependency."""
+        if sca_dep in license_deps and sca_dep not in used_license_deps:
+            matches.append((sca_dep, sca_dep))
+            used_license_deps.add(sca_dep)
+            return True
+        return False
+
+    def _try_fuzzy_match(self, sca_dep: str, license_deps: Set[str],
+                        used_license_deps: Set[str], matches: List[Tuple[str, str]]) -> None:
+        """Try fuzzy matching for Maven coordinates."""
+        artifact_id = sca_dep.split('.')[-1]
+
+        for license_dep in license_deps:
+            if license_dep not in used_license_deps and self._is_fuzzy_match(license_dep, artifact_id):
+                matches.append((sca_dep, license_dep))
+                used_license_deps.add(license_dep)
+                break
+
+    def _is_fuzzy_match(self, license_dep: str, artifact_id: str) -> bool:
+        """Check if license dependency matches artifact ID."""
+        return (license_dep == artifact_id or
+                license_dep.endswith('.' + artifact_id) or
+                license_dep.startswith(artifact_id + '.') or
+                '.' + artifact_id + '.' in license_dep or
+                self._matches_hyphenated_parts(license_dep, artifact_id))
+
+    def _matches_hyphenated_parts(self, license_dep: str, artifact_id: str) -> bool:
+        """Check if license dependency matches artifact ID in hyphenated parts."""
+        return (license_dep.count('-') > 0 and
+                any(part == artifact_id for part in license_dep.split('-')))
 
     def is_compliant(self, comparison_result: Dict[str, any]) -> bool:
         """

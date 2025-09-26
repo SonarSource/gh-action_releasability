@@ -7,7 +7,7 @@ import tempfile
 import os
 from pathlib import Path
 
-from src.utils.license_content_validator import LicenseContentValidator, LicenseContentMatcher
+from utils.license_content_validator import LicenseContentValidator, LicenseContentMatcher
 
 
 class TestLicenseContentValidator(unittest.TestCase):

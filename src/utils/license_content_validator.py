@@ -53,9 +53,9 @@ class LicenseContentValidator:
         # Remove extra whitespace and normalize line endings
         content = re.sub(r'\s+', ' ', content.strip())
         # Remove common variable placeholders
-        content = re.sub(r'\[year\]', 'YYYY', content)
-        content = re.sub(r'\[fullname\]', 'AUTHOR', content)
-        content = re.sub(r'\[name of copyright owner\]', 'AUTHOR', content)
+        content = content.replace('[year]', 'YYYY')
+        content = content.replace('[fullname]', 'AUTHOR')
+        content = content.replace('[name of copyright owner]', 'AUTHOR')
         # Convert to lowercase for case-insensitive comparison
         return content.lower()
 
@@ -153,95 +153,141 @@ class LicenseContentMatcher:
         }
 
         # Create a mapping of component names to their license information
+        component_licenses = self._build_component_licenses_map(sbom_components)
+
+        # Process each artifact's license files
+        self._process_license_files(extracted_licenses, component_licenses, results)
+
+        # Calculate coverage percentage
+        total_components = len(component_licenses)
+        matched_components = len({match['component_name'] for match in results['matched_licenses']})
+        if total_components > 0:
+            results['coverage_percentage'] = (matched_components / total_components) * 100
+
+        return results
+
+    def _build_component_licenses_map(self, sbom_components: List[Dict]) -> Dict[str, str]:
+        """Build a mapping of component names to their license information."""
         component_licenses = {}
         for component in sbom_components:
             name = component.get('name', '')
             licenses = component.get('licenses', [])
             if licenses:
-                # Use the first license if multiple are present
-                license_info = licenses[0] if isinstance(licenses, list) else licenses
-                if isinstance(license_info, dict):
-                    # Support both 'id' and 'expression' fields for license type
-                    license_type = license_info.get('id', '') or license_info.get('expression', '')
-                else:
-                    license_type = str(license_info)
+                license_type = self._extract_license_type(licenses)
                 component_licenses[name] = license_type
+        return component_licenses
 
-        # Process each artifact's license files
+    def _extract_license_type(self, licenses: List) -> str:
+        """Extract license type from licenses list."""
+        license_info = licenses[0] if isinstance(licenses, list) else licenses
+        if isinstance(license_info, dict):
+            return license_info.get('id', '') or license_info.get('expression', '')
+        return str(license_info)
+
+    def _process_license_files(self, extracted_licenses: Dict[str, List[Dict]],
+                              component_licenses: Dict[str, str], results: Dict) -> None:
+        """Process all license files and match them to components."""
         for artifact_name, license_files in extracted_licenses.items():
             for license_file in license_files:
                 if license_file.get('type') != 'third_party':
                     continue
+                self._process_single_license_file(artifact_name, license_file, component_licenses, results)
 
-                license_name = license_file.get('name', '')
-                license_content = license_file.get('content', '')
-                license_path = license_file.get('path', '')
+    def _process_single_license_file(self, artifact_name: str, license_file: Dict,
+                                   component_licenses: Dict[str, str], results: Dict) -> None:
+        """Process a single license file and attempt to match it."""
+        license_name = license_file.get('name', '')
+        license_content = license_file.get('content', '')
 
-                # Extract dependency name from license filename
-                # Format: DependencyName-LICENSE.txt
-                dependency_name = self._extract_dependency_name_from_license_file(license_name)
+        dependency_name = self._extract_dependency_name_from_license_file(license_name)
+        if not dependency_name:
+            self._add_validation_error(results, artifact_name, license_name,
+                                     'Could not extract dependency name from filename')
+            return
 
-                if not dependency_name:
-                    results['validation_errors'].append({
-                        'artifact': artifact_name,
-                        'license_file': license_name,
-                        'error': 'Could not extract dependency name from filename'
-                    })
-                    continue
+        matched_component, expected_license = self._find_matching_component(
+            dependency_name, component_licenses)
 
-                # Find matching SBOM component
-                matched_component = None
-                expected_license = None
+        if not matched_component:
+            self._add_unmatched_license(results, artifact_name, license_name, dependency_name)
+            return
 
-                for comp_name, comp_license in component_licenses.items():
-                    if self._names_match(dependency_name, comp_name):
-                        matched_component = comp_name
-                        expected_license = comp_license
-                        break
+        self._validate_and_record_license(artifact_name, license_name, dependency_name,
+                                        matched_component, expected_license,
+                                        license_content, results)
 
-                if not matched_component:
-                    results['unmatched_licenses'].append({
-                        'artifact': artifact_name,
-                        'license_file': license_name,
-                        'dependency_name': dependency_name,
-                        'reason': 'No matching SBOM component found'
-                    })
-                    continue
+    def _find_matching_component(self, dependency_name: str,
+                               component_licenses: Dict[str, str]) -> tuple:
+        """Find matching SBOM component for dependency name."""
+        for comp_name, comp_license in component_licenses.items():
+            if self._names_match(dependency_name, comp_name):
+                return comp_name, comp_license
+        return None, None
 
-                # Validate license content
-                is_valid, similarity, matched_license = self.validator.validate_license_content(
-                    license_content, expected_license
-                )
+    def _validate_and_record_license(self, artifact_name: str, license_name: str,
+                                   dependency_name: str, matched_component: str,
+                                   expected_license: str, license_content: str,
+                                   results: Dict) -> None:
+        """Validate license content and record the result."""
+        is_valid, similarity, matched_license = self.validator.validate_license_content(
+            license_content, expected_license)
 
-                if is_valid:
-                    results['matched_licenses'].append({
-                        'artifact': artifact_name,
-                        'license_file': license_name,
-                        'dependency_name': dependency_name,
-                        'component_name': matched_component,
-                        'expected_license': expected_license,
-                        'matched_license': matched_license,
-                        'similarity_score': similarity
-                    })
-                else:
-                    results['validation_errors'].append({
-                        'artifact': artifact_name,
-                        'license_file': license_name,
-                        'dependency_name': dependency_name,
-                        'component_name': matched_component,
-                        'expected_license': expected_license,
-                        'matched_license': matched_license,
-                        'similarity_score': similarity,
-                        'error': 'License content does not match expected license'
-                    })
+        if is_valid:
+            self._add_matched_license(results, artifact_name, license_name, dependency_name,
+                                    matched_component, expected_license, matched_license, similarity)
+        else:
+            self._add_validation_error_with_details(results, artifact_name, license_name,
+                                                  dependency_name, matched_component,
+                                                  expected_license, matched_license, similarity)
 
-        # Calculate coverage percentage
-        total_components = len(component_licenses)
-        matched_components = len(set(match['component_name'] for match in results['matched_licenses']))
-        if total_components > 0:
-            results['coverage_percentage'] = (matched_components / total_components) * 100
+    def _add_validation_error(self, results: Dict, artifact_name: str,
+                            license_name: str, error: str) -> None:
+        """Add a validation error to results."""
+        results['validation_errors'].append({
+            'artifact': artifact_name,
+            'license_file': license_name,
+            'error': error
+        })
 
-        return results
+    def _add_unmatched_license(self, results: Dict, artifact_name: str,
+                             license_name: str, dependency_name: str) -> None:
+        """Add an unmatched license to results."""
+        results['unmatched_licenses'].append({
+            'artifact': artifact_name,
+            'license_file': license_name,
+            'dependency_name': dependency_name,
+            'reason': 'No matching SBOM component found'
+        })
+
+    def _add_matched_license(self, results: Dict, artifact_name: str, license_name: str,
+                           dependency_name: str, matched_component: str, expected_license: str,
+                           matched_license: str, similarity: float) -> None:
+        """Add a matched license to results."""
+        results['matched_licenses'].append({
+            'artifact': artifact_name,
+            'license_file': license_name,
+            'dependency_name': dependency_name,
+            'component_name': matched_component,
+            'expected_license': expected_license,
+            'matched_license': matched_license,
+            'similarity_score': similarity
+        })
+
+    def _add_validation_error_with_details(self, results: Dict, artifact_name: str,
+                                         license_name: str, dependency_name: str,
+                                         matched_component: str, expected_license: str,
+                                         matched_license: str, similarity: float) -> None:
+        """Add a validation error with detailed information to results."""
+        results['validation_errors'].append({
+            'artifact': artifact_name,
+            'license_file': license_name,
+            'dependency_name': dependency_name,
+            'component_name': matched_component,
+            'expected_license': expected_license,
+            'matched_license': matched_license,
+            'similarity_score': similarity,
+            'error': 'License content does not match expected license'
+        })
 
     def _extract_dependency_name_from_license_file(self, filename: str) -> Optional[str]:
         """Extract dependency name from license filename."""

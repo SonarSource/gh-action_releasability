@@ -14,10 +14,13 @@ from pathlib import Path
 from typing import List, Dict, Set, Optional, Tuple
 import json
 
-from src.utils.sca_exceptions import SCAExceptionManager, LicenseFileDetector, SCAComparisonEngine
-from src.utils.license_content_validator import LicenseContentValidator, LicenseContentMatcher
+from utils.sca_exceptions import SCAExceptionManager, LicenseFileDetector, SCAComparisonEngine
+from utils.license_content_validator import LicenseContentValidator, LicenseContentMatcher
 
 logger = logging.getLogger(__name__)
+
+# Constants for file extensions
+NUPKG_EXTENSION = '.nupkg'
 
 
 class LicenseExtractor:
@@ -67,7 +70,7 @@ class LicenseExtractor:
         self.temp_dir = tempfile.mkdtemp(prefix="license_extraction_")
 
         try:
-            if artifact_path.endswith('.jar') or artifact_path.endswith('.zip') or artifact_path.endswith('.nupkg'):
+            if artifact_path.endswith('.jar') or artifact_path.endswith('.zip') or artifact_path.endswith(NUPKG_EXTENSION):
                 licenses = self._extract_from_archive(artifact_path)
             else:
                 logger.warning(f"Unsupported artifact format: {artifact_path}")
@@ -125,7 +128,7 @@ class LicenseExtractor:
 
     def _is_archive_file(self, filename: str) -> bool:
         """Check if file is a supported archive format."""
-        return filename.endswith(('.zip', '.tgz', '.txz', '.xz', '.nupkg'))
+        return filename.endswith(('.zip', '.tgz', '.txz', '.xz', NUPKG_EXTENSION))
 
     def _process_inner_archive(self, archive_path: str, filename: str, root_dir: str) -> List[Dict]:
         """Process a single inner archive and extract licenses."""
@@ -151,7 +154,7 @@ class LicenseExtractor:
 
     def _extract_archive_to_temp(self, archive_path: str, filename: str, temp_dir: str) -> bool:
         """Extract archive to temporary directory."""
-        if filename.endswith('.zip') or filename.endswith('.nupkg'):
+        if filename.endswith('.zip') or filename.endswith(NUPKG_EXTENSION):
             with zipfile.ZipFile(archive_path, 'r') as inner_archive:
                 inner_archive.extractall(temp_dir)
             return True
@@ -294,14 +297,14 @@ class LicenseComparator:
         })
 
         # Calculate missing licenses (SBOM components without matching license files)
-        matched_components = set(match['component_name'] for match in matching_results['matched_licenses'])
-        all_sbom_components = set(comp.get('name', '') for comp in self.sbom_components)
+        matched_components = {match['component_name'] for match in matching_results['matched_licenses']}
+        all_sbom_components = {comp.get('name', '') for comp in self.sbom_components}
         results['missing_licenses'] = list(all_sbom_components - matched_components)
 
         # Calculate extra licenses (license files without matching SBOM components)
-        matched_license_files = set(match['license_file'] for match in matching_results['matched_licenses'])
-        all_license_files = set(license.get('name', '') for licenses in extracted_licenses.values()
-                              for license in licenses if license.get('type') == 'third_party')
+        matched_license_files = {match['license_file'] for match in matching_results['matched_licenses']}
+        all_license_files = {license.get('name', '') for licenses in extracted_licenses.values()
+                            for license in licenses if license.get('type') == 'third_party'}
         results['extra_licenses'] = list(all_license_files - matched_license_files)
 
         # Determine compliance
