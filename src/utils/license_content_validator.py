@@ -10,7 +10,6 @@ import re
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
-from difflib import SequenceMatcher
 
 logger = logging.getLogger(__name__)
 
@@ -46,6 +45,14 @@ class LicenseContentValidator:
             except Exception as e:
                 logger.warning(f"Failed to load reference license {license_file}: {e}")
 
+    def _get_license_versions(self, license_name: str) -> List[str]:
+        """Get all available versions of a license."""
+        versions = []
+        for ref_license in self._reference_licenses.keys():
+            if ref_license == license_name or ref_license.startswith(f"{license_name}_"):
+                versions.append(ref_license)
+        return versions
+
     def _normalize_license_content(self, content: str) -> str:
         """Normalize license content for comparison."""
         # Remove extra whitespace and normalize line endings
@@ -73,27 +80,20 @@ class LicenseContentValidator:
 
         normalized_content = self._normalize_license_content(license_content)
 
-        # Try exact match first
-        if expected_license in self._reference_licenses:
-            reference_content = self._reference_licenses[expected_license]
-            if normalized_content == reference_content:
-                return True, 1.0, expected_license
+        # Get all available versions of the license
+        license_versions = self._get_license_versions(expected_license)
 
-        # Try fuzzy matching against all reference licenses
-        best_match = None
-        best_score = 0.0
+        if not license_versions:
+            return False, 0, f"No reference versions found for {expected_license}"
 
-        for license_name, reference_content in self._reference_licenses.items():
-            similarity = SequenceMatcher(None, normalized_content, reference_content).ratio()
-            if similarity > best_score:
-                best_score = similarity
-                best_match = license_name
+        # Try to match against all versions
+        for version_name in license_versions:
+            if version_name in self._reference_licenses:
+                reference_content = self._reference_licenses[version_name]
+                if normalized_content == reference_content:
+                    return True, 1.0, version_name
 
-        # Consider it a match if similarity is above 80%
-        if best_score >= 0.8:
-            return True, best_score, best_match
-
-        return False, best_score, best_match or "No match found"
+        return False, 0, f"No exact match found among {len(license_versions)} versions"
 
     def validate_license_file(self, file_path: str, expected_license: str) -> Tuple[bool, float, str]:
         """
@@ -112,7 +112,7 @@ class LicenseContentValidator:
             return self.validate_license_content(content, expected_license)
         except Exception as e:
             logger.error(f"Failed to read license file {file_path}: {e}")
-            return False, 0.0, f"Error reading file: {e}"
+            return False, 0, f"Error reading file: {e}"
 
     def get_available_licenses(self) -> Set[str]:
         """Get set of available reference licenses."""
