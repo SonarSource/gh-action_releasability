@@ -12,6 +12,62 @@ from utils.license_utils import LPSValidator
 logger = logging.getLogger(__name__)
 
 
+class LicenseCheckResult(ReleasabilityCheckResult):
+    """Custom result class for license checks with specialized formatting."""
+
+    def __str__(self):
+        """Custom string representation for license checks."""
+        prefix = self._get_prefix()
+
+        note = ''
+        if self.message is not None:
+            note = f' - {self.message}'
+
+        # Add detailed information if available
+        if self.details:
+            details_str = self._format_license_details()
+            if details_str:
+                note += f'\n{details_str}'
+
+        return f'{prefix} {self.name} {note}'
+
+    def _format_license_details(self) -> str:
+        """Format detailed information specifically for license checks."""
+        if not self.details:
+            return ''
+
+        lines = []
+
+        # Artifact information
+        if 'artifacts' in self.details:
+            artifacts = self.details['artifacts']
+            lines.append(f"📦 Downloaded Artifacts ({len(artifacts)}):")
+            for artifact in artifacts:
+                size_mb = artifact.get('size', 0) / (1024 * 1024)
+                lines.append(f"  • {artifact.get('name', 'Unknown')} ({size_mb:.1f} MB)")
+
+        # Missing licenses
+        if 'missing_licenses' in self.details and self.details['missing_licenses']:
+            missing = self.details['missing_licenses']
+            lines.append(f"❌ Missing Licenses ({len(missing)}):")
+            for license_info in missing:
+                lines.append(f"  • {license_info}")
+
+        # License mismatches
+        if 'license_mismatches' in self.details and self.details['license_mismatches']:
+            mismatches = self.details['license_mismatches']
+            lines.append(f"⚠️  License Mismatches ({len(mismatches)}):")
+            for mismatch_info in mismatches:
+                lines.append(f"  • {mismatch_info}")
+
+        # SBOM coverage
+        if 'sbom_coverage' in self.details:
+            coverage = self.details['sbom_coverage']
+            lines.append(f"📊 SBOM Coverage: {coverage:.1f}%")
+
+        return '\n'.join(lines)
+
+
 class CheckLicenses(InlineCheck):
     """Check for license compliance in the repository."""
 
@@ -59,7 +115,7 @@ class CheckLicenses(InlineCheck):
     def name(self) -> str:
         return "CheckLicenses"
 
-    def execute(self, context: CheckContext) -> ReleasabilityCheckResult:
+    def execute(self, context: CheckContext) -> LicenseCheckResult:
         """
         Execute the license check by downloading and analyzing artifacts.
 
@@ -67,7 +123,7 @@ class CheckLicenses(InlineCheck):
             context: CheckContext containing repository information
 
         Returns:
-            ReleasabilityCheckResult with check status and details
+            LicenseCheckResult with check status and details
         """
         try:
             logger.info(f"Starting license check for {context.repository} version {context.version}")
@@ -76,9 +132,9 @@ class CheckLicenses(InlineCheck):
             sonar_project_key = os.getenv("SONAR_PROJECT_KEY")
             if not sonar_project_key:
                 logger.info("SONAR_PROJECT_KEY not set, bypassing license check")
-                return ReleasabilityCheckResult(
+                return LicenseCheckResult(
                     name=self.name,
-                    state=ReleasabilityCheckResult.CHECK_PASSED,
+                    state=LicenseCheckResult.CHECK_PASSED,
                     message=f"License check bypassed for {context.repository} - SONAR_PROJECT_KEY not configured",
                     details={}
                 )
@@ -104,16 +160,16 @@ class CheckLicenses(InlineCheck):
 
             # Determine check result based on validation
             if validation_results['lps_compliant']:
-                state = ReleasabilityCheckResult.CHECK_PASSED
+                state = LicenseCheckResult.CHECK_PASSED
                 message = self._build_lps_success_message(context, validation_results)
             else:
-                state = ReleasabilityCheckResult.CHECK_FAILED
+                state = LicenseCheckResult.CHECK_FAILED
                 message = self._build_lps_failure_message(context, validation_results)
 
             # Build detailed information for the report
             details = self._build_detailed_information(artifacts, validation_results)
 
-            return ReleasabilityCheckResult(
+            return LicenseCheckResult(
                 name=self.name,
                 state=state,
                 message=message,
@@ -177,20 +233,20 @@ class CheckLicenses(InlineCheck):
 
         return f"License check for {context.repository} - " + ", ".join(message_parts)
 
-    def _create_error_result(self, message: str) -> ReleasabilityCheckResult:
+    def _create_error_result(self, message: str) -> LicenseCheckResult:
         """Create an error result with the given message."""
-        return ReleasabilityCheckResult(
+        return LicenseCheckResult(
             name=self.name,
-            state=ReleasabilityCheckResult.CHECK_ERROR,
+            state=LicenseCheckResult.CHECK_ERROR,
             message=message,
             details={}
         )
 
-    def _create_failed_result(self, message: str) -> ReleasabilityCheckResult:
+    def _create_failed_result(self, message: str) -> LicenseCheckResult:
         """Create a failed result with the given message."""
-        return ReleasabilityCheckResult(
+        return LicenseCheckResult(
             name=self.name,
-            state=ReleasabilityCheckResult.CHECK_FAILED,
+            state=LicenseCheckResult.CHECK_FAILED,
             message=message,
             details={}
         )
@@ -257,7 +313,11 @@ class CheckLicenses(InlineCheck):
             if comparison.get('validation_errors'):
                 mismatches = []
                 for error in comparison['validation_errors']:
-                    mismatch_info = f"{error.get('dependency_name', 'Unknown')} - {error.get('error', 'Validation failed')}"
+                    dependency_name = error.get('dependency_name', 'Unknown')
+                    expected_license = error.get('expected_license', 'Unknown')
+                    matched_license = error.get('matched_license', 'Unknown')
+                    error_msg = error.get('error', 'Validation failed')
+                    mismatch_info = f"{dependency_name} - Expected: {expected_license}, Got: {matched_license} - {error_msg}"
                     mismatches.append(mismatch_info)
                 details['license_mismatches'] = mismatches
 

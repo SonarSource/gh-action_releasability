@@ -45,56 +45,17 @@ class ReleasabilityCheckResult:
             return ''
 
         lines = []
-        self._add_artifact_info(lines)
-        self._add_missing_licenses(lines)
-        self._add_license_mismatches(lines)
-        self._add_sbom_coverage(lines)
+        for key, value in self.details.items():
+            if isinstance(value, list) and value:
+                lines.append(f"{key}: {len(value)} items")
+                for item in value[:5]:  # Show first 5 items
+                    lines.append(f"  • {item}")
+                if len(value) > 5:
+                    lines.append(f"  ... and {len(value) - 5} more")
+            elif value:
+                lines.append(f"{key}: {value}")
 
         return '\n'.join(lines)
-
-    def _add_artifact_info(self, lines: list) -> None:
-        """Add artifact information to lines."""
-        if 'artifacts' not in self.details:
-            return
-
-        artifacts = self.details['artifacts']
-        lines.append(f"📦 Downloaded Artifacts ({len(artifacts)}):")
-        for artifact in artifacts:
-            size_mb = artifact.get('size', 0) / (1024 * 1024)
-            lines.append(f"  • {artifact.get('name', 'Unknown')} ({size_mb:.1f} MB)")
-
-    def _add_missing_licenses(self, lines: list) -> None:
-        """Add missing licenses information to lines."""
-        if 'missing_licenses' not in self.details or not self.details['missing_licenses']:
-            return
-
-        missing = self.details['missing_licenses']
-        lines.append(f"❌ Missing Licenses ({len(missing)}):")
-        self._add_limited_list(lines, missing, 10)
-
-    def _add_license_mismatches(self, lines: list) -> None:
-        """Add license mismatches information to lines."""
-        if 'license_mismatches' not in self.details or not self.details['license_mismatches']:
-            return
-
-        mismatches = self.details['license_mismatches']
-        lines.append(f"⚠️  License Mismatches ({len(mismatches)}):")
-        self._add_limited_list(lines, mismatches, 10)
-
-    def _add_sbom_coverage(self, lines: list) -> None:
-        """Add SBOM coverage information to lines."""
-        if 'sbom_coverage' not in self.details:
-            return
-
-        coverage = self.details['sbom_coverage']
-        lines.append(f"📊 SBOM Coverage: {coverage:.1f}%")
-
-    def _add_limited_list(self, lines: list, items: list, limit: int) -> None:
-        """Add a limited list of items to lines."""
-        for item in items[:limit]:
-            lines.append(f"  • {item}")
-        if len(items) > limit:
-            lines.append(f"  ... and {len(items) - limit} more")
 
     def _get_prefix(self):
         match self.state:
