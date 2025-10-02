@@ -101,11 +101,11 @@ runs:
           echo "  - Cannot end with .git"
           exit 1
         fi
-        if [[ ! "${{ inputs.branch }}" =~ ^[a-zA-Z0-9][a-zA-Z0-9/_.-]*$ ]]; then
+        if [[ ! "${{ inputs.branch }}" =~ ^[a-zA-Z0-9][a-zA-Z0-9/_.\+\-]*$ ]]; then
           echo "::error::Invalid branch name format. Branch names must:"
           echo "  - Start with an alphanumeric character"
-          echo "  - Can contain alphanumeric characters, forward slashes, dots, and hyphens"
-          echo "  - Examples: master, feat/tom/build-1234, release/1.0.0"
+          echo "  - Can contain alphanumeric characters, forward slashes, dots, hyphens, and plus signs"
+          echo "  - Examples: master, feat/tom/build-1234, release/1.0.0, 4.32.0+12345"
           exit 1
         fi
         # inputs.version validation is done in the releasability check
