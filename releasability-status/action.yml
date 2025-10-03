@@ -20,7 +20,7 @@ runs:
       uses: aws-actions/configure-aws-credentials@4fc4975a852c8cd99761e2de1f4ba73402e44dd9 # v4.0.3
       with:
         aws-region: eu-central-1
-        role-to-assume: "arn:aws:iam::064493320159:role/ReleasbilityChecksCICDRole"
+        role-to-assume: "arn:aws:iam::597611216173:role/ReleasbilityChecksCICDRole"
 
     - name: Install requirements
       run: pip install pipenv
