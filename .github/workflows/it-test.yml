@@ -13,7 +13,7 @@ jobs:
     name: "IT Test - releasability checks should fail on sonar-dummy with a wrong version"
     runs-on: github-ubuntu-latest-s
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
       - name: Given the gh-action is used with default values
         id: test-data
         uses: ./
@@ -35,7 +35,7 @@ jobs:
     name: "IT Test - releasability checks should print failing Jira checks on sonar-dummy with a wrong version"
     runs-on: github-ubuntu-latest-s
     steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
+      - uses: actions/checkout@1af3b93b6815bc44a9784bd300feb67ff0d1eeb3 # v6.0.0
       - name: Given the gh-action is used with default values
         id: test-data
         uses: ./
