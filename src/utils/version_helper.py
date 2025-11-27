@@ -22,15 +22,22 @@ class VersionHelper:
         Raises:
         - ValueError: If the version does not match the expected format.
         """
-        if not re.match(VersionHelper.VERSION_REGEX, version):
+        if not version or not isinstance(version, str):
             raise ValueError(
-                'The tag must follow this pattern: [ProjectName-]Major.Minor.Patch[-Mx][.+]BuildNumber\n'
+                f'Version must be a non-empty string. Received: {repr(version)}'
+            )
+        # Strip whitespace in case it was passed with leading/trailing spaces
+        version_stripped = version.strip()
+        if not re.match(VersionHelper.VERSION_REGEX, version_stripped):
+            raise ValueError(
+                'The tag must follow this pattern: [ProjectName-]Major.Minor.Patch[-Mx][.+-]BuildNumber\n'
                 'Where:\n'
                 '- "ProjectName-" is an optional prefix (any sequence of letters followed by a dash).\n'
                 '- "Major.Minor.Patch" is the version number (three numbers separated by dots).\n'
                 '- "-Mx" is an optional suffix (a dash followed by "M" and a number).\n'
-                '- "[.-+]" is a separator, either a dot, a minus or a plus sign.\n'
-                '- "BuildNumber" is the build number (a number at the end of the string).'
+                '- "[.+-]" is a separator, either a dot, a plus sign, or a minus sign.\n'
+                '- "BuildNumber" is the build number (a number at the end of the string).\n'
+                f'Received version: "{version}" (length: {len(version)})'
             )
 
     @staticmethod

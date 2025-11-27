@@ -5,13 +5,35 @@
 
 set -xeuo pipefail
 
-description=$(gh api "/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/status" \
-    --jq '.statuses[] | select(.state == "success" and .context == ("repox-'"$GITHUB_REF_NAME"'")).description')
+# Retry pattern: attempt to fetch description up to 12 times with 5 second delays
+# triggers events and status updates are not always immediately available via the API.
+max_retries=12
+retry_delay=5
+attempt=1
+description=""
+
+while [ $attempt -le $max_retries ]; do
+  description=$(gh api "/repos/$GITHUB_REPOSITORY/commits/$GITHUB_SHA/status" \
+      --jq '.statuses[] | select(.state == "success" and .context == ("repox-'"$GITHUB_REF_NAME"'")).description')
+
+  # Check if description is not empty or null
+  if [ -n "${description}" ] && [ "${description}" != "null" ]; then
+    break
+  fi
+
+  if [ $attempt -lt $max_retries ]; then
+    echo "Description not found (attempt $attempt/$max_retries), retrying in ${retry_delay}s..."
+    sleep $retry_delay
+  fi
+
+  attempt=$((attempt + 1))
+done
+
 version=$(echo "$description" | cut -d\' -f 2)
 if [ -z "${version}" ]; then
   echo "Unable to find promoted version"
   echo "status=skipped" >> "$GITHUB_OUTPUT"
-  exit 0
+  exit 2
 fi
 
 # Validate version format to prevent environment variable injection

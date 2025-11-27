@@ -28,12 +28,22 @@ runs:
 
     # Find latest promoted version from the commit status
     - id: find_version
+      continue-on-error: true
       shell: bash
       working-directory: ${{ github.action_path }}
       run: |
         ./find_version.sh
 
+    - name: Check if version was found
+      if: steps.find_version.outcome != 'success'
+      shell: bash
+      run: |
+        echo "Version not found. Skipping releasability checks."
+        echo "This is expected if no version has been promoted yet."
+        exit 0
+
     - name: Trigger releasability checks
+      if: steps.find_version.outcome == 'success'
       id: checks
       shell: bash
       working-directory: ${{ github.action_path }}/../
@@ -50,7 +60,7 @@ runs:
 
     - name: Parse Releasability check output
       id: parse-releasability
-      if: always()
+      if: always() && steps.find_version.outputs.version != ''
       shell: bash
       working-directory: ${{ github.action_path }}
       env:
@@ -62,6 +72,7 @@ runs:
         pipenv run releasability-status
 
     - name: Print results
+      if: steps.find_version.outputs.version != ''
       env:
         LOGS_OUTPUT: ${{ steps.checks.outputs.logs }}
         EXIT_CODE: ${{ steps.parse-releasability.outputs.status }}
@@ -77,6 +88,7 @@ runs:
 
     - uses: octokit/request-action@dad4362715b7fb2ddedf9772c8670824af564f0d # v2.4.0
       name: Update Commit status to success
+      if: steps.find_version.outputs.version != ''
       with:
         route: 'POST /repos/${{ github.repository_owner }}/${{ github.event.repository.name }}/statuses/${{ github.sha }}'
       env:
