@@ -17,7 +17,7 @@ parameterized = "*"
 github-action-utils = "*"
 
 [requires]
-python_version = "3.10"
+python_version = "3.14"
 
 [scripts]
 releasability = "python3 src/main.py"
