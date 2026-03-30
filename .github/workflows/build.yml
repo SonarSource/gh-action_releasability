@@ -25,16 +25,17 @@ jobs:
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: "3.14"
+      - uses: SonarSource/ci-github-actions/config-pip@v1
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip pipenv
-          pipenv install --dev
+          pipenv install --dev --deploy
       - name: Run tests and generate coverage
         run: |
           mkdir -p build
           pipenv run pytest --cov=src --cov-report xml:build/coverage.xml --cov-report term
           cd releasability-status
-          pipenv install --dev
+          pipenv install --dev --deploy
           pipenv run pytest --cov=src --cov-report xml:../build/coverage-status.xml --cov-report term
           cd ..
       - name: Prepare coverage for SonarCloud

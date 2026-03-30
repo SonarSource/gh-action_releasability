@@ -1,9 +1,9 @@
 SHELL := /bin/bash
 
 test:
-	pipenv install --dev
+	pipenv install --dev --deploy
 	pipenv run pytest
 
 releasability-status:
-	pipenv install
+	pipenv install --deploy
 	pipenv run releasability-status
