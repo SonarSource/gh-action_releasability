@@ -15,6 +15,7 @@ runs:
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
       with:
         python-version: "3.14"
+    - uses: SonarSource/ci-github-actions/config-pip@v1
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@61815dcd50bd041e203e49132bacad1fd04d2708 # v5.1.1
@@ -68,7 +69,7 @@ runs:
         RELEASABILITY_CHECK_RESULT: ${{ toJSON(steps.checks.outputs) }}
         OPTIONAL_CHECKS: ${{ inputs.optional_checks }}
       run: |
-        pipenv install
+        pipenv install --deploy
         pipenv run releasability-status
 
     - name: Print results
