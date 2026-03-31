@@ -21,6 +21,42 @@ class ReleasabilityCheckReportTest(unittest.TestCase):
 
         self.assertFalse(report.contains_error())
 
+    def test_contains_error_for_should_return_false_given_required_check_passes(self):
+        report = ReleasabilityChecksReport([
+            self._build_successful_check("CheckDependencies")
+        ])
+
+        self.assertFalse(report.contains_error_for({"CheckDependencies"}))
+
+    def test_contains_error_for_should_return_true_given_required_check_fails(self):
+        report = ReleasabilityChecksReport([
+            self._build_failed_check("CheckDependencies")
+        ])
+
+        self.assertTrue(report.contains_error_for({"CheckDependencies"}))
+
+    def test_contains_error_for_should_ignore_non_required_failing_checks(self):
+        report = ReleasabilityChecksReport([
+            self._build_successful_check("CheckDependencies"),
+            self._build_failed_check("QA")
+        ])
+
+        self.assertFalse(report.contains_error_for({"CheckDependencies"}))
+
+    def test_contains_error_for_should_return_false_given_empty_required_set(self):
+        report = ReleasabilityChecksReport([
+            self._build_failed_check("CheckDependencies")
+        ])
+
+        self.assertFalse(report.contains_error_for(set()))
+
+    def test_contains_error_for_should_return_false_when_required_check_is_missing(self):
+        report = ReleasabilityChecksReport([
+            self._build_failed_check("QA")
+        ])
+
+        self.assertFalse(report.contains_error_for({"CheckDependencies"}))
+
     def test_get_checks_should_contain_all_added_checks(self):
         check_a = self._build_successful_check("check A")
         check_b = self._build_successful_check("check B")

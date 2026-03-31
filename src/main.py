@@ -8,6 +8,9 @@ from github_action_utils import error, notice, set_output
 
 def do_releasability_checks(organization: str, repository: str, branch: str, version: str, commit_sha: str):
     try:
+        required_checks_raw = os.getenv("INPUT_REQUIRED_CHECKS", "")
+        required_checks = {check.strip() for check in required_checks_raw.split(",") if check.strip()}
+
         releasability = ReleasabilityService()
 
         # Start both inline and lambda checks
@@ -27,7 +30,12 @@ def do_releasability_checks(organization: str, repository: str, branch: str, ver
             name = f'releasability{check.name}'
             set_output(name, check.state)
 
-        if report.contains_error():
+        if required_checks:
+            has_failure = report.contains_error_for(required_checks)
+        else:
+            has_failure = report.contains_error()
+
+        if has_failure:
             error(f"Releasability checks of {version} failed")
             GithubActionHelper.set_output_status("1")
         else:

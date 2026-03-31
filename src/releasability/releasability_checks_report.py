@@ -18,3 +18,10 @@ class ReleasabilityChecksReport:
 
     def contains_error(self) -> bool:
         return any(filter(lambda check: (check.passed is not True), self.__checks))
+
+    def contains_error_for(self, required_check_names: set[str]) -> bool:
+        return any(
+            check.passed is not True
+            for check in self.__checks
+            if check.name in required_check_names
+        )

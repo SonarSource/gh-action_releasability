@@ -21,6 +21,10 @@ inputs:
   commit-sha:
     description: The GitHub commit SHA to use
     required: true
+  required-checks:
+    description: Optional comma-separated check names that must be PASSED to fail/succeed the action
+    required: false
+    default: ""
   releasabily-env:
     description: For development purposes, the environment to use (prod, staging or dev). Defaults to production.
     required: false
@@ -126,6 +130,7 @@ runs:
         INPUT_BRANCH: ${{ inputs.branch }}
         INPUT_VERSION: ${{ inputs.version }}
         INPUT_COMMIT_SHA: ${{ inputs.commit-sha}}
+        INPUT_REQUIRED_CHECKS: ${{ inputs.required-checks }}
         PYTHONUNBUFFERED: "1" # that way logs are printed live
     - name: Print execution
       run: |
