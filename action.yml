@@ -77,7 +77,7 @@ runs:
         dev: "597611216173"
       with:
         aws-region: eu-central-1
-        role-to-assume: "arn:aws:iam::${{ env[inputs.releasabily-env] }}:role/ReleasbilityChecksCICDRole"
+        role-to-assume: "arn:aws:iam::${{ env[inputs.releasabily-env] }}:role/deploymentroles/ReleasbilityChecksCICDRoleV2"
     - name: Install requirements
       run: |
         pip install pipenv
