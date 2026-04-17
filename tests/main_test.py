@@ -105,3 +105,66 @@ class MainTest(unittest.TestCase):
                             do_releasability_checks(organization, repository, branch, version, commit_sha)
 
                             mock_set_output_status.assert_called_once_with("1")
+
+    def test_do_releasability_checks_should_use_default_behavior_when_required_checks_is_empty(self):
+        correlation_id = "fake-correlation-id"
+
+        with patch.dict(os.environ, {"INPUT_REQUIRED_CHECKS": ""}, clear=False):
+            with patch.object(ReleasabilityService, '__init__', return_value=None):
+                with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=(correlation_id, [])):
+                    report = ReleasabilityChecksReport([
+                        ReleasabilityCheckResult("CheckDependencies", ReleasabilityCheckResult.CHECK_PASSED, "it works"),
+                        ReleasabilityCheckResult("QA", ReleasabilityCheckResult.CHECK_FAILED, "it failed"),
+                    ])
+                    with patch.object(ReleasabilityService, 'get_combined_report', return_value=report):
+                        organization = "some-org"
+                        repository = "some-repo"
+                        branch = "some-branch"
+                        version = "4.3.2.1"
+                        commit_sha = "ef1232ad12321"
+
+                        with patch.object(GithubActionHelper, 'set_output_status') as mock_set_output_status:
+                            do_releasability_checks(organization, repository, branch, version, commit_sha)
+                            mock_set_output_status.assert_called_once_with("1")
+
+    def test_do_releasability_checks_should_pass_when_required_checks_pass_even_if_other_checks_fail(self):
+        correlation_id = "fake-correlation-id"
+
+        with patch.dict(os.environ, {"INPUT_REQUIRED_CHECKS": "CheckDependencies"}, clear=False):
+            with patch.object(ReleasabilityService, '__init__', return_value=None):
+                with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=(correlation_id, [])):
+                    report = ReleasabilityChecksReport([
+                        ReleasabilityCheckResult("CheckDependencies", ReleasabilityCheckResult.CHECK_PASSED, "it works"),
+                        ReleasabilityCheckResult("QA", ReleasabilityCheckResult.CHECK_FAILED, "it failed"),
+                    ])
+                    with patch.object(ReleasabilityService, 'get_combined_report', return_value=report):
+                        organization = "some-org"
+                        repository = "some-repo"
+                        branch = "some-branch"
+                        version = "4.3.2.1"
+                        commit_sha = "ef1232ad12321"
+
+                        with patch.object(GithubActionHelper, 'set_output_status') as mock_set_output_status:
+                            do_releasability_checks(organization, repository, branch, version, commit_sha)
+                            mock_set_output_status.assert_called_once_with("0")
+
+    def test_do_releasability_checks_should_fail_when_required_checks_fail(self):
+        correlation_id = "fake-correlation-id"
+
+        with patch.dict(os.environ, {"INPUT_REQUIRED_CHECKS": "CheckDependencies"}, clear=False):
+            with patch.object(ReleasabilityService, '__init__', return_value=None):
+                with patch.object(ReleasabilityService, 'start_releasability_checks', return_value=(correlation_id, [])):
+                    report = ReleasabilityChecksReport([
+                        ReleasabilityCheckResult("CheckDependencies", ReleasabilityCheckResult.CHECK_FAILED, "it failed"),
+                        ReleasabilityCheckResult("QA", ReleasabilityCheckResult.CHECK_PASSED, "it works"),
+                    ])
+                    with patch.object(ReleasabilityService, 'get_combined_report', return_value=report):
+                        organization = "some-org"
+                        repository = "some-repo"
+                        branch = "some-branch"
+                        version = "4.3.2.1"
+                        commit_sha = "ef1232ad12321"
+
+                        with patch.object(GithubActionHelper, 'set_output_status') as mock_set_output_status:
+                            do_releasability_checks(organization, repository, branch, version, commit_sha)
+                            mock_set_output_status.assert_called_once_with("1")
