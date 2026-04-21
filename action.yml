@@ -68,9 +68,9 @@ runs:
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
       with:
         python-version: "3.14"
-    - uses: SonarSource/ci-github-actions/config-pip@v1
+    - uses: SonarSource/ci-github-actions/config-pip@23d3a5700259f9890438851083904c6d5e87ff4e # 1.3.34
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+      uses: aws-actions/configure-aws-credentials@ec61189d14ec14c8efccab744f656cffd0e33f37 # v6.1.0
       env:
         prod: "064493320159"
         staging: "308147251410"
