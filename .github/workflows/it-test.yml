@@ -11,7 +11,7 @@ permissions:
 jobs:
   it-tests-use-unknown-version-values-output:
     name: "IT Test - releasability checks should fail on sonar-dummy with a wrong version"
-    runs-on: github-ubuntu-latest-s
+    runs-on: warp-custom-ubuntu-24-04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Given the gh-action is used with default values
@@ -33,7 +33,7 @@ jobs:
 
   it-tests-use-unknown-version-values-logs:
     name: "IT Test - releasability checks should print failing Jira checks on sonar-dummy with a wrong version"
-    runs-on: github-ubuntu-latest-s
+    runs-on: warp-custom-ubuntu-24-04
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Given the gh-action is used with default values
@@ -55,7 +55,7 @@ jobs:
 
   it-tests:
     name: "All IT Tests have to pass"
-    runs-on: github-ubuntu-latest-s
+    runs-on: warp-custom-ubuntu-24-04
     if: always()
     needs:
       # Add your tests here so that they prevent the merge of broken changes
