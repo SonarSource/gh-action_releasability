@@ -248,7 +248,7 @@ class ReleasabilityService:
                 logger.info(f"Inline check {check_name}: {result.state}")
                 results.append(result)
             except Exception as e:
-                logger.error(f"Inline check {check_name} failed: {e}")
+                logger.exception(f"Inline check {check_name} failed: {e}")
                 error_result = ReleasabilityCheckResult(
                     check_name,
                     ReleasabilityCheckResult.CHECK_ERROR,
