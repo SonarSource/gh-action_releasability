@@ -135,7 +135,8 @@ runs:
         INPUT_BRANCH: ${{ inputs.branch }}
         INPUT_VERSION: ${{ inputs.version }}
         INPUT_COMMIT_SHA: ${{ inputs.commit-sha}}
-        ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
+        # Same Repox base URL as gh-action_release
+        ARTIFACTORY_URL: https://repox.jfrog.io/repox
         ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.artifactory_secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
         PYTHONUNBUFFERED: "1" # that way logs are printed live
     - name: Print execution

@@ -93,3 +93,9 @@ class VersionHelperTest(unittest.TestCase):
             VersionHelper.major_minor_patch_from_artifact_version('1.2.3+4567'),
             '1.2.3',
         )
+
+    def test_major_minor_patch_from_artifact_version_fails_closed(self):
+        with self.assertRaises(ValueError):
+            VersionHelper.major_minor_patch_from_artifact_version('1.2.3.4.5.6')
+        with self.assertRaises(ValueError):
+            VersionHelper.major_minor_patch_from_artifact_version('not-a-version')

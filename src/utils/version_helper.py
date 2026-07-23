@@ -114,18 +114,14 @@ class VersionHelper:
         Normalize a Repox module version to Major.Minor.Patch.
 
         Accepts dotted build versions and semver separators (+/-) before the build number.
+        Fails closed on unexpected formats (no best-effort guessing).
         """
         match = re.match(
             r'^(\d+\.\d+\.\d+(?:-M\d+)?)(?:[.+-]\d+)?$',
             artifact_version.strip(),
         )
         if not match:
-            # Fallback: take first three numeric components
-            components = re.split(r'[.+-]', artifact_version.strip())
-            numeric = [c for c in components if c.isdigit()]
-            if len(numeric) < 3:
-                raise ValueError(
-                    f'Unable to parse Major.Minor.Patch from artifact version: {artifact_version}'
-                )
-            return f'{numeric[0]}.{numeric[1]}.{numeric[2]}'
+            raise ValueError(
+                f'Unable to parse Major.Minor.Patch from artifact version: {artifact_version}'
+            )
         return match.group(1)

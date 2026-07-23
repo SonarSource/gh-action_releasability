@@ -1,11 +1,19 @@
 import os
 from typing import Any, Optional
+from urllib.parse import quote
 
 import requests
 
 
 class ArtifactoryClient:
     """Minimal Repox client for fetching build-info."""
+
+    class FetchError(RuntimeError):
+        """Raised when build-info cannot be fetched."""
+
+        def __init__(self, message: str, status_code: Optional[int] = None):
+            super().__init__(message)
+            self.status_code = status_code
 
     def __init__(self, base_url: str, access_token: str, session: Optional[requests.Session] = None):
         self.base_url = base_url.rstrip('/')
@@ -23,19 +31,23 @@ class ArtifactoryClient:
         return cls(base_url, access_token)
 
     def fetch_build_info(self, build_name: str, build_number: int | str) -> dict[str, Any]:
-        url = f'{self.base_url}/api/build/{build_name}/{build_number}'
+        # Align with gh-action_release Artifactory client (Bearer access token).
+        encoded_name = quote(str(build_name), safe='')
+        encoded_number = quote(str(build_number), safe='')
+        url = f'{self.base_url}/api/build/{encoded_name}/{encoded_number}'
         response = self.session.get(
             url,
-            headers={'X-JFrog-Art-Api': self.access_token},
+            headers={'Authorization': f'Bearer {self.access_token}'},
             timeout=30,
         )
         if response.status_code != 200:
-            raise RuntimeError(
+            raise self.FetchError(
                 f'Failed to fetch build-info for {build_name}:{build_number} '
-                f'(HTTP {response.status_code})'
+                f'(HTTP {response.status_code})',
+                status_code=response.status_code,
             )
         payload = response.json()
         build_info = payload.get('buildInfo')
         if not build_info:
-            raise RuntimeError(f'No buildInfo in response for {build_name}:{build_number}')
+            raise self.FetchError(f'No buildInfo in response for {build_name}:{build_number}')
         return build_info

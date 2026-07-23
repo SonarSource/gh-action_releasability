@@ -28,7 +28,23 @@ class CheckVersionConsistency(InlineCheck):
         build_number = VersionHelper.extract_build_number(context.version)
         input_mmp = VersionHelper.extract_major_minor_patch(context.version)
 
-        build_info = client.fetch_build_info(build_name, build_number)
+        try:
+            build_info = client.fetch_build_info(build_name, build_number)
+        except ArtifactoryClient.FetchError as e:
+            # Missing / differently named builds are common across repos — do not block.
+            # Auth and other infrastructure failures stay blocking (fail-closed).
+            if e.status_code == 404:
+                return ReleasabilityCheckResult(
+                    self.name,
+                    ReleasabilityCheckResult.CHECK_NOT_RELEVANT,
+                    f'could not fetch build-info for {build_name}:{build_number}: {e}',
+                )
+            return ReleasabilityCheckResult(
+                self.name,
+                ReleasabilityCheckResult.CHECK_ERROR,
+                f'could not fetch build-info for {build_name}:{build_number}: {e}',
+            )
+
         modules = build_info.get('modules') or []
         if not modules:
             return ReleasabilityCheckResult(
@@ -77,5 +93,10 @@ class CheckVersionConsistency(InlineCheck):
 
     @staticmethod
     def _extract_trailing_build_number(artifact_version: str) -> Optional[int]:
-        match = re.search(r'[.+-](\d+)$', artifact_version.strip())
+        # Require full Major.Minor.Patch[+optional -Mx]+separator+build to avoid
+        # treating the patch digit of '1.2.3' as a build number.
+        match = re.match(
+            r'^\d+\.\d+\.\d+(?:-M\d+)?[.+-](\d+)$',
+            artifact_version.strip(),
+        )
         return int(match.group(1)) if match else None
