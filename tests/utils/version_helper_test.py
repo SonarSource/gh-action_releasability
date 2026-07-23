@@ -67,3 +67,29 @@ class VersionHelperTest(unittest.TestCase):
     ])
     def test_is_valid_sonar_version_should_raise_no_exception_given_valid_versions(self, valid_version):
         VersionHelper.validate_version(valid_version)
+
+    @parameterized.expand([
+        ('sqs-2026.4.0.125719', '2026.4.0'),
+        ('1.2.3+4567', '1.2.3'),
+        ('1.2.3-4567', '1.2.3'),
+        ('proj-3.2.1-M99.12345', '3.2.1-M99'),
+    ])
+    def test_extract_major_minor_patch(self, version, expected):
+        self.assertEqual(VersionHelper.extract_major_minor_patch(version), expected)
+
+    @parameterized.expand([
+        ('sonar-enterprise', 'sqs-2026.4.0.125719', 'sonar-enterprise-sqs'),
+        ('sonar-dummy', '1.2.3.100', 'sonar-dummy'),
+    ])
+    def test_artifactory_build_name(self, repository, version, expected):
+        self.assertEqual(VersionHelper.artifactory_build_name(repository, version), expected)
+
+    def test_major_minor_patch_from_artifact_version(self):
+        self.assertEqual(
+            VersionHelper.major_minor_patch_from_artifact_version('2026.4.1.125719'),
+            '2026.4.1',
+        )
+        self.assertEqual(
+            VersionHelper.major_minor_patch_from_artifact_version('1.2.3+4567'),
+            '1.2.3',
+        )

@@ -20,6 +20,8 @@ for a list of checks and their description.
 - ParentPOM
 - GitHub
 - CheckManifestValues
+- CheckVersionConsistency (inline) — input Major.Minor.Patch must match Repox build-info module version
+- CheckLicenses (inline)
 
 ### Version 3 and Later
 

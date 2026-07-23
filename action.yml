@@ -56,6 +56,9 @@ outputs:
   releasabilityCheckManifestValues:
     description: Result from releasability check CheckManifestValues
     value: ${{ steps.checks.outputs.releasabilityCheckManifestValues }}
+  releasabilityCheckVersionConsistency:
+    description: Result from releasability check CheckVersionConsistency
+    value: ${{ steps.checks.outputs.releasabilityCheckVersionConsistency }}
   releasabilityCheckLicenses:
     description: Result from releasability check CheckLicenses
     value: ${{ steps.checks.outputs.releasabilityCheckLicenses }}
@@ -78,6 +81,12 @@ runs:
       with:
         aws-region: eu-central-1
         role-to-assume: "arn:aws:iam::${{ env[inputs.releasabily-env] }}:role/deploymentroles/ReleasbilityChecksCICDRoleV2"
+    - name: Fetch Artifactory credentials for inline checks
+      id: artifactory_secrets
+      uses: SonarSource/vault-action-wrapper@881045d830534a70ec3c7c275fa3714412c8ff6e # 3.6.1
+      with:
+        secrets: |
+          development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
     - name: Install requirements
       run: |
         pip install pipenv
@@ -126,6 +135,8 @@ runs:
         INPUT_BRANCH: ${{ inputs.branch }}
         INPUT_VERSION: ${{ inputs.version }}
         INPUT_COMMIT_SHA: ${{ inputs.commit-sha}}
+        ARTIFACTORY_URL: https://repox.jfrog.io/artifactory
+        ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.artifactory_secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
         PYTHONUNBUFFERED: "1" # that way logs are printed live
     - name: Print execution
       run: |
