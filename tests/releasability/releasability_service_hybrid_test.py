@@ -16,12 +16,14 @@ class TestReleasabilityServiceHybrid(unittest.TestCase):
         """Test that inline checks are registered on initialization."""
         inline_checks = self.service.check_registry.get_inline_check_names()
 
-        # Should have CheckLicenses registered
         self.assertIn("CheckLicenses", inline_checks)
+        self.assertIn("CheckVersionConsistency", inline_checks)
 
     def test_execute_inline_checks(self):
         """Test executing inline checks."""
-        # Add a mock check for testing
+        # Replace CheckVersionConsistency with a mock to avoid Repox calls
+        mock_version_check = MockInlineCheck("CheckVersionConsistency")
+        self.service.check_registry.register_inline_check(mock_version_check)
         mock_check = MockInlineCheck("TestCheck")
         self.service.check_registry.register_inline_check(mock_check)
 
@@ -29,17 +31,15 @@ class TestReleasabilityServiceHybrid(unittest.TestCase):
             "sonar", "sonar-dummy", "master", "1.0.0.123", "abc123"
         )
 
-        # Should have results from both CheckLicenses and TestCheck
-        self.assertEqual(len(results), 2)
+        # CheckLicenses + CheckVersionConsistency + TestCheck
+        self.assertEqual(len(results), 3)
 
-        # Check that CheckLicenses result is present
         check_licenses_result = next(
             (r for r in results if r.name == "CheckLicenses"), None
         )
         self.assertIsNotNone(check_licenses_result)
         self.assertEqual(check_licenses_result.state, ReleasabilityCheckResult.CHECK_PASSED)
 
-        # Check that TestCheck result is present
         test_check_result = next(
             (r for r in results if r.name == "TestCheck"), None
         )
@@ -48,7 +48,10 @@ class TestReleasabilityServiceHybrid(unittest.TestCase):
 
     def test_execute_inline_checks_with_error(self):
         """Test that inline check errors are handled gracefully."""
-        # Create a check that raises an exception
+        # Replace CheckVersionConsistency with a mock to avoid Repox calls
+        mock_version_check = MockInlineCheck("CheckVersionConsistency")
+        self.service.check_registry.register_inline_check(mock_version_check)
+
         class FailingCheck(MockInlineCheck):
             def execute(self, context):
                 raise Exception("Test error")
@@ -60,10 +63,9 @@ class TestReleasabilityServiceHybrid(unittest.TestCase):
             "sonar", "sonar-dummy", "master", "1.0.0.123", "abc123"
         )
 
-        # Should have results from CheckLicenses and FailingCheck
-        self.assertEqual(len(results), 2)
+        # CheckLicenses + CheckVersionConsistency + FailingCheck
+        self.assertEqual(len(results), 3)
 
-        # Check that FailingCheck result has ERROR state
         failing_result = next(
             (r for r in results if r.name == "FailingCheck"), None
         )
@@ -121,6 +123,8 @@ class TestReleasabilityServiceHybrid(unittest.TestCase):
         mock_session.return_value.client.return_value = mock_sns_client
 
         service = ReleasabilityService()
+        # Avoid Repox calls from CheckVersionConsistency during this unit test
+        service.check_registry.register_inline_check(MockInlineCheck("CheckVersionConsistency"))
 
         correlation_id, inline_results = service.start_releasability_checks(
             "sonar", "sonar-dummy", "master", "1.0.0.123", "abc123"
@@ -136,6 +140,11 @@ class TestReleasabilityServiceHybrid(unittest.TestCase):
             (r for r in inline_results if r.name == "CheckLicenses"), None
         )
         self.assertIsNotNone(check_licenses_result)
+        version_check_result = next(
+            (r for r in inline_results if r.name == "CheckVersionConsistency"), None
+        )
+        self.assertIsNotNone(version_check_result)
+        self.assertEqual(version_check_result.state, ReleasabilityCheckResult.CHECK_PASSED)
 
 
 if __name__ == '__main__':

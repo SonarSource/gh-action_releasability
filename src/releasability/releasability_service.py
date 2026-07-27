@@ -213,9 +213,11 @@ class ReleasabilityService:
         """Register all inline checks with the registry."""
         # Import inline checks here to avoid circular imports
         from releasability.checks.check_licenses import CheckLicenses
+        from releasability.checks.check_version_consistency import CheckVersionConsistency
 
         # Register inline checks
         self.check_registry.register_inline_check(CheckLicenses())
+        self.check_registry.register_inline_check(CheckVersionConsistency())
 
         logger.info(f"Registered {len(self.check_registry.get_inline_check_names())} inline checks")
 
