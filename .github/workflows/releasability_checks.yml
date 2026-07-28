@@ -34,6 +34,7 @@ on:
           - dev
 
 jobs:
+  # Root composite action (./) — already had Artifactory env from PREQ-7517
   trigger_releasability_checks:
     runs-on: github-ubuntu-latest-s
     permissions:
@@ -49,3 +50,66 @@ jobs:
           version: ${{ github.event.inputs.version }}
           commit-sha: ${{ github.event.inputs.commit-sha }}
           releasabily-env: ${{ github.event.inputs.releasabily-env }}
+
+  # PREQ-7626: same credential + invoke path as releasability-status/action.yml
+  # (status entrypoint does not use the root composite).
+  verify_releasability_status_path:
+    runs-on: github-ubuntu-latest-s
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+
+      - name: Setup python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: "3.14"
+
+      - uses: SonarSource/ci-github-actions/config-pip@v1
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+        with:
+          aws-region: eu-central-1
+          role-to-assume: "arn:aws:iam::064493320159:role/deploymentroles/ReleasbilityChecksCICDRoleV2"
+
+      - name: Fetch Artifactory credentials for inline checks
+        id: artifactory_secrets
+        uses: SonarSource/vault-action-wrapper@881045d830534a70ec3c7c275fa3714412c8ff6e # 3.6.1
+        with:
+          secrets: |
+            development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+
+      - name: Trigger releasability checks (status path)
+        id: checks
+        shell: bash
+        working-directory: ${{ github.workspace }}
+        run: |
+          pip install pipenv
+          pipenv install --deploy
+          pipenv run releasability
+        env:
+          INPUT_ORGANIZATION: ${{ github.event.inputs.organization }}
+          INPUT_REPOSITORY: ${{ github.event.inputs.repository }}
+          INPUT_BRANCH: ${{ github.event.inputs.branch }}
+          INPUT_VERSION: ${{ github.event.inputs.version }}
+          INPUT_COMMIT_SHA: ${{ github.event.inputs.commit-sha }}
+          ARTIFACTORY_URL: https://repox.jfrog.io/repox
+          ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.artifactory_secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
+          PYTHONUNBUFFERED: "1"
+
+      - name: Assert CheckVersionConsistency did not fail on missing env
+        shell: bash
+        env:
+          LOGS: ${{ steps.checks.outputs.logs }}
+        run: |
+          echo "$LOGS"
+          if echo "$LOGS" | grep -Fq "ARTIFACTORY_URL and ARTIFACTORY_ACCESS_TOKEN must be set"; then
+            echo "::error::Still seeing missing ARTIFACTORY env — PREQ-7626 not fixed"
+            exit 1
+          fi
+          if ! echo "$LOGS" | grep -Fq "CheckVersionConsistency"; then
+            echo "::error::CheckVersionConsistency did not run"
+            exit 1
+          fi
+          echo "CheckVersionConsistency ran without missing-env error"
