@@ -43,6 +43,15 @@ runs:
         echo "This is expected if no version has been promoted yet."
         exit 0
 
+    # Required for inline CheckVersionConsistency (same wiring as root action.yml)
+    - name: Fetch Artifactory credentials for inline checks
+      if: steps.find_version.outcome == 'success'
+      id: artifactory_secrets
+      uses: SonarSource/vault-action-wrapper@881045d830534a70ec3c7c275fa3714412c8ff6e # 3.6.1
+      with:
+        secrets: |
+          development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
+
     - name: Trigger releasability checks
       if: steps.find_version.outcome == 'success'
       id: checks
@@ -57,6 +66,9 @@ runs:
         INPUT_BRANCH: ${{ github.ref_name }}
         INPUT_VERSION: ${{ steps.find_version.outputs.version }}
         INPUT_COMMIT_SHA: ${{ github.sha }}
+        # Same Repox base URL as root action.yml / gh-action_release
+        ARTIFACTORY_URL: https://repox.jfrog.io/repox
+        ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.artifactory_secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
         PYTHONUNBUFFERED: "1" # that way logs are printed live
 
     - name: Parse Releasability check output
