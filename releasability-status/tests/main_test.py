@@ -17,7 +17,7 @@ def test_find_failed_checks():
     failed = find_failed_checks(result)
     assert failed == ['QA', 'Jira']
 
-def test_parse_releasability_output_failed():
+def test_parse_releasability_output_failed(monkeypatch):
     result = {
         "releasabilityParentPOM": "NOT_RELEVANT",
         "releasabilityGitHub": "NOT_RELEVANT",
@@ -30,7 +30,7 @@ def test_parse_releasability_output_failed():
         "status": "1"
     }
     temp = tempfile.mktemp()
-    os.environ['GITHUB_OUTPUT'] = temp
+    monkeypatch.setenv('GITHUB_OUTPUT', temp)
     parse_releasability_output('1.0', result, [])
     with open(temp) as f:
         out = f.read().split("\n")
@@ -38,7 +38,7 @@ def test_parse_releasability_output_failed():
         assert out[7] == "✈ 1.0 failed checks -> QA,Jira"
     os.remove(temp)
 
-def test_parse_releasability_output_success():
+def test_parse_releasability_output_success(monkeypatch):
     result = {
         "releasabilityParentPOM": "NOT_RELEVANT",
         "releasabilityGitHub": "NOT_RELEVANT",
@@ -51,7 +51,7 @@ def test_parse_releasability_output_success():
         "status": "0"
     }
     temp = tempfile.mktemp()
-    os.environ['GITHUB_OUTPUT'] = temp
+    monkeypatch.setenv('GITHUB_OUTPUT', temp)
     parse_releasability_output('1.0', result, [])
     with open(temp) as f:
         out = f.read().split("\n")
@@ -59,7 +59,7 @@ def test_parse_releasability_output_success():
         assert out[7] == "✈ 1.0 passed releasability checks"
     os.remove(temp)
 
-def test_parse_releasability_output_optional():
+def test_parse_releasability_output_optional(monkeypatch):
     result = {
         "releasabilityParentPOM": "NOT_RELEVANT",
         "releasabilityGitHub": "NOT_RELEVANT",
@@ -72,7 +72,7 @@ def test_parse_releasability_output_optional():
         "status": "1"
     }
     temp = tempfile.mktemp()
-    os.environ['GITHUB_OUTPUT'] = temp
+    monkeypatch.setenv('GITHUB_OUTPUT', temp)
     parse_releasability_output('1.0', result, ["Jira", "QA"])
     with open(temp) as f:
         out = f.read().split("\n")
