@@ -67,7 +67,8 @@ class ReleasabilityService:
         self.RESULT_TOPIC_ARN = f"{ReleasabilityService.ARN_SNS}:{aws_region}:{aws_account_id}:ReleasabilityResultTopic"
         self.RESULT_QUEUE_ARN = f"{ReleasabilityService.ARN_SQS}:{aws_region}:{aws_account_id}:ReleasabilityResultQueue"
 
-    def start_releasability_checks(self, organization: str, repository: str, branch: str, version: str, commit_sha: str):
+    def start_releasability_checks(self, organization: str, repository: str, branch: str, version: str, commit_sha: str,
+                                   artifactory_build_name: str | None = None):
         VersionHelper.validate_version(version)
 
         print(f"Starting releasability check: {organization}/{repository}#{version}@{commit_sha}")
@@ -80,6 +81,7 @@ class ReleasabilityService:
             branch_name=branch,
             version=version,
             revision=commit_sha,
+            artifactory_build_name=artifactory_build_name,
         )
 
         response = self.session.client("sns").publish(
@@ -97,6 +99,7 @@ class ReleasabilityService:
         branch_name: str,
         revision: str,
         version: str,
+        artifactory_build_name: str | None = None,
     ):
 
         build_number = VersionHelper.extract_build_number(version)
@@ -110,6 +113,8 @@ class ReleasabilityService:
             'artifactoryBuildNumber': build_number,
             'branchName': branch_name,
         }
+        if artifactory_build_name and artifactory_build_name.strip():
+            sns_request['artifactoryBuildName'] = artifactory_build_name.strip()
         return sns_request
 
     @staticmethod
@@ -222,7 +227,8 @@ class ReleasabilityService:
         logger.info(f"Registered {len(self.check_registry.get_inline_check_names())} inline checks")
 
     def execute_inline_checks(self, organization: str, repository: str, branch: str,
-                             version: str, commit_sha: str) -> List[ReleasabilityCheckResult]:
+                             version: str, commit_sha: str,
+                             artifactory_build_name: str | None = None) -> List[ReleasabilityCheckResult]:
         """
         Execute all registered inline checks immediately.
 
@@ -232,11 +238,19 @@ class ReleasabilityService:
             branch: Branch name
             version: Version to check
             commit_sha: Commit SHA
+            artifactory_build_name: Optional Artifactory build name override
 
         Returns:
             List of ReleasabilityCheckResult from inline checks
         """
-        context = CheckContext(organization, repository, branch, version, commit_sha)
+        context = CheckContext(
+            organization,
+            repository,
+            branch,
+            version,
+            commit_sha,
+            artifactory_build_name=artifactory_build_name,
+        )
         results = []
 
         logger.info(f"Executing {len(self.check_registry.get_inline_check_names())} inline checks")
@@ -263,7 +277,8 @@ class ReleasabilityService:
         return results
 
     def start_lambda_checks(self, organization: str, repository: str, branch: str,
-                           version: str, commit_sha: str) -> str:
+                           version: str, commit_sha: str,
+                           artifactory_build_name: str | None = None) -> str:
         """
         Start lambda-based releasability checks.
 
@@ -275,6 +290,7 @@ class ReleasabilityService:
             branch: Branch name
             version: Version to check
             commit_sha: Commit SHA
+            artifactory_build_name: Optional Artifactory build name override
 
         Returns:
             Correlation ID for tracking lambda check results
@@ -291,6 +307,7 @@ class ReleasabilityService:
             branch_name=branch,
             version=version,
             revision=commit_sha,
+            artifactory_build_name=artifactory_build_name,
         )
 
         response = self.session.client("sns").publish(
@@ -328,7 +345,8 @@ class ReleasabilityService:
         return ReleasabilityChecksReport(all_results)
 
     def start_releasability_checks(self, organization: str, repository: str, branch: str,
-                                  version: str, commit_sha: str) -> Tuple[str, List[ReleasabilityCheckResult]]:
+                                  version: str, commit_sha: str,
+                                  artifactory_build_name: str | None = None) -> Tuple[str, List[ReleasabilityCheckResult]]:
         """
         Start both inline and lambda releasability checks.
 
@@ -340,16 +358,21 @@ class ReleasabilityService:
             branch: Branch name
             version: Version to check
             commit_sha: Commit SHA
+            artifactory_build_name: Optional Artifactory build name override
 
         Returns:
             Tuple of (correlation_id, inline_results)
         """
 
         # Start lambda checks
-        correlation_id = self.start_lambda_checks(organization, repository, branch, version, commit_sha)
+        correlation_id = self.start_lambda_checks(
+            organization, repository, branch, version, commit_sha, artifactory_build_name
+        )
 
         # Execute inline checks afterward as they are synchrone giving time for the aws lambda checks to start and run
-        inline_results = self.execute_inline_checks(organization, repository, branch, version, commit_sha)
+        inline_results = self.execute_inline_checks(
+            organization, repository, branch, version, commit_sha, artifactory_build_name
+        )
 
 
         return correlation_id, inline_results

@@ -24,7 +24,11 @@ class CheckVersionConsistency(InlineCheck):
     def execute(self, context: CheckContext) -> ReleasabilityCheckResult:
         client = self._artifactory_client or ArtifactoryClient.from_env()
 
-        build_name = VersionHelper.artifactory_build_name(context.repository, context.version)
+        build_name = VersionHelper.artifactory_build_name(
+            context.repository,
+            context.version,
+            context.artifactory_build_name,
+        )
         build_number = VersionHelper.extract_build_number(context.version)
         input_mmp = VersionHelper.extract_major_minor_patch(context.version)
 

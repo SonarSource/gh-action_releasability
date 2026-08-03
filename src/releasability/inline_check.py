@@ -6,12 +6,21 @@ from .releasability_check_result import ReleasabilityCheckResult
 class CheckContext:
     """Context object containing information needed for check execution."""
 
-    def __init__(self, organization: str, repository: str, branch: str, version: str, commit_sha: str):
+    def __init__(
+        self,
+        organization: str,
+        repository: str,
+        branch: str,
+        version: str,
+        commit_sha: str,
+        artifactory_build_name: Optional[str] = None,
+    ):
         self.organization = organization
         self.repository = repository
         self.branch = branch
         self.version = version
         self.commit_sha = commit_sha
+        self.artifactory_build_name = artifactory_build_name
 
     def __str__(self) -> str:
         return f"{self.organization}/{self.repository}#{self.version}@{self.commit_sha}"

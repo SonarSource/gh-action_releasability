@@ -89,14 +89,20 @@ class VersionHelper:
         return match.group(2)
 
     @staticmethod
-    def artifactory_build_name(repository: str, version: str) -> str:
+    def artifactory_build_name(
+        repository: str,
+        version: str,
+        artifactory_build_name: str | None = None,
+    ) -> str:
         """
         Build name used to fetch Repox build-info (matches ops-releasability).
 
-        Prefixed versions use '{repository}-{prefix}' (e.g. sonar-enterprise-sqs).
+        Prefixed versions use '{base}-{prefix}' (e.g. sonar-enterprise-sqs).
+        When artifactory_build_name is set, it replaces the repository name as the base.
         """
+        base = artifactory_build_name.strip() if artifactory_build_name and artifactory_build_name.strip() else repository
         prefix = VersionHelper.extract_project_prefix(version)
-        return f'{repository}-{prefix}' if prefix else repository
+        return f'{base}-{prefix}' if prefix else base
 
     @staticmethod
     def parse_module_version(module_id: str) -> str:

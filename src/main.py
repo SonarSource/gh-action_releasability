@@ -6,7 +6,14 @@ from utils.github_action_helper import GithubActionHelper
 from github_action_utils import error, notice, set_output
 
 
-def do_releasability_checks(organization: str, repository: str, branch: str, version: str, commit_sha: str):
+def do_releasability_checks(
+    organization: str,
+    repository: str,
+    branch: str,
+    version: str,
+    commit_sha: str,
+    artifactory_build_name: str | None = None,
+):
     try:
         releasability = ReleasabilityService()
 
@@ -16,7 +23,8 @@ def do_releasability_checks(organization: str, repository: str, branch: str, ver
             repository,
             branch,
             version,
-            commit_sha
+            commit_sha,
+            artifactory_build_name=artifactory_build_name or None,
         )
 
         # Get combined report with both inline and lambda results
@@ -41,10 +49,12 @@ def do_releasability_checks(organization: str, repository: str, branch: str, ver
 
 
 if __name__ == "__main__":
+    build_name = os.getenv("INPUT_ARTIFACTORY_BUILD_NAME") or None
     do_releasability_checks(
         organization=os.getenv("INPUT_ORGANIZATION"),
         repository=os.getenv("INPUT_REPOSITORY"),
         branch=os.getenv("INPUT_BRANCH"),
         version=os.getenv("INPUT_VERSION"),
-        commit_sha=os.getenv("INPUT_COMMIT_SHA")
+        commit_sha=os.getenv("INPUT_COMMIT_SHA"),
+        artifactory_build_name=build_name,
     )

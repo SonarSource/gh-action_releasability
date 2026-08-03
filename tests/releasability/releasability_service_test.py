@@ -79,6 +79,41 @@ class ReleasabilityTest(unittest.TestCase):
             assert request['branchName'] == branch_name
 
     @mock.patch('boto3.Session')
+    def test_build_sns_request_hyphenated_org_and_custom_build_name(self, mock_session):
+        session = MagicMock()
+        with patch('boto3.Session', return_value=session):
+            releasability = ReleasabilityService()
+            request = releasability._build_sns_request(
+                correlation_id="uuid-1",
+                organization="my-cool-org",
+                project_name="acq-product",
+                branch_name="master",
+                version="1.2.3.100",
+                revision="abc1234",
+                artifactory_build_name="acq-product-build",
+            )
+
+            assert request['repoSlug'] == "my-cool-org/acq-product"
+            assert request['artifactoryBuildName'] == "acq-product-build"
+            assert request['artifactoryBuildNumber'] == 100
+
+    @mock.patch('boto3.Session')
+    def test_build_sns_request_omits_empty_build_name(self, mock_session):
+        session = MagicMock()
+        with patch('boto3.Session', return_value=session):
+            releasability = ReleasabilityService()
+            request = releasability._build_sns_request(
+                correlation_id="uuid-2",
+                organization="SonarSource",
+                project_name="sonar-dummy",
+                branch_name="master",
+                version="1.2.3.100",
+                revision="abc1234",
+                artifactory_build_name="  ",
+            )
+            assert 'artifactoryBuildName' not in request
+
+    @mock.patch('boto3.Session')
     def test_start_releasability_checks_should_invoke_publish(self, mock_session):
         session = MagicMock()
         mocked_sns_client = MagicMock()

@@ -4,25 +4,31 @@ on:
   workflow_dispatch:
     inputs:
       organization:
-        description: "GitHub organization"
+        description: "GitHub organization (any org in the Sonar GitHub Enterprise)"
         required: true
         default: "SonarSource"
-        type: choice
-        options:
-          - SonarSource
+        type: string
       repository:
         description: "GitHub repository"
         required: true
+        type: string
       branch:
         description: "Branch"
         default: "master"
         required: true
+        type: string
       version:
         description: "The version to check"
         required: true
+        type: string
       commit-sha:
         description: "Commit SHA"
         required: true
+        type: string
+      artifactory-build-name:
+        description: "Optional Artifactory build name override (defaults to repository name)"
+        required: false
+        type: string
       releasabily-env:
         description: "For development purposes, the environment to use. Defaults to production."
         required: false
@@ -48,4 +54,5 @@ jobs:
           branch: ${{ github.event.inputs.branch }}
           version: ${{ github.event.inputs.version }}
           commit-sha: ${{ github.event.inputs.commit-sha }}
+          artifactory-build-name: ${{ github.event.inputs.artifactory-build-name }}
           releasabily-env: ${{ github.event.inputs.releasabily-env }}

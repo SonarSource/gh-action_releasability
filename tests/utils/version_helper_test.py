@@ -78,11 +78,16 @@ class VersionHelperTest(unittest.TestCase):
         self.assertEqual(VersionHelper.extract_major_minor_patch(version), expected)
 
     @parameterized.expand([
-        ('sonar-enterprise', 'sqs-2026.4.0.125719', 'sonar-enterprise-sqs'),
-        ('sonar-dummy', '1.2.3.100', 'sonar-dummy'),
+        ('sonar-enterprise', 'sqs-2026.4.0.125719', None, 'sonar-enterprise-sqs'),
+        ('sonar-dummy', '1.2.3.100', None, 'sonar-dummy'),
+        ('acq-product', '1.2.3.100', 'custom-build', 'custom-build'),
+        ('acq-product', 'sqs-2026.4.0.125719', 'custom-build', 'custom-build-sqs'),
     ])
-    def test_artifactory_build_name(self, repository, version, expected):
-        self.assertEqual(VersionHelper.artifactory_build_name(repository, version), expected)
+    def test_artifactory_build_name(self, repository, version, override, expected):
+        self.assertEqual(
+            VersionHelper.artifactory_build_name(repository, version, override),
+            expected,
+        )
 
     def test_major_minor_patch_from_artifact_version(self):
         self.assertEqual(

@@ -25,6 +25,10 @@ inputs:
     description: For development purposes, the environment to use (prod, staging or dev). Defaults to production.
     required: false
     default: prod
+  artifactory-build-name:
+    description: Optional Artifactory build name override when it differs from the repository name (e.g. duplicate repo names across orgs).
+    required: false
+    default: ""
 outputs:
   status:
     description: Provide the exit code returned by the releasability checks
@@ -127,6 +131,10 @@ runs:
           echo "::error::Invalid environment specified"
           exit 1
         fi
+        if [[ -n "${{ inputs.artifactory-build-name }}" ]] && [[ ! "${{ inputs.artifactory-build-name }}" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$ ]]; then
+          echo "::error::Invalid artifactory-build-name format"
+          exit 1
+        fi
 
         pipenv run releasability
       env:
@@ -135,6 +143,7 @@ runs:
         INPUT_BRANCH: ${{ inputs.branch }}
         INPUT_VERSION: ${{ inputs.version }}
         INPUT_COMMIT_SHA: ${{ inputs.commit-sha}}
+        INPUT_ARTIFACTORY_BUILD_NAME: ${{ inputs.artifactory-build-name }}
         # Same Repox base URL as gh-action_release
         ARTIFACTORY_URL: https://repox.jfrog.io/repox
         ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.artifactory_secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
