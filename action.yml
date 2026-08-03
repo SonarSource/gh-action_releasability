@@ -131,7 +131,7 @@ runs:
           echo "::error::Invalid environment specified"
           exit 1
         fi
-        if [[ -n "${{ inputs.artifactory-build-name }}" ]] && [[ ! "${{ inputs.artifactory-build-name }}" =~ ^[a-zA-Z0-9][a-zA-Z0-9._-]*[a-zA-Z0-9]$ ]]; then
+        if [[ -n "${{ inputs.artifactory-build-name }}" ]] && [[ ! "${{ inputs.artifactory-build-name }}" =~ ^[a-zA-Z0-9]([a-zA-Z0-9._-]*[a-zA-Z0-9])?$ ]]; then
           echo "::error::Invalid artifactory-build-name format"
           exit 1
         fi
