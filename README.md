@@ -257,11 +257,16 @@ permissions:
 For a repository outside `SonarSource` (but inside the Sonar GitHub Enterprise):
 
 1. Workflow permissions include `id-token: write` (OIDC assume-role for releasability).
-2. Org Actions policy allows the public SonarSource actions used here (`gh-action_releasability`, `vault-action-wrapper`, `ci-github-actions/config-pip`, etc.).
-3. Vault has `pipelines.<Org>.repositories.<Repo>` with `private-reader` (and HashiCorp Vault GitHub App installed on the org).
+2. Org Actions policy allows the public SonarSource actions used here
+   (`gh-action_releasability`, `vault-action-wrapper`, `ci-github-actions/config-pip`, etc.).
+3. Vault has `pipelines.<Org>.repositories.<Repo>` with `private-reader`
+   (and HashiCorp Vault GitHub App installed on the org).
 4. `ops-releasability` catalog (`infra/projects.json`) contains an entry for `Org/Repo`.
-5. An available runner label (e.g. `ubuntu-latest` or an enterprise larger runner) — `releasability-status` examples use `sonar-xs`, which may not exist in every org.
-6. After IAM enterprise trust ([BUILD-12094](https://sonarsource.atlassian.net/browse/BUILD-12094)) is deployed, any enterprise org can assume `ReleasbilityChecksCICDRoleV2`.
+5. An available runner label (e.g. `ubuntu-latest` or an enterprise larger runner).
+   `releasability-status` examples use `sonar-xs`, which may not exist in every org.
+6. After IAM enterprise trust
+   ([BUILD-12094](https://sonarsource.atlassian.net/browse/BUILD-12094)) is deployed,
+   any enterprise org can assume `ReleasbilityChecksCICDRoleV2`.
 
 ## Development
 
