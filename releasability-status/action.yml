@@ -10,12 +10,15 @@ inputs:
 runs:
   using: "composite"
   steps:
+    # config-pip must run before setup-python: setup-python's own pip upgrade step
+    # hits public PyPI directly, which fails when direct PyPI/registry egress is blocked.
+    - uses: SonarSource/ci-github-actions/config-pip@v1
+
     - id: setup_python
       name: Setup python
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
       with:
         python-version: "3.14"
-    - uses: SonarSource/ci-github-actions/config-pip@v1
 
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
