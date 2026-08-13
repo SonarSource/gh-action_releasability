@@ -91,10 +91,15 @@ runs:
           development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
     - name: Install requirements
       run: |
+        : "${ARTIFACTORY_USERNAME:?config-pip must export ARTIFACTORY_USERNAME}"
+        : "${ARTIFACTORY_ACCESS_TOKEN:?config-pip must export ARTIFACTORY_ACCESS_TOKEN}"
         pip install pipenv
         pipenv install --deploy
       shell: bash
       working-directory: ${{ github.action_path }}
+      env:
+        ARTIFACTORY_USERNAME: ${{ env.ARTIFACTORY_USERNAME }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ env.ARTIFACTORY_ACCESS_TOKEN }}
     - name: Trigger releasability checks
       id: checks
       shell: bash
@@ -139,6 +144,7 @@ runs:
         INPUT_COMMIT_SHA: ${{ inputs.commit-sha}}
         # Same Repox base URL as gh-action_release
         ARTIFACTORY_URL: https://repox.jfrog.io/repox
+        ARTIFACTORY_USERNAME: ${{ env.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.artifactory_secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
         PYTHONUNBUFFERED: "1" # that way logs are printed live
     - name: Print execution

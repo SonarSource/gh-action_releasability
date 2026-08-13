@@ -63,6 +63,8 @@ runs:
       shell: bash
       working-directory: ${{ github.action_path }}/../
       run: |
+        : "${ARTIFACTORY_USERNAME:?config-pip must export ARTIFACTORY_USERNAME}"
+        : "${ARTIFACTORY_ACCESS_TOKEN:?config-pip must export ARTIFACTORY_ACCESS_TOKEN}"
         pipenv install --deploy
         pipenv run releasability
       env:
@@ -73,6 +75,7 @@ runs:
         INPUT_COMMIT_SHA: ${{ github.sha }}
         # Same Repox base URL as gh-action_release / root action.yml
         ARTIFACTORY_URL: https://repox.jfrog.io/repox
+        ARTIFACTORY_USERNAME: ${{ env.ARTIFACTORY_USERNAME }}
         ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.artifactory_secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
         PYTHONUNBUFFERED: "1" # that way logs are printed live
 
@@ -85,7 +88,11 @@ runs:
         INPUT_VERSION: ${{ steps.find_version.outputs.version }}
         RELEASABILITY_CHECK_RESULT: ${{ toJSON(steps.checks.outputs) }}
         OPTIONAL_CHECKS: ${{ inputs.optional_checks }}
+        ARTIFACTORY_USERNAME: ${{ env.ARTIFACTORY_USERNAME }}
+        ARTIFACTORY_ACCESS_TOKEN: ${{ env.ARTIFACTORY_ACCESS_TOKEN }}
       run: |
+        : "${ARTIFACTORY_USERNAME:?config-pip must export ARTIFACTORY_USERNAME}"
+        : "${ARTIFACTORY_ACCESS_TOKEN:?config-pip must export ARTIFACTORY_ACCESS_TOKEN}"
         pipenv install --deploy
         pipenv run releasability-status
 

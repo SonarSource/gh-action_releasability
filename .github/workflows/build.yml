@@ -28,6 +28,8 @@ jobs:
       - uses: SonarSource/ci-github-actions/config-pip@v1
       - name: Install dependencies
         run: |
+          : "${ARTIFACTORY_USERNAME:?config-pip must export ARTIFACTORY_USERNAME}"
+          : "${ARTIFACTORY_ACCESS_TOKEN:?config-pip must export ARTIFACTORY_ACCESS_TOKEN}"
           python -m pip install --upgrade pip pipenv
           pipenv install --dev --deploy
       - name: Run tests and generate coverage
