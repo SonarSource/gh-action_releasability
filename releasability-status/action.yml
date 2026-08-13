@@ -55,6 +55,7 @@ runs:
       uses: SonarSource/vault-action-wrapper@881045d830534a70ec3c7c275fa3714412c8ff6e # 3.6.1
       with:
         secrets: |
+          development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader username | ARTIFACTORY_USERNAME;
           development/artifactory/token/{REPO_OWNER_NAME_DASH}-private-reader access_token | ARTIFACTORY_ACCESS_TOKEN;
 
     - name: Trigger releasability checks
@@ -73,6 +74,7 @@ runs:
         INPUT_COMMIT_SHA: ${{ github.sha }}
         # Same Repox base URL as gh-action_release / root action.yml
         ARTIFACTORY_URL: https://repox.jfrog.io/repox
+        ARTIFACTORY_USERNAME: ${{ fromJSON(steps.artifactory_secrets.outputs.vault).ARTIFACTORY_USERNAME }}
         ARTIFACTORY_ACCESS_TOKEN: ${{ fromJSON(steps.artifactory_secrets.outputs.vault).ARTIFACTORY_ACCESS_TOKEN }}
         PYTHONUNBUFFERED: "1" # that way logs are printed live
 

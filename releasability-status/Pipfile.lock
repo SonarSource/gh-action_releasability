@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "162723d5956f12e6ec23697c6035f8df106e533f8661393a526c5cd62a331348"
+            "sha256": "997af85ecc6490f3870f3c472ea043d028b53d1220261e7afd172e7f50d0ad67"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -10,7 +10,7 @@
         "sources": [
             {
                 "name": "pypi",
-                "url": "https://pypi.org/simple",
+                "url": "https://${ARTIFACTORY_USERNAME}:${ARTIFACTORY_ACCESS_TOKEN}@repox.jfrog.io/artifactory/api/pypi/sonarsource-pypi/simple",
                 "verify_ssl": true
             }
         ]
