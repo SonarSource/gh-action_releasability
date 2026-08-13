@@ -68,14 +68,8 @@ runs:
   steps:
     # config-pip must run before setup-python: setup-python's own pip upgrade step
     # hits public PyPI directly, which fails when direct PyPI/registry egress is blocked.
+    # It also exports the Artifactory credentials used by the scoped Pipenv mirror below.
     - uses: SonarSource/ci-github-actions/config-pip@v1
-    - name: Configure Pipenv mirror
-      shell: bash
-      run: |
-        pipenv_mirror="https://${ARTIFACTORY_USERNAME}:${ARTIFACTORY_ACCESS_TOKEN}@repox.jfrog.io/artifactory/api/pypi/sonarsource-pypi/simple"
-        echo "::add-mask::$pipenv_mirror"
-        echo "PIPENV_PYPI_MIRROR=$pipenv_mirror" >> "$GITHUB_ENV"
-
     - id: setup_python
       name: Setup python
       uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
@@ -99,7 +93,10 @@ runs:
     - name: Install requirements
       run: |
         pip install pipenv
-        pipenv install --deploy
+        pipenv_mirror_host="repox.jfrog.io/artifactory/api/pypi/sonarsource-pypi/simple"
+        pipenv_mirror="https://${ARTIFACTORY_USERNAME}:${ARTIFACTORY_ACCESS_TOKEN}@${pipenv_mirror_host}"
+        echo "::add-mask::$pipenv_mirror"
+        PIPENV_PYPI_MIRROR="$pipenv_mirror" pipenv install --deploy
       shell: bash
       working-directory: ${{ github.action_path }}
     - name: Trigger releasability checks
