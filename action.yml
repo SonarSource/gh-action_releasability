@@ -105,7 +105,7 @@ runs:
       working-directory: ${{ github.action_path }}
       run: |
         # Validate inputs before using them
-        if [[ ! "${{ inputs.organization }}" =~ ^[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]$ ]]; then
+        if [[ ! "${{ inputs.organization }}" =~ ^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$ ]]; then
           echo "::error::Invalid organization name format"
           exit 1
         fi

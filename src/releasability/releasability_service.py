@@ -67,28 +67,6 @@ class ReleasabilityService:
         self.RESULT_TOPIC_ARN = f"{ReleasabilityService.ARN_SNS}:{aws_region}:{aws_account_id}:ReleasabilityResultTopic"
         self.RESULT_QUEUE_ARN = f"{ReleasabilityService.ARN_SQS}:{aws_region}:{aws_account_id}:ReleasabilityResultQueue"
 
-    def start_releasability_checks(self, organization: str, repository: str, branch: str, version: str, commit_sha: str):
-        VersionHelper.validate_version(version)
-
-        print(f"Starting releasability check: {organization}/{repository}#{version}@{commit_sha}")
-
-        correlation_id = str(uuid.uuid4())
-        sns_request = self._build_sns_request(
-            correlation_id=correlation_id,
-            organization=organization,
-            project_name=repository,
-            branch_name=branch,
-            version=version,
-            revision=commit_sha,
-        )
-
-        response = self.session.client("sns").publish(
-            TopicArn=self.TRIGGER_TOPIC_ARN,
-            Message=str(sns_request),
-        )
-        print(f"Issued SNS message {response['MessageId']}; the request identifier is {correlation_id}")
-        return correlation_id
-
     def _build_sns_request(
         self,
         correlation_id: str,
