@@ -225,14 +225,19 @@ steps:
     -   uses: SonarSource/gh-action_releasability@v3
         id: releasability-checks
         with:
-            organization:
-            repository:
+            organization: ${{ github.repository_owner }}
+            repository: ${{ github.event.repository.name }}
             branch:
             version:
             commit-sha:
 ```
 
-The following permission is required:
+`organization` is the GitHub organization that owns the repository under check. Pass
+`${{ github.repository_owner }}` from the calling workflow. Callers that already pass their
+owner do not need to change.
+
+The calling organization must allow this action (and the actions it uses). The workflow must
+have `id-token: write`:
 
 ```yaml
 permissions:
@@ -243,7 +248,7 @@ permissions:
 
 | Option name       | Description                                                                     | Default |
 |-------------------|---------------------------------------------------------------------------------|---------|
-| `organization`    | The GitHub organization used (i.e: SonarSource)                                 | -       |
+| `organization`    | GitHub organization that owns the repository                                    | -       |
 | `repository`      | The GitHub repository name                                                      | -       |
 | `branch`          | The GitHub repository branch name                                               | -       |
 | `version`         | The version to check (`[prefix-]major.minor.patch.build_number`)                | -       |

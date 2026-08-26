@@ -4,12 +4,10 @@ on:
   workflow_dispatch:
     inputs:
       organization:
-        description: "GitHub organization"
+        description: "GitHub organization that owns the repository"
         required: true
         default: "SonarSource"
-        type: choice
-        options:
-          - SonarSource
+        type: string
       repository:
         description: "GitHub repository"
         required: true
