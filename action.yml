@@ -69,10 +69,10 @@ runs:
     # config-pip must run before setup-python: setup-python's own pip upgrade step
     # hits public PyPI directly, which fails when direct PyPI/registry egress is blocked.
     # It also exports the Artifactory credentials used by the scoped Pipenv mirror below.
-    - uses: SonarSource/ci-github-actions/config-pip@v1
+    - uses: SonarSource/ci-github-actions/config-pip@d41706a4180f70b6c0d0479795309a6c99726022 # 2.0.0
     - id: setup_python
       name: Setup python
-      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
       with:
         python-version: "3.14"
     - name: Configure AWS Credentials
