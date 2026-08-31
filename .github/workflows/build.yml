@@ -14,18 +14,18 @@ jobs:
       contents: read
     steps:
       - id: secrets
-        uses: SonarSource/vault-action-wrapper@545e7cfbb5528e7009a1edcc83e073898d292627 # 3.2.0
+        uses: SonarSource/vault-action-wrapper@881045d830534a70ec3c7c275fa3714412c8ff6e # 3.6.1
         with:
           secrets: |
             development/kv/data/sonarcloud token | sonarcloud_token;
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
         with:
           fetch-depth: 0 # Shallow clones should be disabled for a better relevancy of analysis
       - name: Set up Python
-        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
         with:
           python-version: "3.14"
-      - uses: SonarSource/ci-github-actions/config-pip@v1
+      - uses: SonarSource/ci-github-actions/config-pip@983645f538ff01044b1e567adb23e6f527d8b52a # 1.8.9
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip pipenv
