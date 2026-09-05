@@ -72,11 +72,11 @@ runs:
     - uses: SonarSource/ci-github-actions/config-pip@v1
     - id: setup_python
       name: Setup python
-      uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+      uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6.3.0
       with:
         python-version: "3.14"
     - name: Configure AWS Credentials
-      uses: aws-actions/configure-aws-credentials@8df5847569e6427dd6c4fb1cf565c83acfa8afa7 # v6.0.0
+      uses: aws-actions/configure-aws-credentials@e6de054238d6b7531b4efff3b6587d9aade6a06c # v6.2.3
       env:
         prod: "064493320159"
         staging: "308147251410"
