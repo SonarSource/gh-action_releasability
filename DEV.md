@@ -14,7 +14,7 @@ At the moment, GitHub branch protection do not allow to define checks based
 on a REGEX as we can find in other CI tools such as Jenkins.
 
 In order to work around this limitation this project make
-use of [re-actors/alls-green](https://github.com/re-actors/alls-green).
+use of [step-security/alls-green](https://github.com/step-security/alls-green) (a StepSecurity-maintained fork of re-actors/alls-green).
 
 All tests have to be declared in `.github/workflows/it-test.yml`
 the job called `it-tests` declares a list of needs:
