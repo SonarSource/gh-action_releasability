@@ -15,7 +15,7 @@
           contents: write
         steps:
           - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
-          - uses: jdx/mise-action@e79ddf65a11cec7b0e882bedced08d6e976efb2d # v3.6.2
+          - uses: step-security/mise-action@0cfc136763188a12ec27b4b2a18963b1963e2004 # v3.6.2
             with:
               version: 2026.2.3
           - name: Run IRIS Analysis
