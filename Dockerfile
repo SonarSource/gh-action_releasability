@@ -1,4 +1,4 @@
-FROM python:3.14-slim@sha256:fa0acdcd760f0bf265bc2c1ee6120776c4d92a9c3a37289e17b9642ad2e5b83b AS build-env
+FROM python:3.15-slim@sha256:65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928 AS build-env
 ADD . /app
 WORKDIR /app
 RUN pip install --upgrade pip
@@ -6,7 +6,7 @@ RUN pip install pipenv
 RUN pipenv requirements > requirements.txt
 RUN pip install --target=/app -r requirements.txt
 
-FROM python:3.14-slim@sha256:fa0acdcd760f0bf265bc2c1ee6120776c4d92a9c3a37289e17b9642ad2e5b83b
+FROM python:3.15-slim@sha256:65a65fc7b30b06cb6df4930fd4650697cb23f4c2698ab81fc87e4b031bc36928
 COPY --from=build-env /app /app
 
 ENV PYTHONPATH=/app
